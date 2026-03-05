@@ -1,21 +1,4 @@
 {
-  "population": {
-    "total": 12000,
-    "age_0_1": 220,
-    "age_1_3": 430,
-    "age_0_3": 650,
-    "age_1_6": 1280,
-    "age_0_6": 1500,
-    "age_3_6": 850,
-    "age_6_12": 1200,
-    "age_11_18": 1100,
-    "age_12_18": 1050,
-    "age_70_plus": 1400
-  },
-  "globals": {
-    "housing_units": 4500,
-    "settlement_type": "B"
-  },
   "rules": [
     {
       "category": "Education",
@@ -57,6 +40,28 @@
       "land_expr": "33",
       "notes": "Model mix example: 1x30, 1x36 classes."
     },
+
+       {
+      "category": "Health",
+      "service": "Family health station (Tipat Halav)",
+      "basis": "age_0_6",
+      "rule_text": "0-1: 100%; 1-6: 20%; staffing: 1 nurse / (100 infants + 375 toddlers)",
+      "required_expr": "age_0_1 + (age_1_6 * 0.2)",
+      "built_expr": "",
+      "land_expr": "",
+      "notes": "No dedicated land/build quotas defined in this rule set."
+    },
+    {
+      "category": "Health",
+      "service": "Neighborhood clinic",
+      "basis": "total",
+      "rule_text": "Avoid dedicated plot; minimum plot 0.5 dunam only if combined",
+      "required_expr": "1",
+      "built_expr": "400",
+      "land_expr": "0",
+      "notes": "Represents a medium clinic (300-500 sqm built)."
+    },
+    
     {
       "category": "Culture & Community",
       "service": "Youth club / youth movement",
@@ -97,26 +102,7 @@
       "land_expr": "",
       "notes": "Small center baseline."
     },
-    {
-      "category": "Health",
-      "service": "Family health station (Tipat Halav)",
-      "basis": "age_0_6",
-      "rule_text": "0-1: 100%; 1-6: 20%; staffing: 1 nurse / (100 infants + 375 toddlers)",
-      "required_expr": "age_0_1 + (age_1_6 * 0.2)",
-      "built_expr": "",
-      "land_expr": "",
-      "notes": "No dedicated land/build quotas defined in this rule set."
-    },
-    {
-      "category": "Health",
-      "service": "Neighborhood clinic",
-      "basis": "total",
-      "rule_text": "Avoid dedicated plot; minimum plot 0.5 dunam only if combined",
-      "required_expr": "1",
-      "built_expr": "400",
-      "land_expr": "0",
-      "notes": "Represents a medium clinic (300-500 sqm built)."
-    },
+ 
     {
       "category": "Welfare",
       "service": "Welfare office (branch)",

@@ -1,4 +1,4 @@
-import json
+﻿import json
 import math
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
@@ -7,8 +7,8 @@ import pandas as pd
 import streamlit as st
 
 
-# ---------------------------------------------------------
-# Utility
+# --how to run--------------------------------------------
+# D:\python\Python313\Scripts\streamlit.exe run .\calculator_1.py
 # ---------------------------------------------------------
 
 def _get_path(d: Dict[str, Any], path: str, default=None):
@@ -201,111 +201,22 @@ def run_rules(pop_json: Dict[str, Any], rules_json: Dict[str, Any]) -> pd.DataFr
     cols = ["category", "service", "basis", "rule", "required_units", "built_sqm", "land_dunam", "notes"]
     df = df[cols]
     return df
-
-
+def load_json_file(path: str, fallback: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            return data
+    except Exception:
+        pass
+    return fallback
 # ---------------------------------------------------------
 # Streamlit GUI
 # ---------------------------------------------------------
 
-st.set_page_config(page_title="Population → Public Services Simulator", layout="wide")
-st.title("Population → Public Services Simulator (JSON-in / JSON-rules)")
-st.caption("GUI שמקבל חתך אוכלוסייה כ-JSON וחוקי חישוב כ-JSON ומחזיר טבלת תוצאות. "
-           "אם משהו נשבר — זה כנראה כי JSON החליט להיות יצירתי. 🙃")
-
-default_population = {
-    "population": {
-        "total": 12000,
-        "age_0_3": 650,
-        "age_3_6": 850,
-        "age_6_12": 1200,
-        "age_12_18": 1050,
-        "age_70_plus": 1400
-    },
-    "globals": {
-        "housing_units": 4500,
-        "settlement_type": "B"
-    }
-}
-
-default_rules = {
-    "globals": {
-        # defaults if not provided by population.globals
-        "housing_units": 0,
-        "settlement_type": "B"
-    },
-    "rules": [
-        {
-            "category": "Education",
-            "service": "Daycare (0–3) – classes",
-            "basis": "age_0_3",
-            "rule_text": "50% participation / 20 kids per class",
-            "required_expr": "ceil_div(age_0_3 * 0.5, 20)",
-            "built_expr": "",
-            "land_expr": "",
-            "notes": "Operational thresholds can be implemented as a post-rule if needed."
-        },
-        {
-            "category": "Education",
-            "service": "Kindergarten (3–6) – classes",
-            "basis": "age_3_6",
-            "rule_text": "100% / 30 kids per class",
-            "required_expr": "ceil_div(age_3_6, 30)",
-            "built_expr": "ceil_div(age_3_6, 30) * 130",
-            "land_expr": "ceil_div(age_3_6, 30) * 0.5",
-            "notes": "Built is class rooms; yard not included here."
-        },
-        {
-            "category": "Open Space",
-            "service": "Doorstep open space",
-            "basis": "total",
-            "rule_text": "5 m² per resident",
-            "required_expr": "total * 5",
-            "built_expr": "",
-            "land_expr": "(total * 5) / 1000",
-            "notes": "Land in dunam = sqm/1000"
-        },
-        {
-            "category": "Citywide",
-            "service": "Citywide services basket",
-            "basis": "total + housing_units",
-            "rule_text": "≤500:0 | 500–5000:0.3 m²/res | >5000:0.8 m²/res",
-            "required_expr": "0 if housing_units < 500 else (total * 0.3 if housing_units <= 5000 else total * 0.8)",
-            "built_expr": "",
-            "land_expr": "(0 if housing_units < 500 else (total * 0.3 if housing_units <= 5000 else total * 0.8)) / 1000",
-            "notes": "This returns sqm requirement; land is derived."
-        },
-        {
-            "category": "Health",
-            "service": "Primary care clinic",
-            "basis": "total",
-            "rule_text": "1 clinic per 12000 residents",
-            "required_expr": "ceil_div(total, 12000)",
-            "built_expr": "ceil_div(total, 12000) * 1200",
-            "land_expr": "ceil_div(total, 12000) * 1.8",
-            "notes": "Baseline community clinic standard."
-        },
-        {
-            "category": "Welfare",
-            "service": "Welfare service center",
-            "basis": "total",
-            "rule_text": "1 center per 20000 residents",
-            "required_expr": "ceil_div(total, 20000)",
-            "built_expr": "ceil_div(total, 20000) * 900",
-            "land_expr": "ceil_div(total, 20000) * 1.2",
-            "notes": "Can be shared across adjacent neighborhoods."
-        },
-        {
-            "category": "Culture",
-            "service": "Community library",
-            "basis": "total",
-            "rule_text": "1 library per 25000 residents",
-            "required_expr": "ceil_div(total, 25000)",
-            "built_expr": "ceil_div(total, 25000) * 1500",
-            "land_expr": "ceil_div(total, 25000) * 2.0",
-            "notes": "Library and learning center footprint."
-        }
-    ]
-}
+st.set_page_config(page_title="Public Services Simulator", layout="wide")
+st.title("Public Services Simulator for Urban Planners")
+st.caption("Input population and rules as JSON, get a table of required services, built area, and land area. Designed for urban planners to quickly test different scenarios and rulesets.")
 
 def extract_declared_categories(rules_json: Dict[str, Any]) -> List[str]:
     categories: List[str] = []
@@ -322,9 +233,9 @@ def extract_declared_categories(rules_json: Dict[str, Any]) -> List[str]:
     return categories
 
 if "pop_text" not in st.session_state:
-    st.session_state["pop_text"] = json.dumps(default_population, ensure_ascii=False, indent=2)
+    st.session_state["pop_text"] = json.dumps(load_json_file("population.json", {"population": {}, "globals": {}}), ensure_ascii=False, indent=2)
 if "rules_text" not in st.session_state:
-    st.session_state["rules_text"] = json.dumps(default_rules, ensure_ascii=False, indent=2)
+    st.session_state["rules_text"] = json.dumps(load_json_file("rules.json", {"rules": []}), ensure_ascii=False, indent=2)
 
 st.subheader("Simulation Results")
 if "df_result" in st.session_state:
@@ -423,3 +334,4 @@ if run:
     st.session_state["df_result"] = df
     st.session_state["declared_categories"] = extract_declared_categories(rules_json)
     st.rerun()
+

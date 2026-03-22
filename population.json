@@ -1,0 +1,19 @@
+{
+  "population": {
+    "total": 12000,
+    "age_0_1": 220,
+    "age_1_3": 430,
+    "age_0_3": 650,
+    "age_1_6": 1280,
+    "age_0_6": 1500,
+    "age_3_6": 850,
+    "age_6_12": 1200,
+    "age_11_18": 1100,
+    "age_12_18": 1050,
+    "age_70_plus": 1400
+  },
+  "globals": {
+    "housing_units": 4500,
+    "settlement_type": "B"
+  }
+}

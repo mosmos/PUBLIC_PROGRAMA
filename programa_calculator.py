@@ -304,6 +304,52 @@ def version_count_for(sim_id: str) -> int:
     return row[0] if row else 0
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# File loaders – population histogram & rules
+# ─────────────────────────────────────────────────────────────────────────────
+
+def load_population_from_histogram(source) -> Dict:
+    """Derive cohort dict from an age-histogram JSON (ages 0–120).
+
+    source: file path (str / Path) or raw bytes.
+    JSON format:
+        { "histogram": {"0": n, "1": n, ..., "120": n}, "globals": {...} }
+    Returns a population dict ready to assign to scenario["population"].
+    """
+    if isinstance(source, (str, Path)):
+        with open(source, encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = json.loads(source.decode("utf-8") if isinstance(source, bytes) else source)
+
+    hist = data.get("histogram", {})
+
+    def age_sum(from_age: int, to_age_excl: int) -> int:
+        return sum(int(hist.get(str(a), 0)) for a in range(from_age, to_age_excl))
+
+    population = {
+        "total":      age_sum(0, 121),
+        "age_0_1":    age_sum(0, 1),
+        "age_0_3":    age_sum(0, 3),
+        "age_1_6":    age_sum(1, 6),
+        "age_0_6":    age_sum(0, 6),
+        "age_3_6":    age_sum(3, 6),
+        "age_6_12":   age_sum(6, 12),
+        "age_12_18":  age_sum(12, 18),
+        "age_70_plus": age_sum(70, 121),
+    }
+    globals_ = data.get("globals", {"housing_units": 4500, "settlement_type": "B"})
+    return {"population": population, "globals": globals_}
+
+
+def load_rules_from_file(source) -> Dict:
+    """Load a rules JSON from a file path or raw bytes."""
+    if isinstance(source, (str, Path)):
+        with open(source, encoding="utf-8") as f:
+            return json.load(f)
+    return json.loads(source.decode("utf-8") if isinstance(source, bytes) else source)
+
+
 SCENARIO_TYPES = ["local_program", "regional_program", "plan_delta_program"]
 STATUS_OPTIONS = ["draft", "in_review", "approved", "archived"]
 SETTLEMENT_TYPES = ["A", "B", "C"]
@@ -529,16 +575,16 @@ html, body, [class*="css"] {
     font-family: 'IBM Plex Sans', sans-serif;
 }
 
-/* Dark sidebar */
+/* Light sidebar */
 [data-testid="stSidebar"] {
-    background: #0d1117 !important;
-    border-right: 1px solid #1e2a38;
+    background: #f6f8fa !important;
+    border-right: 1px solid #d0d7de;
 }
-[data-testid="stSidebar"] * { color: #c9d1d9 !important; }
+[data-testid="stSidebar"] * { color: #24292f !important; }
 [data-testid="stSidebar"] .stButton > button {
     background: transparent !important;
-    border: 1px solid #30363d !important;
-    color: #c9d1d9 !important;
+    border: 1px solid #d0d7de !important;
+    color: #24292f !important;
     font-family: 'IBM Plex Mono', monospace !important;
     font-size: 0.78rem !important;
     width: 100%;
@@ -549,23 +595,23 @@ html, body, [class*="css"] {
     transition: all 0.15s;
 }
 [data-testid="stSidebar"] .stButton > button:hover {
-    background: #1c2d42 !important;
-    border-color: #388bfd !important;
-    color: #58a6ff !important;
+    background: #ddf4ff !important;
+    border-color: #0969da !important;
+    color: #0969da !important;
 }
 
 /* Top-level metric cards */
 .kpi-row { display: flex; gap: 12px; margin-bottom: 20px; }
 .kpi-card {
     flex: 1;
-    background: #161b22;
-    border: 1px solid #21262d;
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
     border-radius: 10px;
     padding: 16px 18px;
 }
 .kpi-card .label {
     font-size: 0.72rem;
-    color: #8b949e;
+    color: #57606a;
     text-transform: uppercase;
     letter-spacing: .08em;
     font-family: 'IBM Plex Mono', monospace;
@@ -573,20 +619,20 @@ html, body, [class*="css"] {
 .kpi-card .value {
     font-size: 1.8rem;
     font-weight: 600;
-    color: #e6edf3;
+    color: #1f2328;
     margin-top: 4px;
     font-family: 'IBM Plex Mono', monospace;
 }
 .kpi-card .sub {
     font-size: 0.72rem;
-    color: #8b949e;
+    color: #57606a;
     margin-top: 2px;
 }
 
 /* Scenario card */
 .sc-card {
-    background: #161b22;
-    border: 1px solid #21262d;
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
     border-radius: 10px;
     padding: 16px 20px;
     margin-bottom: 10px;
@@ -596,23 +642,23 @@ html, body, [class*="css"] {
     align-items: center;
     gap: 16px;
 }
-.sc-card:hover { border-color: #388bfd; background: #1c2d42; }
-.sc-card.active { border-color: #388bfd; background: #1c2d42; }
+.sc-card:hover { border-color: #0969da; background: #ddf4ff; }
+.sc-card.active { border-color: #0969da; background: #ddf4ff; }
 .sc-card .sc-name {
     font-weight: 600;
-    color: #e6edf3;
+    color: #1f2328;
     font-size: 0.95rem;
 }
 .sc-card .sc-meta {
     font-size: 0.75rem;
-    color: #8b949e;
+    color: #57606a;
     margin-top: 3px;
     font-family: 'IBM Plex Mono', monospace;
 }
 .sc-card .sc-badge {
     margin-left: auto;
     font-size: 0.72rem;
-    color: #8b949e;
+    color: #57606a;
     white-space: nowrap;
 }
 
@@ -620,80 +666,80 @@ html, body, [class*="css"] {
 .sec-header {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.72rem;
-    color: #8b949e;
+    color: #57606a;
     text-transform: uppercase;
     letter-spacing: .1em;
     margin-bottom: 10px;
     margin-top: 4px;
-    border-bottom: 1px solid #21262d;
+    border-bottom: 1px solid #d0d7de;
     padding-bottom: 6px;
 }
 
 /* Table tweaks */
 .result-table th {
-    background: #161b22 !important;
-    color: #8b949e !important;
+    background: #f6f8fa !important;
+    color: #57606a !important;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.72rem;
     text-transform: uppercase;
 }
 
 /* Main background */
-.main .block-container { background: #0d1117; padding-top: 1.5rem; }
-body { background: #0d1117; }
+.main .block-container { background: #ffffff; padding-top: 1.5rem; }
+body { background: #ffffff; }
 
 /* Page title */
 .page-title {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 1.3rem;
     font-weight: 600;
-    color: #e6edf3;
+    color: #1f2328;
     margin-bottom: 4px;
 }
 .page-sub {
     font-size: 0.8rem;
-    color: #8b949e;
+    color: #57606a;
     margin-bottom: 20px;
 }
 
 /* Workbench tabs */
 .tab-bar { display: flex; gap: 6px; margin-bottom: 20px; }
 .tab-btn {
-    background: #161b22;
-    border: 1px solid #21262d;
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
     border-radius: 8px;
     padding: 7px 18px;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.78rem;
-    color: #8b949e;
+    color: #57606a;
     cursor: pointer;
 }
 .tab-btn.active {
-    background: #1c2d42;
-    border-color: #388bfd;
-    color: #58a6ff;
+    background: #ddf4ff;
+    border-color: #0969da;
+    color: #0969da;
 }
 
 /* Comment chip */
 .comment-chip {
-    background: #161b22;
-    border: 1px solid #21262d;
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
     border-radius: 8px;
     padding: 10px 14px;
     margin-bottom: 8px;
     font-size: 0.8rem;
-    color: #c9d1d9;
+    color: #24292f;
 }
 .comment-chip .ts {
     font-size: 0.68rem;
-    color: #8b949e;
+    color: #57606a;
     font-family: 'IBM Plex Mono', monospace;
 }
 
 /* Version row */
 .ver-row {
-    background: #161b22;
-    border: 1px solid #21262d;
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
     border-radius: 8px;
     padding: 10px 16px;
     margin-bottom: 6px;
@@ -702,41 +748,41 @@ body { background: #0d1117; }
     gap: 12px;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.78rem;
-    color: #c9d1d9;
+    color: #24292f;
 }
 
 /* Streamlit overrides */
 .stSelectbox label, .stNumberInput label, .stTextInput label, .stTextArea label {
-    color: #8b949e !important;
+    color: #57606a !important;
     font-size: 0.78rem !important;
     font-family: 'IBM Plex Mono', monospace !important;
     text-transform: uppercase;
     letter-spacing: .06em;
 }
 .stButton > button {
-    background: #1c2d42 !important;
-    border: 1px solid #388bfd !important;
-    color: #58a6ff !important;
+    background: #ddf4ff !important;
+    border: 1px solid #0969da !important;
+    color: #0969da !important;
     font-family: 'IBM Plex Mono', monospace !important;
     font-size: 0.8rem !important;
     border-radius: 7px !important;
 }
 .stButton > button:hover {
-    background: #388bfd !important;
+    background: #0969da !important;
     color: #fff !important;
 }
 .stButton > button[kind="primary"] {
-    background: #388bfd !important;
+    background: #0969da !important;
     color: #fff !important;
 }
 div[data-testid="stMetric"] {
-    background: #161b22;
-    border: 1px solid #21262d;
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
     border-radius: 10px;
     padding: 14px;
 }
-div[data-testid="stMetric"] label { color: #8b949e !important; font-size: 0.72rem !important; }
-div[data-testid="stMetric"] [data-testid="stMetricValue"] { color: #e6edf3 !important; font-family: 'IBM Plex Mono', monospace !important; }
+div[data-testid="stMetric"] label { color: #57606a !important; font-size: 0.72rem !important; }
+div[data-testid="stMetric"] [data-testid="stMetricValue"] { color: #1f2328 !important; font-family: 'IBM Plex Mono', monospace !important; }
 </style>
 """
 
@@ -789,34 +835,34 @@ def page_catalog():
         [h1, h2, h3, h4, h5, h6, h7],
         ["Name / Area", "Type", "v", "Status", "Owner", "Updated", "Actions"],
     ):
-        col.markdown(f'<div style="font-size:0.7rem;color:#8b949e;font-family:\'IBM Plex Mono\',monospace;text-transform:uppercase;letter-spacing:.06em;padding:2px 0 6px">{label}</div>', unsafe_allow_html=True)
+        col.markdown(f'<div style="font-size:0.7rem;color:#57606a;font-family:\'IBM Plex Mono\',monospace;text-transform:uppercase;letter-spacing:.06em;padding:2px 0 6px">{label}</div>', unsafe_allow_html=True)
 
     for s in sorted(items, key=lambda x: x["updated_at"], reverse=True):
         c1, c2, c3, c4, c5, c6, c7 = st.columns([4, 2.5, 1.5, 1.5, 1.5, 2, 2.5])
         with c1:
             st.markdown(f"""
-                <div style="font-weight:600;color:#e6edf3;font-size:0.88rem">{s['name']}</div>
-                <div style="font-size:0.72rem;color:#8b949e;font-family:'IBM Plex Mono',monospace">{s.get('area_label','—')}</div>
+                <div style="font-weight:600;color:#1f2328;font-size:0.88rem">{s['name']}</div>
+                <div style="font-size:0.72rem;color:#57606a;font-family:'IBM Plex Mono',monospace">{s.get('area_label','—')}</div>
             """, unsafe_allow_html=True)
         with c2:
-            st.markdown(f'<div style="font-size:0.78rem;color:#c9d1d9;font-family:\'IBM Plex Mono\',monospace">{s["scenario_type"]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:0.78rem;color:#24292f;font-family:\'IBM Plex Mono\',monospace">{s["scenario_type"]}</div>', unsafe_allow_html=True)
         with c3:
             n_saved = version_count_for(s["id"])
             st.markdown(
-                f'<div style="font-size:0.78rem;color:#58a6ff;font-family:\'IBM Plex Mono\',monospace">'
+                f'<div style="font-size:0.78rem;color:#0969da;font-family:\'IBM Plex Mono\',monospace">'
                 f'v{s["version"]}'
-                f'<span style="color:#8b949e;font-size:0.68rem"> ({n_saved} JSON{"s" if n_saved!=1 else ""})</span>'
+                f'<span style="color:#57606a;font-size:0.68rem"> ({n_saved} JSON{"s" if n_saved!=1 else ""})</span>'
                 f'</div>',
                 unsafe_allow_html=True,
             )
         with c4:
             icon, _ = STATUS_BADGE.get(s["status"], ("⚪", "#bdc3c7"))
-            st.markdown(f'<div style="font-size:0.78rem;color:#c9d1d9">{icon} {s["status"].replace("_"," ").title()}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:0.78rem;color:#24292f">{icon} {s["status"].replace("_"," ").title()}</div>', unsafe_allow_html=True)
         with c5:
-            st.markdown(f'<div style="font-size:0.78rem;color:#c9d1d9">{s.get("owner","—")}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:0.78rem;color:#24292f">{s.get("owner","—")}</div>', unsafe_allow_html=True)
         with c6:
             ts = s["updated_at"][:16].replace("T", " ")
-            st.markdown(f'<div style="font-size:0.72rem;color:#8b949e;font-family:\'IBM Plex Mono\',monospace">{ts}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:0.72rem;color:#57606a;font-family:\'IBM Plex Mono\',monospace">{ts}</div>', unsafe_allow_html=True)
         with c7:
             bc1, bc2, bc3 = st.columns(3)
             with bc1:
@@ -837,7 +883,7 @@ def page_catalog():
                     if st.session_state.get("active_id") == s["id"]:
                         st.session_state["active_id"] = None
                     st.rerun()
-        st.markdown('<hr style="border:none;border-top:1px solid #21262d;margin:4px 0">', unsafe_allow_html=True)
+        st.markdown('<hr style="border:none;border-top:1px solid #d0d7de;margin:4px 0">', unsafe_allow_html=True)
 
     # ── summary KPIs ─────────────────────────────────────────────────────────
     st.markdown("---")
@@ -864,7 +910,7 @@ def page_workbench():
     s = st.session_state["scenarios"][sid]
 
     # ── breadcrumb + title ───────────────────────────────────────────────────
-    st.markdown(f'<div style="font-size:0.72rem;color:#8b949e;font-family:\'IBM Plex Mono\',monospace;margin-bottom:4px">CATALOG / {s["name"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="font-size:0.72rem;color:#57606a;font-family:\'IBM Plex Mono\',monospace;margin-bottom:4px">CATALOG / {s["name"]}</div>', unsafe_allow_html=True)
     col_title, col_status, col_ver = st.columns([5, 2, 1])
     with col_title:
         new_name = st.text_input("Simulation name", value=s["name"], label_visibility="collapsed")
@@ -876,7 +922,7 @@ def page_workbench():
             s["status"] = new_status
             s["updated_at"] = datetime.now().isoformat(timespec="seconds")
     with col_ver:
-        st.markdown(f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.9rem;color:#58a6ff;padding-top:8px">v{s["version"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.9rem;color:#0969da;padding-top:8px">v{s["version"]}</div>', unsafe_allow_html=True)
 
     # ── tab bar ──────────────────────────────────────────────────────────────
     tabs = ["📐 Assumptions", "📊 Calculator", "💬 Comments & Versions"]
@@ -896,7 +942,7 @@ def page_workbench():
         st.session_state["workbench_tab"] = new_tab
         st.rerun()
 
-    st.markdown('<hr style="border:none;border-top:1px solid #21262d;margin:4px 0 16px">', unsafe_allow_html=True)
+    st.markdown('<hr style="border:none;border-top:1px solid #d0d7de;margin:4px 0 16px">', unsafe_allow_html=True)
 
     if cur == "assumptions":
         tab_assumptions(s)
@@ -910,6 +956,46 @@ def page_workbench():
 
 def tab_assumptions(s: Dict):
     pop = s["population"]
+
+    # ── Import from file ──────────────────────────────────────────────────────
+    with st.expander("📂 Import from file"):
+        ic1, ic2 = st.columns(2)
+        with ic1:
+            st.markdown('<div class="sec-header">Population histogram JSON</div>', unsafe_allow_html=True)
+            st.caption("Format: {\"histogram\": {\"0\": n, ..., \"120\": n}, \"globals\": {...}}")
+            up_pop = st.file_uploader("Upload population.json", type=["json"], key=f"up_pop_{s['id']}")
+            if up_pop:
+                try:
+                    loaded_pop = load_population_from_histogram(up_pop.read())
+                    s["population"] = loaded_pop
+                    st.session_state["scenarios"][s["id"]] = s
+                    st.success("Population loaded ✓")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Load failed: {e}")
+            if Path("population.json").exists():
+                if st.button("↓ Load from population.json", key=f"load_pop_default_{s['id']}"):
+                    s["population"] = load_population_from_histogram("population.json")
+                    st.session_state["scenarios"][s["id"]] = s
+                    st.rerun()
+        with ic2:
+            st.markdown('<div class="sec-header">Rules JSON</div>', unsafe_allow_html=True)
+            st.caption("Format: {\"rules\": [{\"category\": ..., \"required_expr\": ...}, ...]}")
+            up_rules = st.file_uploader("Upload rules.json", type=["json"], key=f"up_rules_{s['id']}")
+            if up_rules:
+                try:
+                    loaded_rules = load_rules_from_file(up_rules.read())
+                    s["rules"] = loaded_rules
+                    st.session_state["scenarios"][s["id"]] = s
+                    st.success("Rules loaded ✓")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Load failed: {e}")
+            if Path("rules.json").exists():
+                if st.button("↓ Load from rules.json", key=f"load_rules_default_{s['id']}"):
+                    s["rules"] = load_rules_from_file("rules.json")
+                    st.session_state["scenarios"][s["id"]] = s
+                    st.rerun()
 
     st.markdown('<div class="sec-header">Plan Metadata</div>', unsafe_allow_html=True)
     m1, m2, m3, m4 = st.columns(4)
@@ -1027,8 +1113,8 @@ def tab_calculator(s: Dict):
         st.markdown(
             f'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'
             f'<div style="width:10px;height:10px;background:{color};border-radius:50%"></div>'
-            f'<span style="font-weight:600;color:#e6edf3;font-size:0.88rem">{cat}</span>'
-            f'<span style="margin-left:auto;font-family:\'IBM Plex Mono\',monospace;font-size:0.72rem;color:#8b949e">'
+            f'<span style="font-weight:600;color:#1f2328;font-size:0.88rem">{cat}</span>'
+            f'<span style="margin-left:auto;font-family:\'IBM Plex Mono\',monospace;font-size:0.72rem;color:#57606a">'
             f'Built: {int(cat_built):,} m² &nbsp;|&nbsp; Land: {cat_land:.1f} dunam</span>'
             f'</div>',
             unsafe_allow_html=True,
@@ -1114,8 +1200,8 @@ def tab_comments(s: Dict):
                 has_results = "✓" if v.get("results") else "—"
                 st.markdown(
                     f'<div class="ver-row">'
-                    f'<span style="color:#58a6ff">v{v["version"]}</span>'
-                    f'<span style="color:#8b949e">{v["saved_at"][:16].replace("T"," ")}</span>'
+                    f'<span style="color:#0969da">v{v["version"]}</span>'
+                    f'<span style="color:#57606a">{v["saved_at"][:16].replace("T"," ")}</span>'
                     f'<span>pop: {pop_total:,}</span>'
                     f'<span>results: {has_results}</span>'
                     f'</div>',
@@ -1148,8 +1234,8 @@ def tab_comments(s: Dict):
 def render_sidebar():
     with st.sidebar:
         st.markdown(
-            '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:1.1rem;font-weight:600;color:#e6edf3;padding:10px 0 4px">PROGRAMA</div>'
-            '<div style="font-size:0.68rem;color:#8b949e;font-family:\'IBM Plex Mono\',monospace;margin-bottom:20px">Urban Planning Workbench</div>',
+            '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:1.1rem;font-weight:600;color:#1f2328;padding:10px 0 4px">PROGRAMA</div>'
+            '<div style="font-size:0.68rem;color:#57606a;font-family:\'IBM Plex Mono\',monospace;margin-bottom:20px">Urban Planning Workbench</div>',
             unsafe_allow_html=True,
         )
 
@@ -1161,7 +1247,7 @@ def render_sidebar():
         scenarios = st.session_state.get("scenarios", {})
         if scenarios:
             st.markdown(
-                '<div style="font-size:0.65rem;color:#8b949e;text-transform:uppercase;letter-spacing:.08em;font-family:\'IBM Plex Mono\',monospace;margin:16px 0 6px;padding-left:4px">Recent simulations</div>',
+                '<div style="font-size:0.65rem;color:#57606a;text-transform:uppercase;letter-spacing:.08em;font-family:\'IBM Plex Mono\',monospace;margin:16px 0 6px;padding-left:4px">Recent simulations</div>',
                 unsafe_allow_html=True,
             )
             for s in sorted(scenarios.values(), key=lambda x: x["updated_at"], reverse=True)[:8]:

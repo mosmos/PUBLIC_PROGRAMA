@@ -725,20 +725,35 @@ body { background: #ffffff; }
 }
 
 /* Workbench tabs */
-.tab-bar { display: flex; gap: 6px; margin-bottom: 20px; }
+.tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #d0d7de;
+    padding-bottom: 0;
+}
 .tab-btn {
-    background: #f6f8fa;
-    border: 1px solid #d0d7de;
-    border-radius: 8px;
-    padding: 7px 18px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.78rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    padding: 12px 24px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
     color: #57606a;
     cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    margin-bottom: -2px;
+}
+.tab-btn:hover {
+    color: #0969da;
+    background: rgba(9, 105, 218, 0.05);
 }
 .tab-btn.active {
-    background: #ddf4ff;
-    border-color: #0969da;
+    background: transparent;
+    border-bottom-color: #0969da;
     color: #0969da;
 }
 
@@ -773,6 +788,42 @@ body { background: #ffffff; }
     color: #24292f;
 }
 
+/* Tab styling */
+[data-testid="stTabs"] {
+    margin-bottom: 24px;
+}
+[data-testid="stTabs"] > div:first-child {
+    background: linear-gradient(to right, #f6f8fa 0%, #ffffff 100%);
+    border-bottom: 2px solid #d0d7de;
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+}
+[data-testid="stTabs"] button {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    font-family: 'IBM Plex Sans', sans-serif !important;
+    color: #57606a !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 3px solid transparent !important;
+    padding: 12px 20px !important;
+    margin: 0 4px !important;
+    border-radius: 0 !important;
+    transition: all 0.2s ease !important;
+}
+[data-testid="stTabs"] button:hover {
+    color: #0969da !important;
+    background: rgba(9, 105, 218, 0.05) !important;
+}
+[data-testid="stTabs"] button[aria-selected="true"] {
+    color: #0969da !important;
+    border-bottom: 3px solid #0969da !important;
+    background: rgba(9, 105, 218, 0.08) !important;
+}
+[data-testid="stTabs"] > div:last-child {
+    padding: 20px 0 !important;
+}
+
 /* Streamlit overrides */
 .stSelectbox label, .stNumberInput label, .stTextInput label, .stTextArea label {
     color: #57606a !important;
@@ -805,6 +856,31 @@ div[data-testid="stMetric"] {
 }
 div[data-testid="stMetric"] label { color: #57606a !important; font-size: 0.72rem !important; }
 div[data-testid="stMetric"] [data-testid="stMetricValue"] { color: #1f2328 !important; font-family: 'IBM Plex Mono', monospace !important; }
+
+/* Result table row styling */
+.result-row {
+    padding: 0;
+    transition: background-color 0.12s ease;
+}
+.result-row.even {
+    background: #ffffff;
+}
+.result-row.odd {
+    background: #f6f8fa;
+}
+.result-row:hover {
+    background: #e8f4ff !important;
+    box-shadow: inset 0 0 0 1px #0969da;
+}
+.result-row-content {
+    display: flex;
+    gap: 0;
+}
+.result-row-separator {
+    height: 1px;
+    background: #d0d7de;
+    margin: 0;
+}
 </style>
 """
 
@@ -951,20 +1027,13 @@ def page_workbench():
     tab_keys = ["assumptions", "calculator", "comments"]
     cur = st.session_state.get("workbench_tab", "assumptions")
 
-    tab_html = '<div class="tab-bar">'
-    for t, k in zip(tabs, tab_keys):
-        cls = "tab-btn active" if cur == k else "tab-btn"
-        tab_html += f'<span class="{cls}">{t}</span>'
-    tab_html += "</div>"
-    st.markdown(tab_html, unsafe_allow_html=True)
-
     chosen = st.radio("Tab", tabs, index=tab_keys.index(cur), horizontal=True, label_visibility="collapsed")
     new_tab = tab_keys[tabs.index(chosen)]
     if new_tab != cur:
         st.session_state["workbench_tab"] = new_tab
         st.rerun()
 
-    st.markdown('<hr style="border:none;border-top:1px solid #d0d7de;margin:4px 0 16px">', unsafe_allow_html=True)
+    st.markdown('<div style="margin-bottom:16px"></div>', unsafe_allow_html=True)
 
     if cur == "assumptions":
         tab_assumptions(s)
@@ -1137,8 +1206,8 @@ def tab_calculator(s: Dict):
         st.markdown(
             f'<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
             f'<div style="width:10px;height:10px;background:{color};border-radius:50%"></div>'
-            f'<span style="font-weight:600;color:#1f2328;font-size:0.88rem">{cat}</span>'
-            f'<span style="margin-left:auto;font-family:\'IBM Plex Mono\',monospace;font-size:0.72rem;color:#57606a">'
+            f'<span style="font-weight:600;color:#1f2328;font-size:1.05rem">{cat}</span>'
+            f'<span style="margin-left:auto;font-family:\'IBM Plex Mono\',monospace;font-size:0.82rem;color:#57606a">'
             f'Built: {int(cat_built):,} m² &nbsp;|&nbsp; Land: {cat_land:.1f} dunam</span>'
             f'</div>',
             unsafe_allow_html=True,
@@ -1146,17 +1215,23 @@ def tab_calculator(s: Dict):
 
         # Column headers
         h1, h2, h3, h4, h5 = st.columns([4, 1.5, 1.5, 1.5, 0.5])
-        lbl_style = "font-size:0.68rem;color:#57606a;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em;padding-bottom:4px;border-bottom:1px solid #d0d7de"
+        lbl_style = "font-size:0.8rem;color:#57606a;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em;padding-bottom:4px;border-bottom:1px solid #d0d7de;font-weight:600"
         for col, lbl in zip([h1, h2, h3, h4], ["Service", "Required", "Built (m²)", "Land (dunam)"]):
             col.markdown(f'<div style="{lbl_style}">{lbl}</div>', unsafe_allow_html=True)
         h5.markdown(f'<div style="{lbl_style}">&nbsp;</div>', unsafe_allow_html=True)
 
-        for _, row in cat_df.iterrows():
+        for row_idx, (_, row) in enumerate(cat_df.iterrows()):
             rule_key = f"{cat}|{row['service']}"
             is_open = st.session_state["expanded_rule"] == rule_key
+            row_class = "even" if row_idx % 2 == 0 else "odd"
+
+            st.markdown(
+                f'<div class="result-row {row_class}" style="padding:6px 0;border-radius:4px">',
+                unsafe_allow_html=True,
+            )
 
             c1, c2, c3, c4, c5 = st.columns([4, 1.5, 1.5, 1.5, 0.5])
-            val_style = "font-size:0.82rem;color:#1f2328;padding:5px 0"
+            val_style = "font-size:0.95rem;color:#1f2328;padding:5px 0"
             mono_style = f"{val_style};font-family:'IBM Plex Mono',monospace"
             with c1:
                 st.markdown(f'<div style="{val_style}">{row["service"]}</div>', unsafe_allow_html=True)
@@ -1170,6 +1245,8 @@ def tab_calculator(s: Dict):
                 if st.button("▼" if is_open else "▶", key=f"exp_{s['id']}_{rule_key}", help="Show calculation details"):
                     st.session_state["expanded_rule"] = None if is_open else rule_key
                     st.rerun()
+
+            st.markdown('</div>', unsafe_allow_html=True)
 
             if is_open:
                 req_expr  = str(row.get("required_expr", "") or "")
@@ -1186,32 +1263,32 @@ def tab_calculator(s: Dict):
                 lnd_res  = fmt_num(row["land_dunam"], 1)
 
                 notes_html = (
-                    f'<div style="margin-top:10px;font-size:0.78rem;color:#57606a">'
-                    f'<span style="text-transform:uppercase;font-size:0.68rem;letter-spacing:.06em;'
-                    f'font-family:\'IBM Plex Mono\',monospace">Notes: </span>{notes_txt}</div>'
+                    f'<div style="margin-top:10px;font-size:0.88rem;color:#57606a">'
+                    f'<span style="text-transform:uppercase;font-size:0.75rem;letter-spacing:.06em;'
+                    f'font-family:\'IBM Plex Mono\',monospace;font-weight:600">Notes: </span>{notes_txt}</div>'
                 ) if notes_txt else ""
 
                 def _expr_block(label, expr, substituted, result):
                     return (
                         f'<div>'
-                        f'<div style="font-size:0.68rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">{label}</div>'
-                        f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.72rem;color:#0969da;background:#ddf4ff;padding:4px 8px;border-radius:4px;margin-bottom:3px">{expr or "—"}</div>'
-                        f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.72rem;color:#1a7f37;background:#d2f4ea;padding:4px 8px;border-radius:4px;margin-bottom:3px">{substituted}</div>'
-                        f'<div style="font-size:0.72rem;font-weight:600;color:#1f2328">= {result}</div>'
+                        f'<div style="font-size:0.75rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-weight:600">{label}</div>'
+                        f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.82rem;color:#0969da;background:#ddf4ff;padding:5px 8px;border-radius:4px;margin-bottom:3px">{expr or "—"}</div>'
+                        f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.82rem;color:#1a7f37;background:#d2f4ea;padding:5px 8px;border-radius:4px;margin-bottom:3px">{substituted}</div>'
+                        f'<div style="font-size:0.85rem;font-weight:700;color:#1f2328">= {result}</div>'
                         f'</div>'
                     )
 
                 st.markdown(
                     f'<div style="background:#f6f8fa;border-left:3px solid #0969da;border-radius:0 8px 8px 0;'
                     f'padding:14px 18px;margin:2px 0 10px 0">'
-                    f'<div style="font-size:0.68rem;color:#57606a;font-family:\'IBM Plex Mono\',monospace;'
-                    f'text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">'
+                    f'<div style="font-size:0.78rem;color:#57606a;font-family:\'IBM Plex Mono\',monospace;'
+                    f'text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;font-weight:600">'
                     f'Calculation Details — {row["service"]}</div>'
                     f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">'
-                    f'<div><div style="font-size:0.68rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Rule description</div>'
-                    f'<div style="font-size:0.82rem;color:#1f2328">{row.get("rule","—")}</div></div>'
-                    f'<div><div style="font-size:0.68rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Basis cohort</div>'
-                    f'<div style="font-size:0.82rem;color:#1f2328;font-family:\'IBM Plex Mono\',monospace">{row.get("basis","—")}</div></div>'
+                    f'<div><div style="font-size:0.75rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;font-weight:600">Rule description</div>'
+                    f'<div style="font-size:0.92rem;color:#1f2328">{row.get("rule","—")}</div></div>'
+                    f'<div><div style="font-size:0.75rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;font-weight:600">Basis cohort</div>'
+                    f'<div style="font-size:0.92rem;color:#1f2328;font-family:\'IBM Plex Mono\',monospace">{row.get("basis","—")}</div></div>'
                     f'</div>'
                     f'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'
                     f'{_expr_block("Required units", req_expr, req_sub, req_res)}'
@@ -1223,7 +1300,7 @@ def tab_calculator(s: Dict):
                     unsafe_allow_html=True,
                 )
 
-            st.markdown('<div style="border-bottom:1px solid #d0d7de;margin:0 0 2px 0"></div>', unsafe_allow_html=True)
+            st.markdown('<div class="result-row-separator"></div>', unsafe_allow_html=True)
 
         st.markdown('<div style="margin-bottom:16px"></div>', unsafe_allow_html=True)
 

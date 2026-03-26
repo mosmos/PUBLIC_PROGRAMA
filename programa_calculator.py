@@ -883,6 +883,96 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] { color: #1f2328 !impo
     background: #d0d7de;
     margin: 0;
 }
+
+/* Mobile responsive */
+@media (max-width: 1024px) {
+    /* Tablet adjustments */
+    html, body, [class*="css"] {
+        font-size: 14px;
+    }
+    [data-testid="stSidebar"] {
+        width: 200px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile adjustments */
+    html, body, [class*="css"] {
+        font-size: 13px;
+    }
+
+    /* Wider buttons for touch */
+    .stButton > button {
+        padding: 12px 16px !important;
+        font-size: 0.9rem !important;
+        min-height: 44px !important;
+    }
+
+    /* Tab improvements */
+    [data-testid="stTabs"] button {
+        font-size: 0.85rem !important;
+        padding: 10px 14px !important;
+    }
+
+    /* Input fields larger for touch */
+    .stSelectbox > div, .stNumberInput > div, .stTextInput > div, .stTextArea > div {
+        min-height: 44px !important;
+    }
+
+    /* Reduce margins/padding */
+    .stMetric {
+        margin-bottom: 8px !important;
+    }
+
+    /* Sidebar narrower */
+    [data-testid="stSidebar"] {
+        width: 150px !important;
+    }
+
+    /* Reduce row styling */
+    .result-row {
+        padding: 0 !important;
+    }
+
+    /* Smaller category headers */
+    .sec-header {
+        font-size: 0.95rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Small mobile adjustments */
+    html, body, [class*="css"] {
+        font-size: 12px;
+    }
+
+    /* Minimal margins */
+    .stMetric {
+        margin-bottom: 4px !important;
+    }
+
+    [data-testid="stSidebar"] {
+        width: 120px !important;
+    }
+
+    /* Larger touch targets */
+    .stButton > button {
+        min-height: 48px !important;
+        padding: 14px 12px !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Tab text smaller */
+    [data-testid="stTabs"] button {
+        font-size: 0.75rem !important;
+        padding: 8px 10px !important;
+    }
+
+    /* Full-width columns where needed */
+    [data-testid="stHorizontalBlock"] {
+        flex-direction: column !important;
+    }
+}
 </style>
 """
 

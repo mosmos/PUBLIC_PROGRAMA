@@ -1115,8 +1115,8 @@ def page_workbench():
         st.markdown(f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.9rem;color:#0969da;padding-top:8px">v{s["version"]}</div>', unsafe_allow_html=True)
 
     # ── tab bar ──────────────────────────────────────────────────────────────
-    tabs = ["📐 Assumptions", "📊 Calculator", "💬 Comments & Versions"]
-    tab_keys = ["assumptions", "calculator", "comments"]
+    tabs = ["📐 Assumptions", "📊 Calculator", "📈 What-If", "💬 Comments & Versions"]
+    tab_keys = ["assumptions", "calculator", "whatif", "comments"]
     cur = st.session_state.get("workbench_tab", "assumptions")
 
     chosen = st.radio("Tab", tabs, index=tab_keys.index(cur), horizontal=True, label_visibility="collapsed")
@@ -1131,6 +1131,8 @@ def page_workbench():
         tab_assumptions(s)
     elif cur == "calculator":
         tab_calculator(s)
+    elif cur == "whatif":
+        tab_whatif(s)
     else:
         tab_comments(s)
 
@@ -1459,6 +1461,134 @@ def tab_calculator(s: Dict):
     if export_clicked and s.get("results"):
         csv = df.to_csv(index=False).encode("utf-8-sig")
         st.download_button("Download CSV now", data=csv, file_name=f"{s['name']}_v{s['version']}.csv", mime="text/csv")
+
+
+# ── Tab: What-If Analysis ────────────────────────────────────────────────────
+
+def tab_whatif(s: Dict):
+    st.markdown('<div class="sec-header">What-If Analysis</div>', unsafe_allow_html=True)
+    st.markdown("Create variations of your simulation to explore different scenarios.", unsafe_allow_html=True)
+
+    if not s.get("results"):
+        st.info("Run a simulation first (Calculator tab) to enable What-If analysis.")
+        return
+
+    # Initialize whatif state
+    if "whatif_variations" not in st.session_state:
+        st.session_state["whatif_variations"] = {}
+
+    whatif_key = f"{s['id']}_whatif"
+    if whatif_key not in st.session_state["whatif_variations"]:
+        st.session_state["whatif_variations"][whatif_key] = {}
+
+    st.markdown("---")
+    st.markdown('<div style="font-size:0.9rem;font-weight:600;margin-bottom:12px">Cohort Modifications</div>', unsafe_allow_html=True)
+
+    # Get population cohorts
+    pop = s["population"]["population"]
+    cohort_fields = [
+        ("age_0_1", "Age 0–1"),
+        ("age_0_3", "Age 0–3"),
+        ("age_1_6", "Age 1–6"),
+        ("age_0_6", "Age 0–6"),
+        ("age_3_6", "Age 3–6"),
+        ("age_6_12", "Age 6–12"),
+        ("age_12_18", "Age 12–18"),
+        ("age_70_plus", "Age 70+"),
+        ("total", "Total Population"),
+    ]
+
+    # Variation input controls
+    variations = {}
+    mod_type = st.radio("Modification type", ["Percentage change", "Absolute change", "Multiplier"], horizontal=True)
+
+    col1, col2, col3 = st.columns(3)
+    for idx, (key, label) in enumerate(cohort_fields):
+        col = [col1, col2, col3][idx % 3]
+        with col:
+            current = pop.get(key, 0)
+            if mod_type == "Percentage change":
+                change = st.number_input(f"{label} (%)", value=0.0, step=5.0, key=f"whatif_pct_{key}")
+                variations[key] = current * (1 + change / 100)
+            elif mod_type == "Absolute change":
+                change = st.number_input(f"{label} (Δ)", value=0, step=100, key=f"whatif_abs_{key}")
+                variations[key] = max(0, current + change)
+            else:  # Multiplier
+                multiplier = st.number_input(f"{label} (×)", value=1.0, step=0.1, key=f"whatif_mult_{key}")
+                variations[key] = current * multiplier
+
+    # Run What-If
+    if st.button("▶ Run What-If Simulation", key=f"whatif_run_{s['id']}"):
+        # Create variation population
+        whatif_pop = copy.deepcopy(s["population"])
+        whatif_pop["population"].update({k: v for k, v in variations.items()})
+
+        # Recalculate derived totals
+        whatif_pop["population"]["total"] = sum(
+            v for k, v in whatif_pop["population"].items() if k.startswith("age_")
+        )
+
+        # Run rules on what-if population
+        whatif_results = run_rules(whatif_pop, s["rules"])
+        st.session_state["whatif_variations"][whatif_key]["population"] = whatif_pop
+        st.session_state["whatif_variations"][whatif_key]["results"] = whatif_results.to_dict("records")
+        st.session_state["whatif_variations"][whatif_key]["timestamp"] = datetime.now().isoformat(timespec="seconds")
+
+    st.markdown("---")
+
+    # Comparison view
+    if whatif_key in st.session_state["whatif_variations"] and "results" in st.session_state["whatif_variations"][whatif_key]:
+        whatif_data = st.session_state["whatif_variations"][whatif_key]
+        whatif_results_list = whatif_data["results"]
+
+        st.markdown('<div style="font-size:0.9rem;font-weight:600;margin-bottom:12px">Comparison: Original vs. What-If</div>', unsafe_allow_html=True)
+
+        # Get original results
+        orig_df = pd.DataFrame(s["results"])
+        whatif_df = pd.DataFrame(whatif_results_list)
+
+        # Summary metrics
+        orig_built = pd.to_numeric(orig_df["built_sqm"], errors="coerce").fillna(0).sum()
+        whatif_built = pd.to_numeric(whatif_df["built_sqm"], errors="coerce").fillna(0).sum()
+        delta_built = whatif_built - orig_built
+
+        orig_land = pd.to_numeric(orig_df["land_dunam"], errors="coerce").fillna(0).sum()
+        whatif_land = pd.to_numeric(whatif_df["land_dunam"], errors="coerce").fillna(0).sum()
+        delta_land = whatif_land - orig_land
+
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("Original Built (m²)", f"{int(orig_built):,}")
+        m2.metric("What-If Built (m²)", f"{int(whatif_built):,}", delta=f"{int(delta_built):+,}")
+        m3.metric("Original Land (dunam)", f"{orig_land:.1f}")
+        m4.metric("What-If Land (dunam)", f"{whatif_land:.1f}", delta=f"{delta_land:+.1f}")
+
+        # Detailed comparison by category
+        st.markdown('<div style="margin-top:20px;font-size:0.9rem;font-weight:600;margin-bottom:12px">Changes by Category</div>', unsafe_allow_html=True)
+
+        for cat in orig_df["category"].unique():
+            orig_cat = orig_df[orig_df["category"] == cat]
+            whatif_cat = whatif_df[whatif_df["category"] == cat]
+
+            cat_orig_built = pd.to_numeric(orig_cat["built_sqm"], errors="coerce").fillna(0).sum()
+            cat_whatif_built = pd.to_numeric(whatif_cat["built_sqm"], errors="coerce").fillna(0).sum()
+            cat_delta_built = cat_whatif_built - cat_orig_built
+
+            cat_orig_land = pd.to_numeric(orig_cat["land_dunam"], errors="coerce").fillna(0).sum()
+            cat_whatif_land = pd.to_numeric(whatif_cat["land_dunam"], errors="coerce").fillna(0).sum()
+            cat_delta_land = cat_whatif_land - cat_orig_land
+
+            color = CATEGORY_COLORS.get(cat, "#888")
+            delta_color = "#27ae60" if cat_delta_built >= 0 else "#e74c3c"
+
+            st.markdown(
+                f'<div style="display:flex;align-items:center;gap:12px;padding:8px;background:#f6f8fa;border-left:3px solid {color};margin-bottom:6px;border-radius:0 4px 4px 0">'
+                f'<span style="font-weight:600;color:#1f2328">{cat}</span>'
+                f'<span style="margin-left:auto;font-family:\'IBM Plex Mono\',monospace;font-size:0.82rem">'
+                f'Built: <span style="color:{delta_color}">{int(cat_delta_built):+,} m²</span> | '
+                f'Land: <span style="color:{delta_color}">{cat_delta_land:+.1f} dunam</span>'
+                f'</span></div>',
+                unsafe_allow_html=True,
+            )
 
 
 # ── Tab: Comments & Versions ──────────────────────────────────────────────────

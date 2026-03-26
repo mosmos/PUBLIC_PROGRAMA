@@ -552,6 +552,8 @@ def init_state():
         st.session_state["workbench_tab"] = "assumptions"
     if "expanded_rule" not in st.session_state:
         st.session_state["expanded_rule"] = None
+    if "expanded_categories" not in st.session_state:
+        st.session_state["expanded_categories"] = set()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1193,8 +1195,23 @@ def tab_calculator(s: Dict):
 
     st.markdown("---")
 
-    # Category sections
+    # Expand/Collapse All buttons
     categories = df["category"].unique().tolist()
+    col_expand = st.columns([1.2])[0]
+    with col_expand:
+        cb1, cb2 = st.columns(2)
+        with cb1:
+            if st.button("📂 Expand All", key=f"expand_all_{s['id']}", use_container_width=True):
+                st.session_state["expanded_categories"] = set(categories)
+                st.rerun()
+        with cb2:
+            if st.button("📁 Collapse All", key=f"collapse_all_{s['id']}", use_container_width=True):
+                st.session_state["expanded_categories"] = set()
+                st.rerun()
+
+    st.markdown('<div style="margin-bottom:12px"></div>', unsafe_allow_html=True)
+
+    # Category sections
     ctx = build_context(s["population"])
 
     for cat in categories:
@@ -1203,106 +1220,120 @@ def tab_calculator(s: Dict):
         cat_built = pd.to_numeric(cat_df["built_sqm"], errors="coerce").fillna(0).sum()
         cat_land = pd.to_numeric(cat_df["land_dunam"], errors="coerce").fillna(0).sum()
 
-        st.markdown(
-            f'<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
-            f'<div style="width:10px;height:10px;background:{color};border-radius:50%"></div>'
-            f'<span style="font-weight:600;color:#1f2328;font-size:1.05rem">{cat}</span>'
-            f'<span style="margin-left:auto;font-family:\'IBM Plex Mono\',monospace;font-size:0.82rem;color:#57606a">'
-            f'Built: {int(cat_built):,} m² &nbsp;|&nbsp; Land: {cat_land:.1f} dunam</span>'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
+        is_expanded = cat in st.session_state["expanded_categories"]
+        toggle_icon = "▼" if is_expanded else "▶"
 
-        # Column headers
-        h1, h2, h3, h4, h5 = st.columns([4, 1.5, 1.5, 1.5, 0.5])
-        lbl_style = "font-size:0.8rem;color:#57606a;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em;padding-bottom:4px;border-bottom:1px solid #d0d7de;font-weight:600"
-        for col, lbl in zip([h1, h2, h3, h4], ["Service", "Required", "Built (m²)", "Land (dunam)"]):
-            col.markdown(f'<div style="{lbl_style}">{lbl}</div>', unsafe_allow_html=True)
-        h5.markdown(f'<div style="{lbl_style}">&nbsp;</div>', unsafe_allow_html=True)
-
-        for row_idx, (_, row) in enumerate(cat_df.iterrows()):
-            rule_key = f"{cat}|{row['service']}"
-            is_open = st.session_state["expanded_rule"] == rule_key
-            row_class = "even" if row_idx % 2 == 0 else "odd"
-
+        # Category header with toggle
+        header_col, toggle_col = st.columns([11, 0.8])
+        with header_col:
             st.markdown(
-                f'<div class="result-row {row_class}" style="padding:6px 0;border-radius:4px">',
+                f'<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
+                f'<div style="width:10px;height:10px;background:{color};border-radius:50%"></div>'
+                f'<span style="font-weight:600;color:#1f2328;font-size:1.05rem">{cat}</span>'
+                f'<span style="margin-left:auto;font-family:\'IBM Plex Mono\',monospace;font-size:0.82rem;color:#57606a">'
+                f'Built: {int(cat_built):,} m² &nbsp;|&nbsp; Land: {cat_land:.1f} dunam</span>'
+                f'</div>',
                 unsafe_allow_html=True,
             )
+        with toggle_col:
+            if st.button(toggle_icon, key=f"toggle_cat_{s['id']}_{cat}", help="Toggle category"):
+                if is_expanded:
+                    st.session_state["expanded_categories"].discard(cat)
+                else:
+                    st.session_state["expanded_categories"].add(cat)
+                st.rerun()
 
-            c1, c2, c3, c4, c5 = st.columns([4, 1.5, 1.5, 1.5, 0.5])
-            val_style = "font-size:0.95rem;color:#1f2328;padding:5px 0"
-            mono_style = f"{val_style};font-family:'IBM Plex Mono',monospace"
-            with c1:
-                st.markdown(f'<div style="{val_style}">{row["service"]}</div>', unsafe_allow_html=True)
-            with c2:
-                st.markdown(f'<div style="{mono_style}">{fmt_num(row["required_units"], 1)}</div>', unsafe_allow_html=True)
-            with c3:
-                st.markdown(f'<div style="{mono_style}">{fmt_num(row["built_sqm"], 0)}</div>', unsafe_allow_html=True)
-            with c4:
-                st.markdown(f'<div style="{mono_style}">{fmt_num(row["land_dunam"], 1)}</div>', unsafe_allow_html=True)
-            with c5:
-                if st.button("▼" if is_open else "▶", key=f"exp_{s['id']}_{rule_key}", help="Show calculation details"):
-                    st.session_state["expanded_rule"] = None if is_open else rule_key
-                    st.rerun()
+        if is_expanded:
+            # Column headers
+            h1, h2, h3, h4, h5 = st.columns([4, 1.5, 1.5, 1.5, 0.5])
+            lbl_style = "font-size:0.8rem;color:#57606a;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em;padding-bottom:4px;border-bottom:1px solid #d0d7de;font-weight:600"
+            for col, lbl in zip([h1, h2, h3, h4], ["Service", "Required", "Built (m²)", "Land (dunam)"]):
+                col.markdown(f'<div style="{lbl_style}">{lbl}</div>', unsafe_allow_html=True)
+            h5.markdown(f'<div style="{lbl_style}">&nbsp;</div>', unsafe_allow_html=True)
 
-            st.markdown('</div>', unsafe_allow_html=True)
-
-            if is_open:
-                req_expr  = str(row.get("required_expr", "") or "")
-                blt_expr  = str(row.get("built_expr",    "") or "")
-                lnd_expr  = str(row.get("land_expr",     "") or "")
-                notes_txt = str(row.get("notes",         "") or "")
-
-                req_sub  = _format_expr_with_values(req_expr,  ctx)
-                blt_sub  = _format_expr_with_values(blt_expr,  ctx)
-                lnd_sub  = _format_expr_with_values(lnd_expr,  ctx)
-
-                req_res  = fmt_num(row["required_units"], 1)
-                blt_res  = fmt_num(row["built_sqm"], 0)
-                lnd_res  = fmt_num(row["land_dunam"], 1)
-
-                notes_html = (
-                    f'<div style="margin-top:10px;font-size:0.88rem;color:#57606a">'
-                    f'<span style="text-transform:uppercase;font-size:0.75rem;letter-spacing:.06em;'
-                    f'font-family:\'IBM Plex Mono\',monospace;font-weight:600">Notes: </span>{notes_txt}</div>'
-                ) if notes_txt else ""
-
-                def _expr_block(label, expr, substituted, result):
-                    return (
-                        f'<div>'
-                        f'<div style="font-size:0.75rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-weight:600">{label}</div>'
-                        f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.82rem;color:#0969da;background:#ddf4ff;padding:5px 8px;border-radius:4px;margin-bottom:3px">{expr or "—"}</div>'
-                        f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.82rem;color:#1a7f37;background:#d2f4ea;padding:5px 8px;border-radius:4px;margin-bottom:3px">{substituted}</div>'
-                        f'<div style="font-size:0.85rem;font-weight:700;color:#1f2328">= {result}</div>'
-                        f'</div>'
-                    )
+            for row_idx, (_, row) in enumerate(cat_df.iterrows()):
+                rule_key = f"{cat}|{row['service']}"
+                is_open = st.session_state["expanded_rule"] == rule_key
+                row_class = "even" if row_idx % 2 == 0 else "odd"
 
                 st.markdown(
-                    f'<div style="background:#f6f8fa;border-left:3px solid #0969da;border-radius:0 8px 8px 0;'
-                    f'padding:14px 18px;margin:2px 0 10px 0">'
-                    f'<div style="font-size:0.78rem;color:#57606a;font-family:\'IBM Plex Mono\',monospace;'
-                    f'text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;font-weight:600">'
-                    f'Calculation Details — {row["service"]}</div>'
-                    f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">'
-                    f'<div><div style="font-size:0.75rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;font-weight:600">Rule description</div>'
-                    f'<div style="font-size:0.92rem;color:#1f2328">{row.get("rule","—")}</div></div>'
-                    f'<div><div style="font-size:0.75rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;font-weight:600">Basis cohort</div>'
-                    f'<div style="font-size:0.92rem;color:#1f2328;font-family:\'IBM Plex Mono\',monospace">{row.get("basis","—")}</div></div>'
-                    f'</div>'
-                    f'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'
-                    f'{_expr_block("Required units", req_expr, req_sub, req_res)}'
-                    f'{_expr_block("Built area (m²)", blt_expr, blt_sub, blt_res)}'
-                    f'{_expr_block("Land (dunam)", lnd_expr, lnd_sub, lnd_res)}'
-                    f'</div>'
-                    f'{notes_html}'
-                    f'</div>',
+                    f'<div class="result-row {row_class}" style="padding:6px 0;border-radius:4px">',
                     unsafe_allow_html=True,
                 )
 
-            st.markdown('<div class="result-row-separator"></div>', unsafe_allow_html=True)
+                c1, c2, c3, c4, c5 = st.columns([4, 1.5, 1.5, 1.5, 0.5])
+                val_style = "font-size:0.95rem;color:#1f2328;padding:5px 0"
+                mono_style = f"{val_style};font-family:'IBM Plex Mono',monospace"
+                with c1:
+                    st.markdown(f'<div style="{val_style}">{row["service"]}</div>', unsafe_allow_html=True)
+                with c2:
+                    st.markdown(f'<div style="{mono_style}">{fmt_num(row["required_units"], 1)}</div>', unsafe_allow_html=True)
+                with c3:
+                    st.markdown(f'<div style="{mono_style}">{fmt_num(row["built_sqm"], 0)}</div>', unsafe_allow_html=True)
+                with c4:
+                    st.markdown(f'<div style="{mono_style}">{fmt_num(row["land_dunam"], 1)}</div>', unsafe_allow_html=True)
+                with c5:
+                    if st.button("▼" if is_open else "▶", key=f"exp_{s['id']}_{rule_key}", help="Show calculation details"):
+                        st.session_state["expanded_rule"] = None if is_open else rule_key
+                        st.rerun()
 
-        st.markdown('<div style="margin-bottom:16px"></div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+
+                if is_open:
+                    req_expr  = str(row.get("required_expr", "") or "")
+                    blt_expr  = str(row.get("built_expr",    "") or "")
+                    lnd_expr  = str(row.get("land_expr",     "") or "")
+                    notes_txt = str(row.get("notes",         "") or "")
+
+                    req_sub  = _format_expr_with_values(req_expr,  ctx)
+                    blt_sub  = _format_expr_with_values(blt_expr,  ctx)
+                    lnd_sub  = _format_expr_with_values(lnd_expr,  ctx)
+
+                    req_res  = fmt_num(row["required_units"], 1)
+                    blt_res  = fmt_num(row["built_sqm"], 0)
+                    lnd_res  = fmt_num(row["land_dunam"], 1)
+
+                    notes_html = (
+                        f'<div style="margin-top:10px;font-size:0.88rem;color:#57606a">'
+                        f'<span style="text-transform:uppercase;font-size:0.75rem;letter-spacing:.06em;'
+                        f'font-family:\'IBM Plex Mono\',monospace;font-weight:600">Notes: </span>{notes_txt}</div>'
+                    ) if notes_txt else ""
+
+                    def _expr_block(label, expr, substituted, result):
+                        return (
+                            f'<div>'
+                            f'<div style="font-size:0.75rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-weight:600">{label}</div>'
+                            f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.82rem;color:#0969da;background:#ddf4ff;padding:5px 8px;border-radius:4px;margin-bottom:3px">{expr or "—"}</div>'
+                            f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.82rem;color:#1a7f37;background:#d2f4ea;padding:5px 8px;border-radius:4px;margin-bottom:3px">{substituted}</div>'
+                            f'<div style="font-size:0.85rem;font-weight:700;color:#1f2328">= {result}</div>'
+                            f'</div>'
+                        )
+
+                    st.markdown(
+                        f'<div style="background:#f6f8fa;border-left:3px solid #0969da;border-radius:0 8px 8px 0;'
+                        f'padding:14px 18px;margin:2px 0 10px 0">'
+                        f'<div style="font-size:0.78rem;color:#57606a;font-family:\'IBM Plex Mono\',monospace;'
+                        f'text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;font-weight:600">'
+                        f'Calculation Details — {row["service"]}</div>'
+                        f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">'
+                        f'<div><div style="font-size:0.75rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;font-weight:600">Rule description</div>'
+                        f'<div style="font-size:0.92rem;color:#1f2328">{row.get("rule","—")}</div></div>'
+                        f'<div><div style="font-size:0.75rem;color:#57606a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;font-weight:600">Basis cohort</div>'
+                        f'<div style="font-size:0.92rem;color:#1f2328;font-family:\'IBM Plex Mono\',monospace">{row.get("basis","—")}</div></div>'
+                        f'</div>'
+                        f'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'
+                        f'{_expr_block("Required units", req_expr, req_sub, req_res)}'
+                        f'{_expr_block("Built area (m²)", blt_expr, blt_sub, blt_res)}'
+                        f'{_expr_block("Land (dunam)", lnd_expr, lnd_sub, lnd_res)}'
+                        f'</div>'
+                        f'{notes_html}'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+
+                st.markdown('<div class="result-row-separator"></div>', unsafe_allow_html=True)
+
+            st.markdown('<div style="margin-bottom:16px"></div>', unsafe_allow_html=True)
 
     # Land use pie chart
     st.markdown('<div class="sec-header">Land Use by Category</div>', unsafe_allow_html=True)

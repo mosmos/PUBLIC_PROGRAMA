@@ -1,23 +1,35 @@
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import ZoneSelector from "../step_1.jsx";
+import Step2 from "./Step2";
+import Step3 from "./Step3";
 
 function App() {
-  const [selected, setSelected] = useState(null);
+  const [step, setStep] = useState(1);
+  const [zone, setZone] = useState(null);
+
+  const handleSelect = (z) => { setZone(z); setStep(2); };
 
   return (
-    <div>
-      <ZoneSelector onSelect={setSelected} />
-      {selected && (
-        <div style={{
-          margin: "20px auto", maxWidth: 700, background: "#d1fae5",
-          border: "1.5px solid #10b981", borderRadius: 10, padding: "16px 24px",
-          fontFamily: "inherit", fontSize: 14, color: "#065f46"
-        }}>
-          <strong>onSelect called:</strong> {selected.name} (id: {selected.id}, type: {selected.type_heb})
-        </div>
+    <>
+      {step === 1 && (
+        <ZoneSelector onSelect={handleSelect} />
       )}
-    </div>
+      {step === 2 && zone && (
+        <Step2
+          zone={zone}
+          onBack={() => setStep(1)}
+          onContinue={() => setStep(3)}
+        />
+      )}
+      {step === 3 && zone && (
+        <Step3
+          zone={zone}
+          onBack={() => setStep(2)}
+          onRestart={() => { setZone(null); setStep(1); }}
+        />
+      )}
+    </>
   );
 }
 

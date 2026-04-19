@@ -2,6 +2,9 @@ import { useMemo, useState } from 'react';
 import WizardSteps from './WizardSteps';
 import { runRules, buildContext, exprWithValues } from './calcEngine';
 import rulesData from '../rules.json';
+import rulesExtend from '../rules_extend.json';
+
+const ALL_RULES = { rules: [...rulesData.rules, ...rulesExtend.rules] };
 
 function SavePanel({ zone, currentSimId, onSave, onSaveCopy, onCatalog }) {
   const [open, setOpen] = useState(false);
@@ -118,6 +121,15 @@ const CAT_META = {
   'Sports':              { color: '#7c3aed', bg: '#f5f3ff', icon: '⚽', label: 'ספורט' },
   'Open Space':          { color: '#16a34a', bg: '#f0fdf4', icon: '🌳', label: 'שטח פתוח' },
   'Citywide':            { color: '#ca8a04', bg: '#fefce8', icon: '🏙️', label: 'כלל עירוני' },
+  'Religion':            { color: '#7e22ce', bg: '#faf5ff', icon: '✡️', label: 'דת' },
+};
+
+const ACTIVE_COND_LABEL = {
+  'haredi_pct > 0':           'הגדר % חרדים בשלב 2',
+  'special_education_pct > 0':'הגדר % חינוך מיוחד בשלב 2',
+  'traditional_pct > 0':      'הגדר % מסורתיים בשלב 2',
+  'total >= 150000':           'אוכלוסייה מעל 150,000',
+  'total >= 250000':           'אוכלוסייה מעל 250,000',
 };
 
 const POP_LABELS = {
@@ -253,23 +265,37 @@ export default function Step3({ zone, onBack, onRestart, onCatalog, currentSimId
   const [openDrill, setOpenDrill] = useState(null);
 
   const ctx     = useMemo(() => buildContext(zone), [zone]);
-  const results = useMemo(() => runRules(zone, rulesData), [zone]);
+  const results = useMemo(() => runRules(zone, ALL_RULES), [zone]);
+
+  const activeResults   = useMemo(() => results.filter(r => r.isActive !== false), [results]);
+  const inactiveResults = useMemo(() => results.filter(r => r.isActive === false), [results]);
 
   // Wrap save handlers so results are always included
-  const handleSave = (name) => onSave(name, results);
-  const handleSaveCopy = (name) => onSaveCopy(name, results);
+  const handleSave = (name) => onSave(name, activeResults);
+  const handleSaveCopy = (name) => onSaveCopy(name, activeResults);
 
   const grouped = useMemo(() => {
     const map = {};
-    results.forEach(r => {
+    activeResults.forEach(r => {
       if (!map[r.category]) map[r.category] = [];
       map[r.category].push(r);
     });
     return map;
-  }, [results]);
+  }, [activeResults]);
 
-  const totalBuilt = results.reduce((s, r) => s + (typeof r.built_sqm  === 'number' ? r.built_sqm  : 0), 0);
-  const totalLand  = results.reduce((s, r) => s + (typeof r.land_dunam === 'number' ? r.land_dunam : 0), 0);
+  // Group inactive rules by their activation condition for the hint bar
+  const inactiveByCondition = useMemo(() => {
+    const map = {};
+    inactiveResults.forEach(r => {
+      const key = r.is_active_condition || 'other';
+      if (!map[key]) map[key] = [];
+      map[key].push(r.service);
+    });
+    return map;
+  }, [inactiveResults]);
+
+  const totalBuilt = activeResults.reduce((s, r) => s + (typeof r.built_sqm  === 'number' ? r.built_sqm  : 0), 0);
+  const totalLand  = activeResults.reduce((s, r) => s + (typeof r.land_dunam === 'number' ? r.land_dunam : 0), 0);
 
   const toggleDrill = (key) => setOpenDrill(prev => prev === key ? null : key);
 
@@ -326,6 +352,32 @@ export default function Step3({ zone, onBack, onRestart, onCatalog, currentSimId
             ))}
           </div>
         </div>
+
+        {/* Inactive rules hint */}
+        {inactiveResults.length > 0 && (
+          <div style={{
+            background: '#fefce8', border: '1.5px solid #fde68a', borderRadius: 10,
+            padding: '12px 18px', marginBottom: 18,
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+          }}>
+            <span style={{ fontSize: 16, flexShrink: 0 }}>💡</span>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
+                {inactiveResults.length} כללים נוספים אינם פעילים — ניתן להפעיל בשלב 2
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {Object.entries(inactiveByCondition).map(([cond, services]) => (
+                  <span key={cond} style={{
+                    fontSize: 11, background: '#fef9c3', color: '#78350f',
+                    padding: '3px 9px', borderRadius: 20, border: '1px solid #fde68a',
+                  }}>
+                    {ACTIVE_COND_LABEL[cond] || cond}: {services.length} שירותים
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Results by category */}
         {Object.entries(grouped).map(([cat, rows]) => {

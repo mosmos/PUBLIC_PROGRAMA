@@ -45,7 +45,12 @@ function convertTopLevelTernary(expr) {
 function pyToJS(expr) {
   if (!expr || !expr.trim()) return '';
   return convertTernaryFull(
-    expr.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\b/g, '!')
+    expr
+      .replace(/\band\b/g, '&&')
+      .replace(/\bor\b/g, '||')
+      .replace(/\bnot\b/g, '!')
+      // Python `x in (a, b, ...)` → `[a, b, ...].includes(x)`
+      .replace(/\b(\w+)\s+in\s+\(([^)]+)\)/g, '[$2].includes($1)')
   );
 }
 
@@ -62,7 +67,15 @@ function evalExpr(jsExpr, ctx) {
 }
 
 export function buildContext(zone) {
-  return { ...zone.pop, housing_units: zone.housing_units || 0, settlement_type: 'B' };
+  return {
+    ...zone.pop,
+    housing_units:        zone.housing_units        || 0,
+    settlement_type:      zone.settlement_type       || 'B',
+    haredi_pct:           zone.haredi_pct            || 0,
+    special_education_pct: zone.special_education_pct || 0,
+    traditional_pct:      zone.traditional_pct       || 0,
+    age_14_17:            zone.age_14_17             || 0,
+  };
 }
 
 export function exprWithValues(pyExpr, ctx) {
@@ -81,6 +94,17 @@ export function exprWithValues(pyExpr, ctx) {
 export function runRules(zone, rulesJson) {
   const ctx = buildContext(zone);
   return rulesJson.rules.map(r => {
+    // Evaluate is_active_condition — if it exists and is falsy, mark inactive
+    let isActive = true;
+    if (r.is_active_condition) {
+      try { isActive = !!evalExpr(pyToJS(r.is_active_condition), ctx); }
+      catch { isActive = false; }
+    }
+
+    if (!isActive) {
+      return { ...r, required_units: null, built_sqm: null, land_dunam: null, isActive: false };
+    }
+
     const reqJS   = pyToJS(r.required_expr || '');
     const builtJS = pyToJS(r.built_expr    || '');
     const landJS  = pyToJS(r.land_expr     || '');
@@ -89,6 +113,7 @@ export function runRules(zone, rulesJson) {
       required_units: reqJS   ? evalExpr(reqJS,   ctx) : null,
       built_sqm:      builtJS ? evalExpr(builtJS, ctx) : null,
       land_dunam:     landJS  ? evalExpr(landJS,  ctx) : null,
+      isActive: true,
     };
   });
 }

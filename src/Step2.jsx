@@ -106,6 +106,11 @@ export default function Step2({ zone, onBack, onContinue }) {
   const [housingUnits, setHousingUnits] = useState(zone.housing_units);
   const [hhSize, setHhSize] = useState(zone.hh_size);
   const [mmPct, setMmPct] = useState(zone.mm_pct);
+  const [settlementType, setSettlementType] = useState(zone.settlement_type || 'B');
+  const [harediPct, setHarediPct] = useState(zone.haredi_pct || 0);
+  const [specialEdPct, setSpecialEdPct] = useState(zone.special_education_pct || 0);
+  const [traditionalPct, setTraditionalPct] = useState(zone.traditional_pct || 0);
+  const [age14_17, setAge14_17] = useState(zone.age_14_17 || 0);
 
   const setPopField = (key, val) => setPop(p => ({ ...p, [key]: val }));
 
@@ -119,9 +124,14 @@ export default function Step2({ zone, onBack, onContinue }) {
   const handleContinue = () => {
     const editedZone = {
       ...zone,
-      housing_units: housingUnits,
-      hh_size: hhSize,
-      mm_pct: mmPct,
+      housing_units:         housingUnits,
+      hh_size:               hhSize,
+      mm_pct:                mmPct,
+      settlement_type:       settlementType,
+      haredi_pct:            harediPct,
+      special_education_pct: specialEdPct,
+      traditional_pct:       traditionalPct,
+      age_14_17:             age14_17,
       pop: {
         ...pop,
         total:    derivedTotal,
@@ -230,6 +240,46 @@ export default function Step2({ zone, onBack, onContinue }) {
             <MetricInput label='יחידות דיור (יח"ד)' value={housingUnits} onChange={setHousingUnits} unit='יח"ד' />
             <MetricInput label='גודל משפחה' value={hhSize} onChange={setHhSize} unit='נפש/יח"ד' step={0.1} min={0} />
             <MetricInput label='% ממלכתי' value={mmPct} onChange={setMmPct} unit='%' step={0.1} min={0} />
+          </div>
+        </div>
+
+        {/* Extended demographics — activates rules_extend rules */}
+        <div style={{
+          background: '#fff', borderRadius: 12, padding: '18px 24px', marginBottom: 18,
+          border: '1.5px solid #e9d5ff', boxShadow: '0 1px 4px rgba(0,0,0,.05)',
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#475569', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span>🔧</span> נתוני אוכלוסייה מורחבים
+            <span style={{ fontSize: 11, fontWeight: 400, color: '#94a3b8', marginRight: 4 }}>
+              (מפעיל כללים נוספים: חרדי, חינוך מיוחד, דת)
+            </span>
+          </div>
+          <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 16 }}>
+            השאר ריק (0) אם לא רלוונטי — הכללים המורחבים יופעלו רק אם הערך גדול מ-0
+          </div>
+          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+            {/* Settlement type */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#475569' }}>סוג יישוב</label>
+              <select
+                value={settlementType}
+                onChange={e => setSettlementType(e.target.value)}
+                style={{
+                  padding: '7px 12px', borderRadius: 7, border: '1.5px solid #e2e8f0',
+                  fontSize: 14, fontWeight: 700, color: '#1e293b', background: '#fff',
+                  outline: 'none', fontFamily: 'inherit', cursor: 'pointer',
+                }}
+              >
+                <option value="A">A — מרכז גדול</option>
+                <option value="B">B — ממוצע</option>
+                <option value="C">C — פריפריה</option>
+              </select>
+            </div>
+
+            <MetricInput label="% חרדים"         value={harediPct}     onChange={setHarediPct}     unit="%" step={0.1} min={0} />
+            <MetricInput label="% חינוך מיוחד"   value={specialEdPct}  onChange={setSpecialEdPct}  unit="%" step={0.1} min={0} />
+            <MetricInput label="% מסורתיים"       value={traditionalPct} onChange={setTraditionalPct} unit="%" step={0.1} min={0} />
+            <MetricInput label="נוער 14–17 (חינוך חרדי)" value={age14_17} onChange={setAge14_17} unit="תושבים" step={1} min={0} />
           </div>
         </div>
 

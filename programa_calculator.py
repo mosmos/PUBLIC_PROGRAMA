@@ -477,12 +477,12 @@ def run_rules(pop_json: Dict[str, Any], rules_json: Dict[str, Any]) -> pd.DataFr
 # Scenario data model
 # ─────────────────────────────────────────────────────────────────────────────
 
-def new_scenario(name: str = "New Simulation", scenario_type: str = "local_program") -> Dict:
+def new_scenario(name: str = "City Plan 2026", scenario_type: str = "local_program", area_label: str = "New Neighborhood") -> Dict:
     now = datetime.now().isoformat(timespec="seconds")
     return {
         "id": str(uuid.uuid4())[:8],
         "name": name,
-        "area_label": "",
+        "area_label": area_label,
         "scenario_type": scenario_type,
         "status": "draft",
         "owner": "analyst",
@@ -610,7 +610,7 @@ html, body, [class*="css"] {
     border: 1px solid #d0d7de !important;
     color: #24292f !important;
     font-family: 'IBM Plex Mono', monospace !important;
-    font-size: 0.78rem !important;
+    font-size: 1.01rem !important;
     width: 100%;
     text-align: left;
     padding: 0.45rem 0.75rem;
@@ -634,21 +634,21 @@ html, body, [class*="css"] {
     padding: 16px 18px;
 }
 .kpi-card .label {
-    font-size: 0.72rem;
+    font-size: 0.94rem;
     color: #57606a;
     text-transform: uppercase;
     letter-spacing: .08em;
     font-family: 'IBM Plex Mono', monospace;
 }
 .kpi-card .value {
-    font-size: 1.8rem;
+    font-size: 2.34rem;
     font-weight: 600;
     color: #1f2328;
     margin-top: 4px;
     font-family: 'IBM Plex Mono', monospace;
 }
 .kpi-card .sub {
-    font-size: 0.72rem;
+    font-size: 0.94rem;
     color: #57606a;
     margin-top: 2px;
 }
@@ -671,17 +671,17 @@ html, body, [class*="css"] {
 .sc-card .sc-name {
     font-weight: 600;
     color: #1f2328;
-    font-size: 0.95rem;
+    font-size: 1.24rem;
 }
 .sc-card .sc-meta {
-    font-size: 0.75rem;
+    font-size: 0.98rem;
     color: #57606a;
     margin-top: 3px;
     font-family: 'IBM Plex Mono', monospace;
 }
 .sc-card .sc-badge {
     margin-left: auto;
-    font-size: 0.72rem;
+    font-size: 0.94rem;
     color: #57606a;
     white-space: nowrap;
 }
@@ -689,7 +689,7 @@ html, body, [class*="css"] {
 /* Section header */
 .sec-header {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
+    font-size: 0.94rem;
     color: #57606a;
     text-transform: uppercase;
     letter-spacing: .1em;
@@ -704,7 +704,7 @@ html, body, [class*="css"] {
     background: #f6f8fa !important;
     color: #57606a !important;
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
+    font-size: 0.94rem;
     text-transform: uppercase;
 }
 
@@ -715,13 +715,13 @@ body { background: #ffffff; }
 /* Page title */
 .page-title {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 1.3rem;
+    font-size: 1.69rem;
     font-weight: 600;
     color: #1f2328;
     margin-bottom: 4px;
 }
 .page-sub {
-    font-size: 0.8rem;
+    font-size: 1.04rem;
     color: #57606a;
     margin-bottom: 20px;
 }
@@ -741,7 +741,7 @@ body { background: #ffffff; }
     border-radius: 0;
     padding: 12px 24px;
     font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.95rem;
+    font-size: 1.24rem;
     font-weight: 600;
     color: #57606a;
     cursor: pointer;
@@ -766,11 +766,11 @@ body { background: #ffffff; }
     border-radius: 8px;
     padding: 10px 14px;
     margin-bottom: 8px;
-    font-size: 0.8rem;
+    font-size: 1.04rem;
     color: #24292f;
 }
 .comment-chip .ts {
-    font-size: 0.68rem;
+    font-size: 0.88rem;
     color: #57606a;
     font-family: 'IBM Plex Mono', monospace;
 }
@@ -786,7 +786,7 @@ body { background: #ffffff; }
     align-items: center;
     gap: 12px;
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.78rem;
+    font-size: 1.01rem;
     color: #24292f;
 }
 
@@ -801,7 +801,7 @@ body { background: #ffffff; }
     margin-bottom: 0 !important;
 }
 [data-testid="stTabs"] button {
-    font-size: 0.95rem !important;
+    font-size: 1.24rem !important;
     font-weight: 600 !important;
     font-family: 'IBM Plex Sans', sans-serif !important;
     color: #57606a !important;
@@ -829,7 +829,7 @@ body { background: #ffffff; }
 /* Streamlit overrides */
 .stSelectbox label, .stNumberInput label, .stTextInput label, .stTextArea label {
     color: #57606a !important;
-    font-size: 0.78rem !important;
+    font-size: 1.01rem !important;
     font-family: 'IBM Plex Mono', monospace !important;
     text-transform: uppercase;
     letter-spacing: .06em;
@@ -839,7 +839,7 @@ body { background: #ffffff; }
     border: 1px solid #0969da !important;
     color: #0969da !important;
     font-family: 'IBM Plex Mono', monospace !important;
-    font-size: 0.8rem !important;
+    font-size: 1.04rem !important;
     border-radius: 7px !important;
 }
 .stButton > button:hover {
@@ -850,13 +850,48 @@ body { background: #ffffff; }
     background: #0969da !important;
     color: #fff !important;
 }
+
+/* Radio button styling */
+.stRadio {
+    margin-top: 12px !important;
+    margin-bottom: 12px !important;
+}
+.stRadio label {
+    font-size: 1.04rem !important;
+    color: #1f2328 !important;
+    font-weight: 500 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 8px 0 !important;
+    cursor: pointer !important;
+}
+.stRadio [role="radio"] {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+}
+.stRadio [role="radio"]::before {
+    width: 24px !important;
+    height: 24px !important;
+}
+.stRadio input[type="radio"] {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    cursor: pointer !important;
+    accent-color: #0969da !important;
+}
+
 div[data-testid="stMetric"] {
     background: #f6f8fa;
     border: 1px solid #d0d7de;
     border-radius: 10px;
     padding: 14px;
 }
-div[data-testid="stMetric"] label { color: #57606a !important; font-size: 0.72rem !important; }
+div[data-testid="stMetric"] label { color: #57606a !important; font-size: 0.94rem !important; }
 div[data-testid="stMetric"] [data-testid="stMetricValue"] { color: #1f2328 !important; font-family: 'IBM Plex Mono', monospace !important; }
 
 /* Result table row styling */
@@ -888,7 +923,7 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] { color: #1f2328 !impo
 @media (max-width: 1024px) {
     /* Tablet adjustments */
     html, body, [class*="css"] {
-        font-size: 14px;
+        font-size: 18.2px;
     }
     [data-testid="stSidebar"] {
         width: 200px !important;
@@ -898,19 +933,19 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] { color: #1f2328 !impo
 @media (max-width: 768px) {
     /* Mobile adjustments */
     html, body, [class*="css"] {
-        font-size: 13px;
+        font-size: 16.9px;
     }
 
     /* Wider buttons for touch */
     .stButton > button {
         padding: 12px 16px !important;
-        font-size: 0.9rem !important;
+        font-size: 1.17rem !important;
         min-height: 44px !important;
     }
 
     /* Tab improvements */
     [data-testid="stTabs"] button {
-        font-size: 0.85rem !important;
+        font-size: 1.11rem !important;
         padding: 10px 14px !important;
     }
 
@@ -936,14 +971,14 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] { color: #1f2328 !impo
 
     /* Smaller category headers */
     .sec-header {
-        font-size: 0.95rem !important;
+        font-size: 1.24rem !important;
     }
 }
 
 @media (max-width: 480px) {
     /* Small mobile adjustments */
     html, body, [class*="css"] {
-        font-size: 12px;
+        font-size: 15.6px;
     }
 
     /* Minimal margins */
@@ -959,12 +994,12 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] { color: #1f2328 !impo
     .stButton > button {
         min-height: 48px !important;
         padding: 14px 12px !important;
-        font-size: 0.85rem !important;
+        font-size: 1.11rem !important;
     }
 
     /* Tab text smaller */
     [data-testid="stTabs"] button {
-        font-size: 0.75rem !important;
+        font-size: 0.98rem !important;
         padding: 8px 10px !important;
     }
 
@@ -1115,9 +1150,9 @@ def page_workbench():
         st.markdown(f'<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.9rem;color:#0969da;padding-top:8px">v{s["version"]}</div>', unsafe_allow_html=True)
 
     # ── tab bar ──────────────────────────────────────────────────────────────
-    tabs = ["📐 Assumptions", "📊 Calculator", "📈 What-If", "💬 Comments & Versions"]
-    tab_keys = ["assumptions", "calculator", "whatif", "comments"]
-    cur = st.session_state.get("workbench_tab", "assumptions")
+    tabs = ["📊 Calculator", "📐 Assumptions", "📈 What-If", "💬 Comments & Versions"]
+    tab_keys = ["calculator", "assumptions", "whatif", "comments"]
+    cur = st.session_state.get("workbench_tab", "calculator")
 
     chosen = st.radio("Tab", tabs, index=tab_keys.index(cur), horizontal=True, label_visibility="collapsed")
     new_tab = tab_keys[tabs.index(chosen)]
@@ -1306,7 +1341,7 @@ def tab_calculator(s: Dict):
     # Category sections
     ctx = build_context(s["population"])
 
-    for cat in categories:
+    for cat_idx, cat in enumerate(categories):
         cat_df = df[df["category"] == cat].copy()
         color = CATEGORY_COLORS.get(cat, "#888")
         cat_built = pd.to_numeric(cat_df["built_sqm"], errors="coerce").fillna(0).sum()
@@ -1710,7 +1745,7 @@ def main():
     init_state()
     render_sidebar()
 
-    page = st.session_state.get("page", "catalog")
+    page = st.session_state.get("page", "workbench")
     if page == "catalog":
         page_catalog()
     elif page == "workbench":

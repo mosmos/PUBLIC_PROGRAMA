@@ -3,6 +3,112 @@ import WizardSteps from './WizardSteps';
 import { runRules, buildContext, exprWithValues } from './calcEngine';
 import rulesData from '../rules.json';
 
+function SavePanel({ zone, currentSimId, onSave, onSaveCopy, onCatalog }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState(zone.name);
+  const [saved, setSaved] = useState(null); // 'new' | 'copy' | 'update'
+
+  const handleSave = () => {
+    onSave(name);
+    setSaved(currentSimId ? 'update' : 'new');
+    setOpen(false);
+  };
+  const handleCopy = () => {
+    onSaveCopy(name);
+    setSaved('copy');
+    setOpen(false);
+  };
+
+  if (saved) {
+    return (
+      <div style={{
+        background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10,
+        padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 20 }}>✅</span>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#15803d' }}>
+              {saved === 'copy' ? 'עותק נשמר בהצלחה' : saved === 'update' ? 'גרסה חדשה נשמרה' : 'הסימולציה נשמרה'}
+            </div>
+            <div style={{ fontSize: 12, color: '#4ade80' }}>"{name}"</div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() => { setSaved(null); setOpen(false); }} style={{
+            padding: '6px 14px', borderRadius: 7, border: '1px solid #86efac',
+            background: '#fff', color: '#15803d', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600,
+          }}>שמור שוב</button>
+          <button onClick={onCatalog} style={{
+            padding: '6px 14px', borderRadius: 7, border: 'none',
+            background: '#16a34a', color: '#fff', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700,
+          }}>📋 עבור לקטלוג</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 10,
+      padding: open ? '14px 20px' : '0',
+      overflow: 'hidden', transition: 'padding .15s',
+    }}>
+      {!open ? (
+        <div style={{ display: 'flex', gap: 8, padding: '0' }}>
+          <button onClick={() => setOpen(true)} style={{
+            padding: '11px 22px', borderRadius: 9, border: 'none',
+            background: 'linear-gradient(135deg,#2563eb,#1d4ed8)',
+            color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+            boxShadow: '0 2px 6px rgba(37,99,235,.25)',
+          }}>
+            {currentSimId ? '💾 שמור גרסה חדשה' : '💾 שמור סימולציה'}
+          </button>
+          {currentSimId && (
+            <button onClick={() => { setOpen(true); }} style={{
+              padding: '11px 18px', borderRadius: 9, border: '1.5px solid #e2e8f0',
+              background: '#fff', color: '#475569', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+            }}>שמור עותק</button>
+          )}
+        </div>
+      ) : (
+        <>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#475569', marginBottom: 10 }}>שם הסימולציה</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="text" value={name} onChange={e => setName(e.target.value)}
+              style={{
+                flex: 1, minWidth: 200, padding: '8px 12px', borderRadius: 7,
+                border: '1.5px solid #2563eb', fontSize: 14, outline: 'none',
+                fontFamily: 'inherit', color: '#1e293b',
+              }}
+              onKeyDown={e => e.key === 'Enter' && handleSave()}
+              autoFocus
+            />
+            <button onClick={handleSave} disabled={!name.trim()} style={{
+              padding: '8px 18px', borderRadius: 7, border: 'none',
+              background: name.trim() ? '#2563eb' : '#e2e8f0',
+              color: name.trim() ? '#fff' : '#94a3b8',
+              fontSize: 13, fontWeight: 700, cursor: name.trim() ? 'pointer' : 'not-allowed',
+              fontFamily: 'inherit',
+            }}>{currentSimId ? 'שמור גרסה' : 'שמור'}</button>
+            <button onClick={handleCopy} disabled={!name.trim()} style={{
+              padding: '8px 18px', borderRadius: 7, border: '1.5px solid #e2e8f0',
+              background: '#fff', color: '#475569',
+              fontSize: 13, fontWeight: 600, cursor: name.trim() ? 'pointer' : 'not-allowed',
+              fontFamily: 'inherit',
+            }}>שמור עותק</button>
+            <button onClick={() => setOpen(false)} style={{
+              padding: '8px 12px', borderRadius: 7, border: '1.5px solid #e2e8f0',
+              background: '#fff', color: '#94a3b8', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
+            }}>ביטול</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 const CAT_META = {
   'Education':           { color: '#4E9AF1', bg: '#eff6ff', icon: '🎓', label: 'חינוך' },
   'Health':              { color: '#0d9488', bg: '#f0fdfa', icon: '🏥', label: 'בריאות' },
@@ -143,11 +249,15 @@ function DrillDown({ r, ctx, meta }) {
   );
 }
 
-export default function Step3({ zone, onBack, onRestart }) {
+export default function Step3({ zone, onBack, onRestart, onCatalog, currentSimId, onSave, onSaveCopy }) {
   const [openDrill, setOpenDrill] = useState(null);
 
   const ctx     = useMemo(() => buildContext(zone), [zone]);
   const results = useMemo(() => runRules(zone, rulesData), [zone]);
+
+  // Wrap save handlers so results are always included
+  const handleSave = (name) => onSave(name, results);
+  const handleSaveCopy = (name) => onSaveCopy(name, results);
 
   const grouped = useMemo(() => {
     const map = {};
@@ -176,6 +286,11 @@ export default function Step3({ zone, onBack, onRestart }) {
               background: '#fff', color: '#475569', fontSize: 13, cursor: 'pointer',
               fontFamily: 'inherit', fontWeight: 600,
             }}>← חזרה לפרופיל</button>
+            <button onClick={onCatalog} style={{
+              padding: '7px 16px', borderRadius: 8, border: '1.5px solid #e2e8f0',
+              background: '#fff', color: '#64748b', fontSize: 13, cursor: 'pointer',
+              fontFamily: 'inherit', fontWeight: 500,
+            }}>📋 קטלוג</button>
             <button onClick={onRestart} style={{
               padding: '7px 16px', borderRadius: 8, border: '1.5px solid #e2e8f0',
               background: '#fff', color: '#64748b', fontSize: 13, cursor: 'pointer',
@@ -311,6 +426,17 @@ export default function Step3({ zone, onBack, onRestart }) {
             </div>
           );
         })}
+
+        {/* Save panel */}
+        <div style={{ marginBottom: 16 }}>
+          <SavePanel
+            zone={zone}
+            currentSimId={currentSimId}
+            onSave={handleSave}
+            onSaveCopy={handleSaveCopy}
+            onCatalog={onCatalog}
+          />
+        </div>
 
         {/* Grand total */}
         <div style={{

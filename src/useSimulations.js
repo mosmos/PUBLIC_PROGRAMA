@@ -1,98 +1,74 @@
-import { useState, useCallback } from 'react';
-
-const KEY = 'programa_simulations';
-
-function loadFromStorage() {
-  try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
-
-function persist(sims) {
-  try { localStorage.setItem(KEY, JSON.stringify(sims)); } catch {}
-}
+import { useState, useEffect } from 'react';
 
 function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-export function useSimulations() {
-  const [sims, setSims] = useState(loadFromStorage);
+async function apiGet() {
+  const r = await fetch('/api/simulations');
+  return r.json();
+}
 
-  const saveNew = useCallback((name, zone, results) => {
+async function apiSave(sim) {
+  await fetch('/api/simulations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(sim),
+  });
+}
+
+async function apiDelete(id) {
+  await fetch(`/api/simulations/${id}`, { method: 'DELETE' });
+}
+
+export function useSimulations() {
+  const [sims, setSims] = useState({});
+
+  useEffect(() => {
+    apiGet().then(setSims).catch(() => setSims({}));
+  }, []);
+
+  const saveNew = async (name, zone, results) => {
     const id = genId();
     const now = new Date().toISOString();
     const sim = {
-      id,
-      name,
-      area_label: zone.name,
-      zone_type: zone.type_heb,
-      created_at: now,
-      updated_at: now,
-      version: 1,
-      zone,
-      results,
+      id, name, version: 1,
+      area_label: zone.name, zone_type: zone.type_heb,
+      zone, results,
+      created_at: now, updated_at: now,
     };
-    setSims(prev => {
-      const next = { ...prev, [id]: sim };
-      persist(next);
-      return next;
-    });
+    await apiSave(sim);
+    setSims(prev => ({ ...prev, [id]: sim }));
     return id;
-  }, []);
+  };
 
-  const saveVersion = useCallback((id, name, zone, results) => {
-    setSims(prev => {
-      const existing = prev[id] || {};
-      const next = {
-        ...prev,
-        [id]: {
-          ...existing,
-          id,
-          name,
-          area_label: zone.name,
-          zone_type: zone.type_heb,
-          updated_at: new Date().toISOString(),
-          version: (existing.version || 1) + 1,
-          zone,
-          results,
-        },
-      };
-      persist(next);
-      return next;
-    });
-  }, []);
+  const saveVersion = async (id, name, zone, results) => {
+    const existing = sims[id] || {};
+    const sim = {
+      ...existing,
+      id, name, zone, results,
+      area_label: zone.name, zone_type: zone.type_heb,
+      version: (existing.version || 1) + 1,
+      created_at: existing.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    await apiSave(sim);
+    setSims(prev => ({ ...prev, [id]: sim }));
+  };
 
-  const saveCopy = useCallback((sim) => {
+  const saveCopy = async (sim) => {
     const id = genId();
     const now = new Date().toISOString();
-    const copy = {
-      ...sim,
-      id,
-      name: `${sim.name} (עותק)`,
-      created_at: now,
-      updated_at: now,
-      version: 1,
-    };
-    setSims(prev => {
-      const next = { ...prev, [id]: copy };
-      persist(next);
-      return next;
-    });
+    const copy = { ...sim, id, name: `${sim.name} (עותק)`, version: 1, created_at: now, updated_at: now };
+    await apiSave(copy);
+    setSims(prev => ({ ...prev, [id]: copy }));
     return id;
-  }, []);
+  };
 
-  const deleteSim = useCallback((id) => {
-    setSims(prev => {
-      const next = { ...prev };
-      delete next[id];
-      persist(next);
-      return next;
-    });
-  }, []);
+  const deleteSim = async (id) => {
+    await apiDelete(id);
+    setSims(prev => { const n = { ...prev }; delete n[id]; return n; });
+  };
 
   return { sims, saveNew, saveVersion, saveCopy, deleteSim };
 }

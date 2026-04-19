@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import WizardSteps from './WizardSteps';
+import TopBar from './TopBar';
 
 const BUILT_META = {
   megurim:       { label: 'מגורים',     color: '#3b82f6' },
@@ -100,7 +100,7 @@ function MetricInput({ label, value, onChange, unit, step = 1, min = 0 }) {
   );
 }
 
-export default function Step2({ zone, onBack, onContinue }) {
+export default function Step2({ zone, onBack, onContinue, onCatalog }) {
   // Editable state — initialized from the zone
   const [pop, setPop] = useState({ ...zone.pop });
   const [housingUnits, setHousingUnits] = useState(zone.housing_units);
@@ -147,18 +147,15 @@ export default function Step2({ zone, onBack, onContinue }) {
   const maxBuilt = Math.max(...Object.values(zone.built), 1);
 
   return (
-    <div dir="rtl" style={{ fontFamily: "'Segoe UI', Arial, sans-serif", minHeight: '100vh', background: '#f0f4f8', padding: '24px 16px' }}>
-      <div style={{ maxWidth: 920, margin: '0 auto' }}>
-
-        {/* Wizard header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-          <WizardSteps current={2} />
-          <button onClick={onBack} style={{
-            padding: '7px 16px', borderRadius: 8, border: '1.5px solid #e2e8f0',
-            background: '#fff', color: '#475569', fontSize: 13, cursor: 'pointer',
-            fontFamily: 'inherit', fontWeight: 600,
-          }}>← חזרה</button>
-        </div>
+    <div dir="rtl" style={{ fontFamily: "'Segoe UI', Arial, sans-serif", minHeight: '100vh', background: '#f0f4f8' }}>
+      <TopBar
+        step={2}
+        zone={zone}
+        onBack={onBack}
+        onCatalog={onCatalog}
+        onContinue={handleContinue}
+      />
+      <div style={{ maxWidth: 920, margin: '0 auto', padding: '24px 16px' }}>
 
         {/* Zone header */}
         <div style={{
@@ -335,22 +332,15 @@ export default function Step2({ zone, onBack, onContinue }) {
           </div>
         </div>
 
-        {/* Continue */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 14 }}>
-          {derivedTotal !== zone.pop.total && (
-            <span style={{ fontSize: 12, color: '#f59e0b', fontWeight: 600 }}>
-              ⚠ נתונים שונו מהמקור — החישוב ישקף את הערכים המעודכנים
-            </span>
-          )}
-          <button onClick={handleContinue} style={{
-            padding: '12px 32px', borderRadius: 10, border: 'none',
-            background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-            color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer',
-            fontFamily: 'inherit', boxShadow: '0 2px 8px rgba(37,99,235,.3)',
+        {/* Changed-data warning */}
+        {derivedTotal !== zone.pop.total && (
+          <div style={{
+            background: '#fffbeb', border: '1.5px solid #fde68a', borderRadius: 9,
+            padding: '10px 16px', fontSize: 13, color: '#92400e', fontWeight: 600,
           }}>
-            המשך לחישוב ←
-          </button>
-        </div>
+            ⚠ נתונים שונו מהמקור — החישוב ישקף את הערכים המעודכנים
+          </div>
+        )}
 
       </div>
     </div>

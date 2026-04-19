@@ -1,4 +1,5 @@
 import { useState } from "react";
+import TopBar from "./src/TopBar";
 
 // ─── Real data from OUP_PROG_PARAMS_tab.xlsx ──────────────────────────────────
 // Neighborhoods (68), Census Tracts / Statistic Zones (184), Quarters (15)
@@ -107,7 +108,7 @@ function BuiltBars({ built }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function ZoneSelector({ onSelect }) {
+export default function ZoneSelector({ onSelect, onCatalog }) {
   const [activeType,  setActiveType]  = useState("neighborhood");
   const [extraMode,   setExtraMode]   = useState(null);
   const [search,      setSearch]      = useState("");
@@ -148,6 +149,12 @@ export default function ZoneSelector({ onSelect }) {
 
   return (
     <div dir="rtl" style={{ fontFamily: "'Heebo','Assistant',sans-serif", background: "#f0f4f8", minHeight: "100vh" }}>
+      <TopBar
+        step={1}
+        zone={selected}
+        onCatalog={onCatalog}
+        onContinue={selected ? () => onSelect(selected) : null}
+      />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
@@ -537,30 +544,19 @@ export default function ZoneSelector({ onSelect }) {
           </div>
         )}
 
-        {/* ── Continue button ── */}
-        <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 12 }}>
-          <button className="cb" disabled={!selected}
-            onClick={() => onSelect && onSelect(selected)}
-            style={{ padding: "11px 28px", borderRadius: 9, border: "none", fontFamily: "inherit", fontSize: 14, fontWeight: 800,
-              cursor: selected ? "pointer" : "not-allowed",
-              background: selected ? "linear-gradient(135deg,#2563eb,#1d4ed8)" : "#e2e8f0",
-              color: selected ? "#fff" : "#94a3b8" }}>
-            המשך לפרופיל אוכלוסייה ←
-          </button>
-
-          {selected && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-              <span style={{ color: "#10b981", fontWeight: 700 }}>✓</span>
-              <span style={{ fontWeight: 700, color: "#1e293b" }}>{selected.name}</span>
-              <span style={{ color: "#94a3b8" }}>·</span>
-              <span style={{ fontFamily: "monospace", background: "#e0f2fe", color: "#0369a1", padding: "2px 8px", borderRadius: 5, fontSize: 12, fontWeight: 700 }}>{selected.code}</span>
-              <span style={{ color: "#94a3b8" }}>·</span>
-              <span style={{ fontSize: 12, background: "#f1f5f9", color: "#475569", padding: "2px 7px", borderRadius: 5, fontWeight: 600 }}>{selected.type_heb}</span>
-              <span style={{ color: "#94a3b8" }}>·</span>
-              <span style={{ color: "#64748b" }}>{selected.pop.total > 0 ? `${selected.pop.total.toLocaleString()} תושבים` : "אין נתוני אוכלוסייה"}</span>
-            </div>
-          )}
-        </div>
+        {/* Selection confirmation */}
+        {selected && (
+          <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+            <span style={{ color: "#10b981", fontWeight: 700 }}>✓</span>
+            <span style={{ fontWeight: 700, color: "#1e293b" }}>{selected.name}</span>
+            <span style={{ color: "#94a3b8" }}>·</span>
+            <span style={{ fontFamily: "monospace", background: "#e0f2fe", color: "#0369a1", padding: "2px 8px", borderRadius: 5, fontSize: 12, fontWeight: 700 }}>{selected.code}</span>
+            <span style={{ color: "#94a3b8" }}>·</span>
+            <span style={{ fontSize: 12, background: "#f1f5f9", color: "#475569", padding: "2px 7px", borderRadius: 5, fontWeight: 600 }}>{selected.type_heb}</span>
+            <span style={{ color: "#94a3b8" }}>·</span>
+            <span style={{ color: "#64748b" }}>{selected.pop.total > 0 ? `${selected.pop.total.toLocaleString()} תושבים` : "אין נתוני אוכלוסייה"}</span>
+          </div>
+        )}
 
       </div>
     </div>

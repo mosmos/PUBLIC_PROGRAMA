@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import WizardSteps from './WizardSteps';
-import { runRules, buildContext, exprWithValues } from './calcEngine';
+import TopBar from './TopBar';
+import { runRules, buildContext } from './calcEngine';
+import { CAT_META, fmt, DrillDownPanel } from './DrillDownPanel';
 import rulesData from '../rules.json';
 import rulesExtend from '../rules_extend.json';
 
@@ -112,17 +113,6 @@ function SavePanel({ zone, currentSimId, onSave, onSaveCopy, onCatalog }) {
   );
 }
 
-const CAT_META = {
-  'Education':           { color: '#4E9AF1', bg: '#eff6ff', icon: '🎓', label: 'חינוך' },
-  'Health':              { color: '#0d9488', bg: '#f0fdfa', icon: '🏥', label: 'בריאות' },
-  'Culture & Community': { color: '#d97706', bg: '#fffbeb', icon: '🎭', label: 'תרבות וקהילה' },
-  'Welfare':             { color: '#ea580c', bg: '#fff7ed', icon: '🤝', label: 'רווחה' },
-  'Emergency':           { color: '#dc2626', bg: '#fef2f2', icon: '🚨', label: 'חירום' },
-  'Sports':              { color: '#7c3aed', bg: '#f5f3ff', icon: '⚽', label: 'ספורט' },
-  'Open Space':          { color: '#16a34a', bg: '#f0fdf4', icon: '🌳', label: 'שטח פתוח' },
-  'Citywide':            { color: '#ca8a04', bg: '#fefce8', icon: '🏙️', label: 'כלל עירוני' },
-  'Religion':            { color: '#7e22ce', bg: '#faf5ff', icon: '✡️', label: 'דת' },
-};
 
 const ACTIVE_COND_LABEL = {
   'haredi_pct > 0':           'הגדר % חרדים בשלב 2',
@@ -132,156 +122,75 @@ const ACTIVE_COND_LABEL = {
   'total >= 250000':           'אוכלוסייה מעל 250,000',
 };
 
-const POP_LABELS = {
-  total:        'סה"כ תושבים',
-  age_0_1:      'תינוקות 0–1',
-  age_0_3:      'ילדים 0–3',
-  age_1_6:      'ילדים 1–6',
-  age_0_6:      'ילדים 0–6',
-  age_3_6:      'ילדים 3–6',
-  age_6_12:     'ילדים 6–12',
-  age_11_18:    'נוער 11–18',
-  age_12_18:    'נוער 12–18',
-  age_18_45:    'בוגרים 18–45',
-  age_45_70:    'מבוגרים 45–70',
-  age_70_plus:  'קשישים 70+',
-  housing_units: 'יח"ד',
-};
+function EditableNum({ value, idx, field, overrides, setOverrides, decimals, color }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+  const isOverridden = overrides[idx]?.[field] !== undefined;
+  const display = isOverridden ? overrides[idx][field] : value;
 
-function fmt(v, decimals = 1) {
-  if (v === null || v === undefined) return '—';
-  if (typeof v === 'string') return v.startsWith('ERROR')
-    ? <span style={{ color: '#ef4444', fontSize: 11 }}>⚠️ שגיאה</span>
-    : v;
-  const n = Number(v);
-  if (Number.isNaN(n)) return '—';
-  if (n === 0) return '0';
-  if (decimals === 0 || Number.isInteger(n)) return Math.round(n).toLocaleString();
-  return n.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-}
+  const commit = () => {
+    const n = parseFloat(draft);
+    if (!isNaN(n)) setOverrides(prev => ({ ...prev, [idx]: { ...(prev[idx] || {}), [field]: n } }));
+    setEditing(false);
+  };
 
-function getBasisVars(basis, ctx) {
-  if (!basis) return [];
-  return Object.keys(ctx).filter(
-    k => k !== 'settlement_type' && new RegExp(`\\b${k}\\b`).test(basis)
+  if (editing) return (
+    <input
+      type="number" autoFocus value={draft}
+      onChange={e => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') setEditing(false); }}
+      onClick={e => e.stopPropagation()}
+      style={{
+        width: 80, textAlign: 'center', padding: '3px 6px', borderRadius: 5,
+        border: '1.5px solid #2563eb', fontSize: 13, fontFamily: 'inherit', outline: 'none',
+      }}
+    />
   );
-}
-
-function DrillDown({ r, ctx, meta }) {
-  const calcRows = [
-    { label: "יחידות נדרשות", expr: r.required_expr, result: r.required_units, color: meta.color, decimals: 0 },
-    { label: 'שטח בנוי (מ"ר)', expr: r.built_expr,    result: r.built_sqm,      color: '#475569',  decimals: 0 },
-    { label: 'קרקע (דונם)',    expr: r.land_expr,     result: r.land_dunam,     color: '#475569',  decimals: 2 },
-  ];
-  const basisVars = getBasisVars(r.basis, ctx);
 
   return (
-    <tr>
-      <td colSpan={5} style={{ padding: 0, background: '#f0f7ff', borderBottom: `2px solid ${meta.color}40` }}>
-        <div style={{ padding: '18px 24px 20px', direction: 'rtl' }}>
-
-          {/* Rule text */}
-          <div style={{
-            fontSize: 13, color: '#1e3a5f', fontWeight: 600,
-            padding: '10px 14px', marginBottom: 14,
-            background: '#fff', borderRadius: 8,
-            borderRight: `3px solid ${meta.color}`,
-            boxShadow: '0 1px 3px rgba(0,0,0,.06)',
-          }}>
-            {r.rule}
-          </div>
-
-          {/* Basis variables */}
-          {basisVars.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>בסיס חישוב:</span>
-              {basisVars.map(k => (
-                <span key={k} style={{
-                  fontFamily: 'monospace', background: '#e0f2fe', color: '#0369a1',
-                  padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700,
-                  border: '1px solid #bae6fd',
-                }}>
-                  {k} = {Number.isInteger(ctx[k]) ? ctx[k].toLocaleString() : ctx[k]}
-                  {POP_LABELS[k] && (
-                    <span style={{ fontFamily: 'inherit', fontWeight: 400, color: '#0284c7', marginRight: 5 }}>
-                      ({POP_LABELS[k]})
-                    </span>
-                  )}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Calculation cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 14 }}>
-            {calcRows.map(({ label, expr, result, color, decimals }) => (
-              <div key={label} style={{
-                background: '#fff', borderRadius: 10, padding: '13px 15px',
-                border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,.04)',
-              }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 10 }}>{label}</div>
-                {expr ? (
-                  <>
-                    <div style={{
-                      fontSize: 10, color: '#94a3b8', fontFamily: 'monospace',
-                      marginBottom: 3, wordBreak: 'break-all',
-                    }}>
-                      {expr}
-                    </div>
-                    <div style={{
-                      fontSize: 11, color: '#0369a1', fontFamily: 'monospace',
-                      marginBottom: 10, wordBreak: 'break-all',
-                      padding: '4px 7px', background: '#f0f9ff', borderRadius: 5,
-                    }}>
-                      ← {exprWithValues(expr, ctx)}
-                    </div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color }}>{fmt(result, decimals)}</div>
-                  </>
-                ) : (
-                  <div style={{ fontSize: 13, color: '#cbd5e1', paddingTop: 6 }}>לא מוגדר</div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Notes */}
-          {r.notes && (
-            <div style={{
-              fontSize: 12, color: '#64748b', display: 'flex', gap: 6,
-              alignItems: 'flex-start', background: '#fff', borderRadius: 7,
-              padding: '8px 12px', border: '1px solid #e2e8f0',
-            }}>
-              <span style={{ flexShrink: 0 }}>📝</span>
-              <span>{r.notes}</span>
-            </div>
-          )}
-        </div>
-      </td>
-    </tr>
+    <span
+      onClick={e => { e.stopPropagation(); setDraft(String(display ?? '')); setEditing(true); }}
+      title="לחץ לעריכה"
+      style={{
+        cursor: 'text', color: isOverridden ? '#2563eb' : (color || '#475569'),
+        fontWeight: isOverridden ? 800 : undefined,
+        borderBottom: isOverridden ? '1.5px dashed #93c5fd' : '1.5px solid transparent',
+        paddingBottom: 1,
+      }}
+    >
+      {fmt(display, decimals)}
+      {isOverridden && <span style={{ fontSize: 9, color: '#2563eb', marginRight: 2, verticalAlign: 'super' }}>✎</span>}
+    </span>
   );
 }
 
 export default function Step3({ zone, onBack, onRestart, onCatalog, currentSimId, onSave, onSaveCopy }) {
   const [openDrill, setOpenDrill] = useState(null);
+  const [overrides, setOverrides] = useState({});
 
   const ctx     = useMemo(() => buildContext(zone), [zone]);
   const results = useMemo(() => runRules(zone, ALL_RULES), [zone]);
 
-  const activeResults   = useMemo(() => results.filter(r => r.isActive !== false), [results]);
+  const activeResults = useMemo(() => results.filter(r => r.isActive !== false), [results]);
   const inactiveResults = useMemo(() => results.filter(r => r.isActive === false), [results]);
 
-  // Wrap save handlers so results are always included
-  const handleSave = (name) => onSave(name, activeResults);
-  const handleSaveCopy = (name) => onSaveCopy(name, activeResults);
+  // Merge manual overrides into results for totals + saving
+  const effectiveResults = useMemo(() =>
+    activeResults.map((r, idx) => overrides[idx] ? { ...r, ...overrides[idx] } : r),
+  [activeResults, overrides]);
+
+  const handleSave = (name) => onSave(name, effectiveResults);
+  const handleSaveCopy = (name) => onSaveCopy(name, effectiveResults);
 
   const grouped = useMemo(() => {
     const map = {};
-    activeResults.forEach(r => {
+    effectiveResults.forEach(r => {
       if (!map[r.category]) map[r.category] = [];
       map[r.category].push(r);
     });
     return map;
-  }, [activeResults]);
+  }, [effectiveResults]);
 
   // Group inactive rules by their activation condition for the hint bar
   const inactiveByCondition = useMemo(() => {
@@ -294,36 +203,24 @@ export default function Step3({ zone, onBack, onRestart, onCatalog, currentSimId
     return map;
   }, [inactiveResults]);
 
-  const totalBuilt = activeResults.reduce((s, r) => s + (typeof r.built_sqm  === 'number' ? r.built_sqm  : 0), 0);
-  const totalLand  = activeResults.reduce((s, r) => s + (typeof r.land_dunam === 'number' ? r.land_dunam : 0), 0);
+  const totalBuilt = effectiveResults.reduce((s, r) => s + (typeof r.built_sqm  === 'number' ? r.built_sqm  : 0), 0);
+  const totalLand  = effectiveResults.reduce((s, r) => s + (typeof r.land_dunam === 'number' ? r.land_dunam : 0), 0);
 
   const toggleDrill = (key) => setOpenDrill(prev => prev === key ? null : key);
 
   return (
-    <div dir="rtl" style={{ fontFamily: "'Segoe UI', Arial, sans-serif", minHeight: '100vh', background: '#f0f4f8', padding: '24px 16px' }}>
-      <div style={{ maxWidth: 860, margin: '0 auto' }}>
-
-        {/* Wizard header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-          <WizardSteps current={3} />
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={onBack} style={{
-              padding: '7px 16px', borderRadius: 8, border: '1.5px solid #e2e8f0',
-              background: '#fff', color: '#475569', fontSize: 13, cursor: 'pointer',
-              fontFamily: 'inherit', fontWeight: 600,
-            }}>← חזרה לפרופיל</button>
-            <button onClick={onCatalog} style={{
-              padding: '7px 16px', borderRadius: 8, border: '1.5px solid #e2e8f0',
-              background: '#fff', color: '#64748b', fontSize: 13, cursor: 'pointer',
-              fontFamily: 'inherit', fontWeight: 500,
-            }}>📋 קטלוג</button>
-            <button onClick={onRestart} style={{
-              padding: '7px 16px', borderRadius: 8, border: '1.5px solid #e2e8f0',
-              background: '#fff', color: '#64748b', fontSize: 13, cursor: 'pointer',
-              fontFamily: 'inherit', fontWeight: 500,
-            }}>בחר אזור אחר</button>
-          </div>
-        </div>
+    <div dir="rtl" style={{ fontFamily: "'Segoe UI', Arial, sans-serif", minHeight: '100vh', background: '#f0f4f8' }}>
+      <TopBar
+        step={3}
+        zone={zone}
+        currentSimId={currentSimId}
+        onBack={onBack}
+        onCatalog={onCatalog}
+        onRestart={onRestart}
+        onSave={handleSave}
+        onSaveCopy={handleSaveCopy}
+      />
+      <div style={{ maxWidth: 860, margin: '0 auto', padding: '24px 16px' }}>
 
         {/* Zone summary banner */}
         <div style={{
@@ -380,7 +277,11 @@ export default function Step3({ zone, onBack, onRestart, onCatalog, currentSimId
         )}
 
         {/* Results by category */}
-        {Object.entries(grouped).map(([cat, rows]) => {
+        {(() => {
+          // build service → global effectiveResults index map
+          const globalIdx = {};
+          effectiveResults.forEach((r, i) => { globalIdx[r.service] = i; });
+          return Object.entries(grouped).map(([cat, rows]) => {
           const meta = CAT_META[cat] || { color: '#94a3b8', bg: '#f8fafc', icon: '📋', label: cat };
           const catBuilt = rows.reduce((s, r) => s + (typeof r.built_sqm  === 'number' ? r.built_sqm  : 0), 0);
           const catLand  = rows.reduce((s, r) => s + (typeof r.land_dunam === 'number' ? r.land_dunam : 0), 0);
@@ -430,31 +331,41 @@ export default function Step3({ zone, onBack, onRestart, onCatalog, currentSimId
                   <tbody>
                     {rows.map((r, i) => {
                       const key = `${cat}-${i}`;
+                      const gIdx = globalIdx[r.service] ?? -1;
                       const isOpen = openDrill === key;
                       const rowBg = isOpen ? '#eff6ff' : i % 2 === 0 ? '#fff' : '#fafafa';
                       return (
                         <>
                           <tr
                             key={key}
-                            onClick={() => toggleDrill(key)}
                             style={{
                               borderBottom: isOpen ? 'none' : '1px solid #f1f5f9',
-                              background: rowBg,
-                              cursor: 'pointer',
-                              transition: 'background .12s',
+                              background: rowBg, transition: 'background .12s',
                             }}
                             onMouseEnter={e => { if (!isOpen) e.currentTarget.style.background = '#f0f7ff'; }}
                             onMouseLeave={e => { e.currentTarget.style.background = rowBg; }}
                           >
-                            <td style={{ padding: '10px 14px', fontWeight: 600, color: isOpen ? '#1d4ed8' : '#1e293b' }}>
+                            <td
+                              onClick={() => toggleDrill(key)}
+                              style={{ padding: '10px 14px', fontWeight: 600, cursor: 'pointer',
+                                color: isOpen ? '#1d4ed8' : '#1e293b' }}
+                            >
                               {r.service}
                             </td>
-                            <td style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 800, fontSize: 16, color: meta.color }}>
-                              {fmt(r.required_units, 0)}
+                            <td style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 800, fontSize: 16 }}>
+                              <EditableNum value={r.required_units} idx={gIdx} field="required_units"
+                                overrides={overrides} setOverrides={setOverrides} decimals={0} color={meta.color} />
                             </td>
-                            <td style={{ padding: '10px 14px', textAlign: 'center', color: '#475569' }}>{fmt(r.built_sqm)}</td>
-                            <td style={{ padding: '10px 14px', textAlign: 'center', color: '#475569' }}>{fmt(r.land_dunam)}</td>
                             <td style={{ padding: '10px 14px', textAlign: 'center' }}>
+                              <EditableNum value={r.built_sqm} idx={gIdx} field="built_sqm"
+                                overrides={overrides} setOverrides={setOverrides} decimals={1} />
+                            </td>
+                            <td style={{ padding: '10px 14px', textAlign: 'center' }}>
+                              <EditableNum value={r.land_dunam} idx={gIdx} field="land_dunam"
+                                overrides={overrides} setOverrides={setOverrides} decimals={2} />
+                            </td>
+                            <td style={{ padding: '10px 14px', textAlign: 'center', cursor: 'pointer' }}
+                              onClick={() => toggleDrill(key)}>
                               <span style={{
                                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                                 width: 22, height: 22, borderRadius: 6,
@@ -467,7 +378,7 @@ export default function Step3({ zone, onBack, onRestart, onCatalog, currentSimId
                             </td>
                           </tr>
                           {isOpen && (
-                            <DrillDown key={`dd-${key}`} r={r} ctx={ctx} meta={meta} />
+                            <DrillDownPanel key={`dd-${key}`} r={r} ctx={ctx} meta={meta} />
                           )}
                         </>
                       );
@@ -477,18 +388,8 @@ export default function Step3({ zone, onBack, onRestart, onCatalog, currentSimId
               </div>
             </div>
           );
-        })}
-
-        {/* Save panel */}
-        <div style={{ marginBottom: 16 }}>
-          <SavePanel
-            zone={zone}
-            currentSimId={currentSimId}
-            onSave={handleSave}
-            onSaveCopy={handleSaveCopy}
-            onCatalog={onCatalog}
-          />
-        </div>
+        });
+        })()}
 
         {/* Grand total */}
         <div style={{

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calculator Test</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 24px;
+        background: #f6f6f4;
+        color: #1b1b1b;
+      }
+      h1 {
+        margin: 0 0 12px 0;
+      }
+      .row {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .card {
+        background: #ffffff;
+        border: 1px solid #dedede;
+        border-radius: 8px;
+        padding: 12px;
+        flex: 1 1 360px;
+        min-width: 320px;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin: 8px 0 4px;
+      }
+      textarea {
+        width: 100%;
+        min-height: 240px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 12px;
+        border: 1px solid #cfcfcf;
+        border-radius: 6px;
+        padding: 8px;
+        box-sizing: border-box;
+        background: #fafafa;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #cfcfcf;
+        border-radius: 6px;
+        box-sizing: border-box;
+      }
+      button {
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid #1b1b1b;
+        background: #1b1b1b;
+        color: #fff;
+        cursor: pointer;
+      }
+      button.secondary {
+        background: #fff;
+        color: #1b1b1b;
+      }
+      .bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 8px 0 0;
+      }
+      pre {
+        background: #fafafa;
+        border: 1px solid #cfcfcf;
+        border-radius: 6px;
+        padding: 8px;
+        overflow: auto;
+        max-height: 360px;
+        font-size: 12px;
+      }
+      .status {
+        font-size: 12px;
+        color: #444;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Calculator Test</h1>
+    <div class="card">
+      <label for="apiBase">API base URL</label>
+      <input id="apiBase" type="text" value="http://localhost:8000" />
+      <div class="bar">
+        <button id="loadRules">Load rules</button>
+        <button id="loadPopulation">Load population</button>
+        <button id="runCalc">Run Calculator</button>
+        <span id="status" class="status"></span>
+      </div>
+      <input id="rulesFile" type="file" accept=".json,application/json" style="display:none" />
+      <input id="populationFile" type="file" accept=".json,application/json" style="display:none" />
+    </div>
+
+    <div class="row">
+      <div class="card">
+        <label for="rulesInput">Rules JSON</label>
+        <textarea id="rulesInput" spellcheck="false"></textarea>
+      </div>
+      <div class="card">
+        <label for="zoneInput">Population / Zone JSON</label>
+        <textarea id="zoneInput" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="card">
+        <label>Context (built from zone)</label>
+        <pre id="ctxOutput"></pre>
+      </div>
+      <div class="card">
+        <label>Results</label>
+        <pre id="resultsOutput"></pre>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const statusEl = $("status");
+
+      function setStatus(msg) {
+        statusEl.textContent = msg;
+      }
+
+      function pretty(obj) {
+        return JSON.stringify(obj, null, 2);
+      }
+
+      function parseJson(text, label) {
+        try {
+          return JSON.parse(text);
+        } catch (err) {
+          throw new Error(label + " JSON error: " + err.message);
+        }
+      }
+
+      async function loadRules(path) {
+        setStatus("Loading rules..." );
+        const res = await fetch(path);
+        if (!res.ok) {
+          throw new Error("rules request failed: " + res.status);
+        }
+        const data = await res.json();
+        $("rulesInput").value = pretty(data);
+        setStatus("rules loaded");
+      }
+
+      async function loadPopulation(path) {
+        setStatus("Loading population...");
+        const res = await fetch(path);
+        if (!res.ok) {
+          throw new Error("population request failed: " + res.status);
+        }
+        const data = await res.json();
+        $("zoneInput").value = pretty(data);
+        setStatus("population loaded");
+      }
+
+      async function runCalc() {
+        setStatus("Running...");
+        const base = $("apiBase").value.trim();
+
+        const rules = parseJson($("rulesInput").value, "Rules");
+        const zone = parseJson($("zoneInput").value, "Zone");
+
+        const res = await fetch(base + "/api/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ zone, rulesOverride: rules })
+        });
+
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error("Calculate failed: " + res.status + " " + msg);
+        }
+
+        const data = await res.json();
+        $("ctxOutput").textContent = pretty(data.ctx || {});
+        $("resultsOutput").textContent = pretty(data.results || []);
+        setStatus("Done");
+      }
+
+      function pickRulesFile() {
+        $("rulesFile").click();
+      }
+
+      function pickPopulationFile() {
+        $("populationFile").click();
+      }
+
+      $("loadRules").addEventListener("click", () => {
+        pickRulesFile();
+      });
+
+      $("loadPopulation").addEventListener("click", () => {
+        pickPopulationFile();
+      });
+
+      $("rulesFile").addEventListener("change", (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) {
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const data = parseJson(reader.result, "Rules");
+            $("rulesInput").value = pretty(data);
+            setStatus("rules loaded from file");
+          } catch (err) {
+            setStatus(err.message);
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      $("populationFile").addEventListener("change", (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) {
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const data = parseJson(reader.result, "Population");
+            $("zoneInput").value = pretty(data);
+            setStatus("population loaded from file");
+          } catch (err) {
+            setStatus(err.message);
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      $("runCalc").addEventListener("click", () => {
+        runCalc().catch((err) => setStatus(err.message));
+      });
+
+      // Load default rules and population on startup
+      loadRules("./rules.json").catch((err) => setStatus(err.message));
+      loadPopulation("./population_dummy.json").catch((err) => setStatus(err.message));
+    </script>
+  </body>
+</html>

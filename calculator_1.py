@@ -210,6 +210,97 @@ def load_json_file(path: str, fallback: Dict[str, Any]) -> Dict[str, Any]:
     except Exception:
         pass
     return fallback
+
+# ---------------------------------------------------------
+# Road Segment Map (dummy data)
+# ---------------------------------------------------------
+
+_ROAD_SEGMENTS = [
+    {"name": "Highway 1 (E–W)",       "lons": [34.775, 34.783, 34.793, 34.802], "lats": [32.080, 32.080, 32.080, 32.080], "count": 3400},
+    {"name": "Main Boulevard (N–S)",  "lons": [34.783, 34.783, 34.783, 34.783], "lats": [32.072, 32.078, 32.084, 32.090], "count": 2100},
+    {"name": "South Bypass",          "lons": [34.775, 34.787, 34.800, 34.812], "lats": [32.073, 32.070, 32.069, 32.071], "count": 2800},
+    {"name": "Northern Ring Road",    "lons": [34.776, 34.786, 34.796, 34.806], "lats": [32.090, 32.092, 32.092, 32.090], "count": 1450},
+    {"name": "Industrial Access Rd",  "lons": [34.800, 34.806, 34.811],         "lats": [32.071, 32.075, 32.078],         "count": 1750},
+    {"name": "Eastern Avenue",        "lons": [34.793, 34.799, 34.806],         "lats": [32.073, 32.077, 32.081],         "count": 870},
+    {"name": "Cross Street B",        "lons": [34.795, 34.795, 34.795],         "lats": [32.077, 32.081, 32.085],         "count": 680},
+    {"name": "Market Street",         "lons": [34.780, 34.786, 34.792],         "lats": [32.077, 32.078, 32.078],         "count": 540},
+    {"name": "Park Road",             "lons": [34.790, 34.791, 34.791],         "lats": [32.074, 32.078, 32.082],         "count": 220},
+    {"name": "Residential Lane A",    "lons": [34.787, 34.790, 34.794],         "lats": [32.085, 32.086, 32.087],         "count": 150},
+]
+
+
+def _count_to_color(count: float, min_c: float, max_c: float) -> str:
+    """Green (low) → yellow (mid) → red (high) hex color."""
+    t = (count - min_c) / (max_c - min_c) if max_c > min_c else 0.5
+    if t <= 0.5:
+        r = int(510 * t)
+        g = 200
+    else:
+        r = 255
+        g = int(200 * (1.0 - (t - 0.5) * 2))
+    return f"#{r:02x}{g:02x}00"
+
+
+def _count_to_width(count: float, min_c: float, max_c: float) -> int:
+    t = (count - min_c) / (max_c - min_c) if max_c > min_c else 0.5
+    return max(2, int(2 + 6 * t))
+
+
+def render_road_segment_map() -> None:
+    try:
+        import plotly.graph_objects as go
+    except ImportError:
+        st.warning("plotly is required for the road map. Run: pip install plotly")
+        return
+
+    counts = [s["count"] for s in _ROAD_SEGMENTS]
+    min_c, max_c = min(counts), max(counts)
+
+    fig = go.Figure()
+    for seg in _ROAD_SEGMENTS:
+        color = _count_to_color(seg["count"], min_c, max_c)
+        width = _count_to_width(seg["count"], min_c, max_c)
+        fig.add_trace(go.Scattermapbox(
+            mode="lines",
+            lon=seg["lons"],
+            lat=seg["lats"],
+            line=dict(width=width, color=color),
+            name=seg["name"],
+            hovertemplate=f"<b>{seg['name']}</b><br>Daily count: {seg['count']:,}<extra></extra>",
+        ))
+
+    all_lats = [lat for s in _ROAD_SEGMENTS for lat in s["lats"]]
+    all_lons = [lon for s in _ROAD_SEGMENTS for lon in s["lons"]]
+    center_lat = (min(all_lats) + max(all_lats)) / 2
+    center_lon = (min(all_lons) + max(all_lons)) / 2
+
+    fig.update_layout(
+        mapbox=dict(
+            style="open-street-map",
+            center=dict(lat=center_lat, lon=center_lon),
+            zoom=13,
+        ),
+        margin=dict(l=0, r=0, t=0, b=0),
+        height=500,
+        showlegend=True,
+        legend=dict(title="Road Segments", bgcolor="rgba(255,255,255,0.85)", x=0, y=1),
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    col_low, col_bar, col_high = st.columns([1, 4, 1])
+    with col_low:
+        st.markdown(f"🟢 **Low** ({min_c:,})")
+    with col_bar:
+        st.markdown(
+            '<div style="height:12px;background:linear-gradient(to right,#00c800,#ffc800,#ff0000);'
+            'border-radius:4px;margin-top:6px;"></div>',
+            unsafe_allow_html=True,
+        )
+    with col_high:
+        st.markdown(f"🔴 **High** ({max_c:,})")
+
+
 # ---------------------------------------------------------
 # Streamlit GUI
 # ---------------------------------------------------------
@@ -217,6 +308,12 @@ def load_json_file(path: str, fallback: Dict[str, Any]) -> Dict[str, Any]:
 st.set_page_config(page_title="Public Services Simulator", layout="wide")
 st.title("Public Services Simulator for Urban Planners")
 st.caption("Input population and rules as JSON, get a table of required services, built area, and land area. Designed for urban planners to quickly test different scenarios and rulesets.")
+
+st.subheader("Road Segment Map")
+st.caption("Dummy road segments — color and line width encode daily vehicle count (green = low, red = high).")
+render_road_segment_map()
+
+st.divider()
 
 def extract_declared_categories(rules_json: Dict[str, Any]) -> List[str]:
     categories: List[str] = []

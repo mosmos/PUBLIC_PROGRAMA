@@ -1,15 +1,18 @@
-import { exprWithValues } from './calcEngine';
+import { exprWithValues } from './exprFormat';
+import { C, F, R } from './theme';
 
+// v2: monochrome. Each category gets a single grayscale marker
+// (symbol + label) instead of color. Icons kept as textual glyphs only.
 export const CAT_META = {
-  'Education':           { color: '#4E9AF1', bg: '#eff6ff', icon: '🎓', label: 'חינוך' },
-  'Health':              { color: '#0d9488', bg: '#f0fdfa', icon: '🏥', label: 'בריאות' },
-  'Culture & Community': { color: '#d97706', bg: '#fffbeb', icon: '🎭', label: 'תרבות וקהילה' },
-  'Welfare':             { color: '#ea580c', bg: '#fff7ed', icon: '🤝', label: 'רווחה' },
-  'Emergency':           { color: '#dc2626', bg: '#fef2f2', icon: '🚨', label: 'חירום' },
-  'Sports':              { color: '#7c3aed', bg: '#f5f3ff', icon: '⚽', label: 'ספורט' },
-  'Open Space':          { color: '#16a34a', bg: '#f0fdf4', icon: '🌳', label: 'שטח פתוח' },
-  'Citywide':            { color: '#ca8a04', bg: '#fefce8', icon: '🏙️', label: 'כלל עירוני' },
-  'Religion':            { color: '#7e22ce', bg: '#faf5ff', icon: '✡️', label: 'דת' },
+  'Education':           { icon: '🎓', label: 'חינוך' },
+  'Health':              { icon: '🏥', label: 'בריאות' },
+  'Culture & Community': { icon: '🎭', label: 'תרבות וקהילה' },
+  'Welfare':             { icon: '🤝', label: 'רווחה' },
+  'Emergency':           { icon: '🚨', label: 'חירום' },
+  'Sports':              { icon: '⚽', label: 'ספורט' },
+  'Open Space':          { icon: '🌳', label: 'שטח פתוח' },
+  'Citywide':            { icon: '🏙️', label: 'כלל עירוני' },
+  'Religion':            { icon: '✡️', label: 'דת' },
 };
 
 export const POP_LABELS = {
@@ -31,7 +34,7 @@ export const POP_LABELS = {
 export function fmt(v, decimals = 1) {
   if (v === null || v === undefined) return '—';
   if (typeof v === 'string') return v.startsWith('ERROR')
-    ? <span style={{ color: '#ef4444', fontSize: 11 }}>⚠️ שגיאה</span>
+    ? <span style={{ color: C.ink, fontSize: F.xs }}>⚠️ שגיאה</span>
     : v;
   const n = Number(v);
   if (Number.isNaN(n)) return '—';
@@ -47,90 +50,82 @@ function getBasisVars(basis, ctx) {
   );
 }
 
-export function DrillDownPanel({ r, ctx, meta }) {
+export function DrillDownPanel({ r, ctx }) {
   const calcRows = [
-    { label: "יחידות נדרשות", expr: r.required_expr, result: r.required_units, color: meta.color, decimals: 0 },
-    { label: 'שטח בנוי (מ"ר)', expr: r.built_expr,    result: r.built_sqm,      color: '#475569',  decimals: 0 },
-    { label: 'קרקע (דונם)',    expr: r.land_expr,     result: r.land_dunam,     color: '#475569',  decimals: 2 },
+    { label: 'יחידות נדרשות',  expr: r.required_expr, result: r.required_units, decimals: 0 },
+    { label: 'שטח בנוי (מ"ר)', expr: r.built_expr,    result: r.built_sqm,      decimals: 0 },
+    { label: 'קרקע (דונם)',    expr: r.land_expr,     result: r.land_dunam,     decimals: 2 },
   ];
   const basisVars = getBasisVars(r.basis, ctx);
 
   return (
     <tr>
-      <td colSpan={5} style={{ padding: 0, background: '#f0f7ff', borderBottom: `2px solid ${meta.color}40` }}>
-        <div style={{ padding: '18px 24px 20px', direction: 'rtl' }}>
+      <td colSpan={5} style={{ padding: 0, background: C.panel, borderBottom: '2px solid ' + C.ink }}>
+        <div style={{ padding: '20px 24px', direction: 'rtl' }}>
 
-          {/* Rule text */}
           <div style={{
-            fontSize: 13, color: '#1e3a5f', fontWeight: 600,
-            padding: '10px 14px', marginBottom: 14,
-            background: '#fff', borderRadius: 8,
-            borderRight: `3px solid ${meta.color}`,
-            boxShadow: '0 1px 3px rgba(0,0,0,.06)',
+            fontSize: F.base, color: C.ink, fontWeight: 600,
+            padding: '12px 16px', marginBottom: 16,
+            background: C.surface, borderRadius: R.md,
+            borderRight: '4px solid ' + C.ink,
           }}>
             {r.rule}
           </div>
 
-          {/* Basis variables */}
           {basisVars.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>בסיס חישוב:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+              <span style={{ fontSize: F.small, fontWeight: 700, color: C.textDim }} title="המשתנים המשמשים לחישוב הכלל הזה">
+                בסיס חישוב:
+              </span>
               {basisVars.map(k => (
                 <span key={k} style={{
-                  fontFamily: 'monospace', background: '#e0f2fe', color: '#0369a1',
-                  padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700,
-                  border: '1px solid #bae6fd',
-                }}>
+                  fontFamily: 'monospace', background: C.surface, color: C.ink,
+                  padding: '4px 10px', borderRadius: R.sm, fontSize: F.small, fontWeight: 700,
+                  border: '1px solid ' + C.line,
+                }} title={POP_LABELS[k] || k}>
                   {k} = {Number.isInteger(ctx[k]) ? ctx[k].toLocaleString() : ctx[k]}
-                  {POP_LABELS[k] && (
-                    <span style={{ fontFamily: 'inherit', fontWeight: 400, color: '#0284c7', marginRight: 5 }}>
-                      ({POP_LABELS[k]})
-                    </span>
-                  )}
                 </span>
               ))}
             </div>
           )}
 
-          {/* Calculation cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 14 }}>
-            {calcRows.map(({ label, expr, result, color, decimals }) => (
+            {calcRows.map(({ label, expr, result, decimals }) => (
               <div key={label} style={{
-                background: '#fff', borderRadius: 10, padding: '13px 15px',
-                border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,.04)',
+                background: C.surface, borderRadius: R.md, padding: '14px 16px',
+                border: '1px solid ' + C.line,
               }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 10 }}>{label}</div>
+                <div style={{ fontSize: F.small, fontWeight: 700, color: C.textDim, marginBottom: 10 }}>{label}</div>
                 {expr ? (
                   <>
-                    <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'monospace', marginBottom: 3, wordBreak: 'break-all' }}>
+                    <div style={{ fontSize: F.xs, color: C.mute, fontFamily: 'monospace', marginBottom: 4, wordBreak: 'break-all' }} title="נוסחת החישוב">
                       {expr}
                     </div>
                     {ctx && (
                       <div style={{
-                        fontSize: 11, color: '#0369a1', fontFamily: 'monospace',
+                        fontSize: F.small, color: C.text, fontFamily: 'monospace',
                         marginBottom: 10, wordBreak: 'break-all',
-                        padding: '4px 7px', background: '#f0f9ff', borderRadius: 5,
-                      }}>
+                        padding: '5px 8px', background: C.panel, borderRadius: R.sm,
+                      }} title="הנוסחה עם ערכים מוחלפים">
                         ← {exprWithValues(expr, ctx)}
                       </div>
                     )}
-                    <div style={{ fontSize: 22, fontWeight: 800, color }}>{fmt(result, decimals)}</div>
+                    <div style={{ fontSize: F.h2, fontWeight: 800, color: C.ink }}>{fmt(result, decimals)}</div>
                   </>
                 ) : (
-                  <div style={{ fontSize: 13, color: '#cbd5e1', paddingTop: 6 }}>לא מוגדר</div>
+                  <div style={{ fontSize: F.base, color: C.mute, paddingTop: 6 }}>לא מוגדר</div>
                 )}
               </div>
             ))}
           </div>
 
-          {/* Notes */}
           {r.notes && (
             <div style={{
-              fontSize: 12, color: '#64748b', display: 'flex', gap: 6,
-              alignItems: 'flex-start', background: '#fff', borderRadius: 7,
-              padding: '8px 12px', border: '1px solid #e2e8f0',
+              fontSize: F.small, color: C.textDim, display: 'flex', gap: 8,
+              alignItems: 'flex-start', background: C.surface, borderRadius: R.sm,
+              padding: '10px 14px', border: '1px solid ' + C.line,
             }}>
-              <span style={{ flexShrink: 0 }}>📝</span>
+              <span style={{ flexShrink: 0 }}>הערה:</span>
               <span>{r.notes}</span>
             </div>
           )}

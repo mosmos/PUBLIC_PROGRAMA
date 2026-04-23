@@ -28,18 +28,18 @@ function App() {
   const handleOpen = (sim) => { setZone(sim.zone); setCurrentSimId(sim.id); setView('step3'); };
   const handleEdit = (sim) => { setZone(sim.zone); setCurrentSimId(sim.id); setView('step2'); };
 
-  const handleSave = async (name, results) => {
+  const handleSave = async (name, results, ctx) => {
     if (currentSimId) {
-      await saveVersion(currentSimId, name, zone, results);
+      await saveVersion(currentSimId, name, zone, results, ctx);
     } else {
-      const id = await saveNew(name, zone, results);
+      const id = await saveNew(name, zone, results, ctx);
       setCurrentSimId(id);
     }
   };
 
-  const handleSaveCopy = async (name, results) => {
+  const handleSaveCopy = async (name, results, ctx) => {
     await saveCopy({
-      name, zone, results, version: 1,
+      name, zone, results, ctx, version: 1,
       area_label: zone.name, zone_type: zone.type_heb,
       created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
     });
@@ -78,8 +78,8 @@ function App() {
         <Step3
           zone={zone}
           currentSimId={currentSimId}
-          onSave={(name, results) => handleSave(name, results)}
-          onSaveCopy={(name, results) => handleSaveCopy(name, results)}
+          onSave={(name, results, ctx) => handleSave(name, results, ctx)}
+          onSaveCopy={(name, results, ctx) => handleSaveCopy(name, results, ctx)}
           onBack={() => setView('step2')}
           onRestart={goRestart}
           onCatalog={goCatalog}

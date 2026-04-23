@@ -1,0 +1,21 @@
+{
+  "pop": {
+    "total": 12000,
+    "age_0_1": 220,
+    "age_1_3": 430,
+    "age_0_3": 650,
+    "age_1_6": 1280,
+    "age_0_6": 1500,
+    "age_3_6": 850,
+    "age_6_12": 1200,
+    "age_11_18": 1100,
+    "age_12_18": 1050,
+    "age_70_plus": 1400
+  },
+  "housing_units": 4500,
+  "haredi_pct": 12,
+  "special_education_pct": 4,
+  "traditional_pct": 18,
+  "age_14_17": 900,
+  "settlement_type": "B"
+}

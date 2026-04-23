@@ -4,13 +4,13 @@ function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-async function apiGet() {
-  const r = await fetch('/api/simulations');
+async function apiList() {
+  const r = await fetch('/api/scenarios');
   return r.json();
 }
 
 async function apiSave(sim) {
-  await fetch('/api/simulations', {
+  await fetch('/api/scenarios', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(sim),
@@ -18,23 +18,23 @@ async function apiSave(sim) {
 }
 
 async function apiDelete(id) {
-  await fetch(`/api/simulations/${id}`, { method: 'DELETE' });
+  await fetch(`/api/scenarios/${id}`, { method: 'DELETE' });
 }
 
 export function useSimulations() {
   const [sims, setSims] = useState({});
 
   useEffect(() => {
-    apiGet().then(setSims).catch(() => setSims({}));
+    apiList().then(setSims).catch(() => setSims({}));
   }, []);
 
-  const saveNew = async (name, zone, results) => {
+  const saveNew = async (name, zone, results, ctx) => {
     const id = genId();
     const now = new Date().toISOString();
     const sim = {
       id, name, version: 1,
       area_label: zone.name, zone_type: zone.type_heb,
-      zone, results,
+      zone, results, ctx,
       created_at: now, updated_at: now,
     };
     await apiSave(sim);
@@ -42,11 +42,11 @@ export function useSimulations() {
     return id;
   };
 
-  const saveVersion = async (id, name, zone, results) => {
+  const saveVersion = async (id, name, zone, results, ctx) => {
     const existing = sims[id] || {};
     const sim = {
       ...existing,
-      id, name, zone, results,
+      id, name, zone, results, ctx,
       area_label: zone.name, zone_type: zone.type_heb,
       version: (existing.version || 1) + 1,
       created_at: existing.created_at || new Date().toISOString(),

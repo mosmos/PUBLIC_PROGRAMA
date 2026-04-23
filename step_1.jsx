@@ -21,19 +21,19 @@ const POLY_EXTRA = [
 ];
 
 const LU = {
-  residential: { label: "מגורים",      color: "#3b82f6", bg: "#eff6ff" },
-  commercial:  { label: "מסחר",        color: "#f59e0b", bg: "#fffbeb" },
-  institution: { label: "מבני ציבור",  color: "#10b981", bg: "#ecfdf5" },
-  industrial:  { label: "תעסוקה",      color: "#6b7280", bg: "#f9fafb" },
-  parking:     { label: "חניה",        color: "#8b5cf6", bg: "#f5f3ff" },
+  residential: { label: "מגורים",      color: "#7a7a7a", bg: "#f5f5f5" },
+  commercial:  { label: "מסחר",        color: "#a7a7a7", bg: "#fafafa" },
+  institution: { label: "מבני ציבור",  color: "#808080", bg: "#f7f7f7" },
+  industrial:  { label: "תעסוקה",      color: "#727272", bg: "#fafafa" },
+  parking:     { label: "חניה",        color: "#7c7c7c", bg: "#f5f5f5" },
 };
 
 const BUILT_CFG = {
-  megurim:       { label: "מגורים",     color: "#3b82f6" },
-  mischar:       { label: "מסחר",       color: "#f59e0b" },
-  mivney_tzibur: { label: "מבני ציבור", color: "#10b981" },
-  taasuka:       { label: "תעסוקה",     color: "#6b7280" },
-  chanaya:       { label: "חניה",       color: "#8b5cf6" },
+  megurim:       { label: "מגורים",     color: "#7a7a7a" },
+  mischar:       { label: "מסחר",       color: "#a7a7a7" },
+  mivney_tzibur: { label: "מבני ציבור", color: "#808080" },
+  taasuka:       { label: "תעסוקה",     color: "#727272" },
+  chanaya:       { label: "חניה",       color: "#7c7c7c" },
 };
 
 // ─── Mini helpers ─────────────────────────────────────────────────────────────
@@ -51,13 +51,13 @@ function MiniBar({ land_use }) {
 
 function PopBars({ pop }) {
   const cohorts = [
-    { key: "age_0_3",    label: "0–3 (מעון)",    color: "#6366f1" },
-    { key: "age_3_6",    label: "3–6 (גן)",      color: "#8b5cf6" },
-    { key: "age_6_12",   label: "6–12 (יסודי)",  color: "#3b82f6" },
-    { key: "age_12_18",  label: "12–18 (תיכון)", color: "#0ea5e9" },
-    { key: "age_18_45",  label: "18–45",          color: "#10b981" },
-    { key: "age_45_70",  label: "45–70",          color: "#f59e0b" },
-    { key: "age_70_plus",label: "70+",            color: "#ef4444" },
+    { key: "age_0_3",    label: "0–3 (מעון)",    color: "#757575" },
+    { key: "age_3_6",    label: "3–6 (גן)",      color: "#7c7c7c" },
+    { key: "age_6_12",   label: "6–12 (יסודי)",  color: "#7a7a7a" },
+    { key: "age_12_18",  label: "12–18 (תיכון)", color: "#808080" },
+    { key: "age_18_45",  label: "18–45",          color: "#808080" },
+    { key: "age_45_70",  label: "45–70",          color: "#a7a7a7" },
+    { key: "age_70_plus",label: "70+",            color: "#777777" },
   ];
   const max = Math.max(...cohorts.map(c => pop[c.key] || 0), 1);
   return (
@@ -66,12 +66,12 @@ function PopBars({ pop }) {
         const val = pop[c.key] || 0;
         return (
           <div key={c.key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 86, textAlign: "right", fontSize: 11, color: "#64748b", flexShrink: 0 }}>{c.label}</div>
-            <div style={{ flex: 1, height: 16, background: "#f1f5f9", borderRadius: 3, overflow: "hidden" }}>
+            <div style={{ width: 86, textAlign: "right", fontSize: 11, color: "#727272", flexShrink: 0 }}>{c.label}</div>
+            <div style={{ flex: 1, height: 16, background: "#f4f4f4", borderRadius: 3, overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${(val / max) * 100}%`, background: c.color, borderRadius: 3, transition: "width .6s" }} />
             </div>
-            <div style={{ width: 52, fontSize: 11, fontWeight: 600, color: "#334155", flexShrink: 0 }}>{val.toLocaleString()}</div>
-            <div style={{ width: 36, fontSize: 10, color: "#94a3b8", flexShrink: 0 }}>
+            <div style={{ width: 52, fontSize: 11, fontWeight: 600, color: "#3f3f3f", flexShrink: 0 }}>{val.toLocaleString()}</div>
+            <div style={{ width: 36, fontSize: 10, color: "#a1a1a1", flexShrink: 0 }}>
               {pop.total ? ((val / pop.total) * 100).toFixed(1) : 0}%
             </div>
           </div>
@@ -90,16 +90,16 @@ function BuiltBars({ built }) {
         const cfg = BUILT_CFG[k];
         return (
           <div key={k} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 88, textAlign: "right", fontSize: 11, color: "#64748b", flexShrink: 0 }}>{cfg.label}</div>
-            <div style={{ flex: 1, height: 16, background: "#f1f5f9", borderRadius: 3, overflow: "hidden" }}>
+            <div style={{ width: 88, textAlign: "right", fontSize: 11, color: "#727272", flexShrink: 0 }}>{cfg.label}</div>
+            <div style={{ flex: 1, height: 16, background: "#f4f4f4", borderRadius: 3, overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${(val / max) * 100}%`, background: cfg.color, opacity: .8, borderRadius: 3, transition: "width .6s" }} />
             </div>
-            <div style={{ width: 68, fontSize: 11, fontWeight: 600, color: "#334155", flexShrink: 0 }}>{(val / 1000).toFixed(1)}k מ"ר</div>
-            <div style={{ width: 32, fontSize: 10, color: "#94a3b8", flexShrink: 0 }}>{((val / total) * 100).toFixed(0)}%</div>
+            <div style={{ width: 68, fontSize: 11, fontWeight: 600, color: "#3f3f3f", flexShrink: 0 }}>{(val / 1000).toFixed(1)}k מ"ר</div>
+            <div style={{ width: 32, fontSize: 10, color: "#a1a1a1", flexShrink: 0 }}>{((val / total) * 100).toFixed(0)}%</div>
           </div>
         );
       })}
-      <div style={{ marginTop: 4, fontSize: 11, color: "#94a3b8", textAlign: "right" }}>
+      <div style={{ marginTop: 4, fontSize: 11, color: "#a1a1a1", textAlign: "right" }}>
         סה"כ: {(total / 1000).toFixed(1)}k מ"ר
       </div>
     </div>
@@ -148,7 +148,7 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
     : 'א"ס';
 
   return (
-    <div dir="rtl" style={{ fontFamily: "'Heebo','Assistant',sans-serif", background: "#f0f4f8", minHeight: "100vh" }}>
+    <div dir="rtl" style={{ fontFamily: "'Heebo','Assistant',sans-serif", background: "#f3f3f3", minHeight: "100vh" }}>
       <TopBar
         step={1}
         zone={selected}
@@ -159,17 +159,17 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
         @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
         .zr{transition:background .12s;cursor:pointer}
-        .zr:hover td{background:#f0f7ff!important}
-        .zr.sel td{background:#dbeafe!important}
+        .zr:hover td{background:#f6f6f6!important}
+        .zr.sel td{background:#e8e8e8!important}
         .ptb{transition:all .17s;cursor:pointer}
         .ptb:hover{transform:translateY(-2px)}
-        .ptb.on{box-shadow:0 0 0 2.5px #3b82f6;background:#eff6ff!important;color:#1d4ed8!important;border-color:#3b82f6!important}
+        .ptb.on{box-shadow:0 0 0 2.5px #7a7a7a;background:#f5f5f5!important;color:#4f4f4f!important;border-color:#7a7a7a!important}
         .ttb{cursor:pointer;border:none;background:transparent;font-family:inherit;transition:color .12s}
-        .ttb.on{color:#2563eb;border-bottom:2.5px solid #2563eb}
+        .ttb.on{color:#606060;border-bottom:2.5px solid #606060}
         .ddt{cursor:pointer;border:none;background:transparent;font-family:inherit;transition:color .12s}
-        .ddt.on{color:#2563eb;border-bottom:2.5px solid #2563eb}
+        .ddt.on{color:#606060;border-bottom:2.5px solid #606060}
         .cb{transition:all .2s}
-        .cb:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 18px rgba(37,99,235,.35)}
+        .cb:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 18px rgba(96,96,96,.35)}
         .fi{animation:fi .28s ease}
         @keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
         .ddp{animation:dds .22s cubic-bezier(.25,.46,.45,.94)}
@@ -178,7 +178,7 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
       `}</style>
 
       {/* ── Header ── */}
-      <div style={{ background: "linear-gradient(135deg,#0f2744 0%,#1e4d8c 100%)", padding: "20px 32px", color: "#fff" }}>
+      <div style={{ background: "linear-gradient(135deg,#232323 0%,#464646 100%)", padding: "20px 32px", color: "#ffffff" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", gap: 14 }}>
           <span style={{ fontSize: 26 }}>🗺️</span>
           <div>
@@ -190,7 +190,7 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
               <div key={s.n} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 {i > 0 && <div style={{ width: 20, height: 1.5, background: "rgba(255,255,255,.25)" }} />}
                 <div style={{ display: "flex", alignItems: "center", gap: 5, opacity: s.n === 1 ? 1 : .4 }}>
-                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: s.n === 1 ? "#3b82f6" : "rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>{s.n}</div>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: s.n === 1 ? "#7a7a7a" : "rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>{s.n}</div>
                   <span style={{ fontSize: 12, fontWeight: s.n === 1 ? 700 : 400 }}>{s.l}</span>
                 </div>
               </div>
@@ -202,8 +202,8 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "22px 32px" }}>
 
         {/* ── Polygon type row ── */}
-        <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: "16px 20px", marginBottom: 16, boxShadow: "0 2px 8px rgba(0,0,0,.05)" }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: .6, marginBottom: 12, textTransform: "uppercase" }}>סוג פוליגון</div>
+        <div style={{ background: "#ffffff", borderRadius: 14, border: "1px solid #e7e7e7", padding: "16px 20px", marginBottom: 16, boxShadow: "0 2px 8px rgba(0,0,0,.05)" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#a1a1a1", letterSpacing: .6, marginBottom: 12, textTransform: "uppercase" }}>סוג פוליגון</div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
 
             {/* Main type buttons — label from type_heb */}
@@ -213,19 +213,19 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
               return (
                 <button key={key} className={`ptb${isOn ? " on" : ""}`} onClick={() => switchType(key)}
                   style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 10,
-                    border: "1.5px solid #e2e8f0", fontFamily: "inherit", background: "#fafafa", color: "#475569", fontSize: 13, fontWeight: isOn ? 700 : 500 }}>
+                    border: "1.5px solid #e7e7e7", fontFamily: "inherit", background: "#fafafa", color: "#535353", fontSize: 13, fontWeight: isOn ? 700 : 500 }}>
                   <span style={{ fontSize: 16 }}>{cfg.icon}</span>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                       {cfg.label}
-                      <span style={{ fontSize: 10, background: isOn ? "#bfdbfe" : "#f1f5f9", color: isOn ? "#1d4ed8" : "#94a3b8", padding: "1px 5px", borderRadius: 20, fontWeight: 700 }}>{count}</span>
+                      <span style={{ fontSize: 10, background: isOn ? "#d7d7d7" : "#f4f4f4", color: isOn ? "#4f4f4f" : "#a1a1a1", padding: "1px 5px", borderRadius: 20, fontWeight: 700 }}>{count}</span>
                     </div>
                   </div>
                 </button>
               );
             })}
 
-            <div style={{ width: 1, background: "#e2e8f0", height: 32, margin: "0 4px" }} />
+            <div style={{ width: 1, background: "#e7e7e7", height: 32, margin: "0 4px" }} />
 
             {/* Extra types */}
             {POLY_EXTRA.map(pt => {
@@ -233,7 +233,7 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
               return (
                 <button key={pt.id} className={`ptb${isOn ? " on" : ""}`} onClick={() => setExtraMode(isOn ? null : pt.id)}
                   style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 10,
-                    border: "1.5px solid #e2e8f0", fontFamily: "inherit", background: "#fafafa", color: "#475569", fontSize: 13, fontWeight: isOn ? 700 : 500 }}>
+                    border: "1.5px solid #e7e7e7", fontFamily: "inherit", background: "#fafafa", color: "#535353", fontSize: 13, fontWeight: isOn ? 700 : 500 }}>
                   <span style={{ fontSize: 16 }}>{pt.icon}</span>
                   <div>
                     <div>{pt.label}</div>
@@ -247,23 +247,23 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
 
         {/* ── Extra mode panels ── */}
         {extraMode === "taboo" && (
-          <div className="fi" style={{ marginBottom: 16, background: "#eff6ff", borderRadius: 14, border: "2px dashed #93c5fd", padding: "28px", textAlign: "center" }}>
+          <div className="fi" style={{ marginBottom: 16, background: "#f5f5f5", borderRadius: 14, border: "2px dashed #bcbcbc", padding: "28px", textAlign: "center" }}>
             <div style={{ fontSize: 36, marginBottom: 8 }}>📋</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#1d4ed8", marginBottom: 4 }}>ייבוא תכנית בניין עיר</div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>גרור קובץ תב"ע — GeoJSON, Shapefile (.zip), DXF — עד 50MB</div>
-            <button style={{ marginTop: 14, padding: "8px 20px", borderRadius: 8, border: "1.5px solid #3b82f6", background: "#fff", color: "#2563eb", fontFamily: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#4f4f4f", marginBottom: 4 }}>ייבוא תכנית בניין עיר</div>
+            <div style={{ fontSize: 12, color: "#727272" }}>גרור קובץ תב"ע — GeoJSON, Shapefile (.zip), DXF — עד 50MB</div>
+            <button style={{ marginTop: 14, padding: "8px 20px", borderRadius: 8, border: "1.5px solid #7a7a7a", background: "#ffffff", color: "#606060", fontFamily: "inherit", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
               או בחר קובץ מהמחשב
             </button>
           </div>
         )}
         {extraMode === "draw" && (
-          <div className="fi" style={{ marginBottom: 16, background: "#fff", borderRadius: 14, border: "1.5px dashed #a5b4fc", padding: "28px", textAlign: "center" }}>
+          <div className="fi" style={{ marginBottom: 16, background: "#ffffff", borderRadius: 14, border: "1.5px dashed #b8b8b8", padding: "28px", textAlign: "center" }}>
             <div style={{ fontSize: 36, marginBottom: 8 }}>✏️</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#4f46e5", marginBottom: 4 }}>מצב שרטוט פעיל</div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>לחץ על המפה להוספת נקודות — לחיצה כפולה לסגירת הפוליגון</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#5b5b5b", marginBottom: 4 }}>מצב שרטוט פעיל</div>
+            <div style={{ fontSize: 12, color: "#727272" }}>לחץ על המפה להוספת נקודות — לחיצה כפולה לסגירת הפוליגון</div>
             <div style={{ marginTop: 14, display: "flex", justifyContent: "center", gap: 10 }}>
               {["בטל", "נקה", "שמור פוליגון"].map(l => (
-                <button key={l} style={{ padding: "7px 16px", borderRadius: 7, border: "1.5px solid #e2e8f0", background: "#fff", fontFamily: "inherit", fontSize: 12, fontWeight: 600, color: "#475569", cursor: "pointer" }}>{l}</button>
+                <button key={l} style={{ padding: "7px 16px", borderRadius: 7, border: "1.5px solid #e7e7e7", background: "#ffffff", fontFamily: "inherit", fontSize: 12, fontWeight: 600, color: "#535353", cursor: "pointer" }}>{l}</button>
               ))}
             </div>
           </div>
@@ -271,75 +271,75 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
 
         {/* ── Data table ── */}
         {!extraMode && (
-          <div className="fi" style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,.05)" }}>
+          <div className="fi" style={{ background: "#ffffff", borderRadius: 14, border: "1px solid #e7e7e7", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,.05)" }}>
 
             {/* Toolbar */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 18px", borderBottom: "1px solid #e2e8f0", background: "#fafcff", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 18px", borderBottom: "1px solid #e7e7e7", background: "#fcfcfc", flexWrap: "wrap" }}>
               {/* inline type tabs */}
               <div style={{ display: "flex", gap: 0, borderBottom: "none" }}>
                 {Object.entries(TYPE_CONFIG).map(([key, cfg]) => (
                   <button key={key} className={`ttb${activeType === key ? " on" : ""}`} onClick={() => switchType(key)}
                     style={{ padding: "6px 12px", fontSize: 12, fontWeight: activeType === key ? 700 : 500,
-                      color: activeType === key ? "#1d4ed8" : "#64748b",
-                      borderBottom: activeType === key ? "2.5px solid #2563eb" : "2.5px solid transparent",
+                      color: activeType === key ? "#4f4f4f" : "#727272",
+                      borderBottom: activeType === key ? "2.5px solid #606060" : "2.5px solid transparent",
                       marginBottom: "-1px", display: "flex", alignItems: "center", gap: 4 }}>
                     {cfg.icon} {cfg.label}
-                    <span style={{ fontSize: 10, background: activeType === key ? "#dbeafe" : "#f1f5f9",
-                      color: activeType === key ? "#1d4ed8" : "#94a3b8", padding: "1px 5px", borderRadius: 20, fontWeight: 700 }}>
+                    <span style={{ fontSize: 10, background: activeType === key ? "#e8e8e8" : "#f4f4f4",
+                      color: activeType === key ? "#4f4f4f" : "#a1a1a1", padding: "1px 5px", borderRadius: 20, fontWeight: 700 }}>
                       {cfg.data().length}
                     </span>
                   </button>
                 ))}
               </div>
 
-              <div style={{ width: 1, height: 22, background: "#e2e8f0", margin: "0 4px" }} />
+              <div style={{ width: 1, height: 22, background: "#e7e7e7", margin: "0 4px" }} />
 
               {/* Rova filter */}
               <select value={rovaFilter} onChange={e => setRovaFilter(e.target.value)}
-                style={{ padding: "5px 10px", borderRadius: 7, border: "1.5px solid #e2e8f0", fontFamily: "inherit", fontSize: 12, color: "#475569", background: "#fff", outline: "none" }}>
+                style={{ padding: "5px 10px", borderRadius: 7, border: "1.5px solid #e7e7e7", fontFamily: "inherit", fontSize: 12, color: "#535353", background: "#ffffff", outline: "none" }}>
                 <option value="all">כל הרבעים</option>
                 {rovas.filter(r => r !== "all").map(r => <option key={r} value={r}>רובע {r}</option>)}
               </select>
 
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍  שם / קוד..."
-                style={{ marginRight: "auto", padding: "5px 11px", borderRadius: 7, border: "1.5px solid #e2e8f0", fontFamily: "inherit", fontSize: 12, width: 190, outline: "none", background: "#f8fafc" }} />
+                style={{ marginRight: "auto", padding: "5px 11px", borderRadius: 7, border: "1.5px solid #e7e7e7", fontFamily: "inherit", fontSize: 12, width: 190, outline: "none", background: "#fafafa" }} />
 
-              <span style={{ fontSize: 12, color: "#94a3b8", flexShrink: 0 }}>{filtered.length} תוצאות</span>
+              <span style={{ fontSize: 12, color: "#a1a1a1", flexShrink: 0 }}>{filtered.length} תוצאות</span>
             </div>
 
             {/* Table */}
             <table className="tbl">
               <thead>
-                <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
+                <tr style={{ background: "#fafafa", borderBottom: "2px solid #e7e7e7" }}>
                   <th style={{ width: 36, padding: "10px 14px" }} />
                   {/* (1) code */}
-                  <th style={{ padding: "10px 14px", textAlign: "right", color: "#475569", fontWeight: 700, fontSize: 12 }}>קוד</th>
+                  <th style={{ padding: "10px 14px", textAlign: "right", color: "#535353", fontWeight: 700, fontSize: 12 }}>קוד</th>
                   {/* (1) name / type_heb */}
-                  <th style={{ padding: "10px 14px", textAlign: "right", color: "#475569", fontWeight: 700, fontSize: 12 }}>{nameLabel}</th>
+                  <th style={{ padding: "10px 14px", textAlign: "right", color: "#535353", fontWeight: 700, fontSize: 12 }}>{nameLabel}</th>
                   {/* רובע */}
-                  <th style={{ padding: "10px 14px", textAlign: "center", color: "#475569", fontWeight: 700, fontSize: 12 }}>רובע</th>
+                  <th style={{ padding: "10px 14px", textAlign: "center", color: "#535353", fontWeight: 700, fontSize: 12 }}>רובע</th>
                   {/* יח"ד */}
-                  <th style={{ padding: "10px 14px", textAlign: "center", color: "#475569", fontWeight: 700, fontSize: 12 }}>יח"ד</th>
+                  <th style={{ padding: "10px 14px", textAlign: "center", color: "#535353", fontWeight: 700, fontSize: 12 }}>יח"ד</th>
                   {/* (3) land use profile */}
-                  <th style={{ padding: "10px 14px", textAlign: "right", color: "#475569", fontWeight: 700, fontSize: 12 }}>פרופיל אזור</th>
+                  <th style={{ padding: "10px 14px", textAlign: "right", color: "#535353", fontWeight: 700, fontSize: 12 }}>פרופיל אזור</th>
                   {/* (4) population */}
-                  <th style={{ padding: "10px 14px", textAlign: "center", color: "#475569", fontWeight: 700, fontSize: 12 }}>אוכלוסייה</th>
+                  <th style={{ padding: "10px 14px", textAlign: "center", color: "#535353", fontWeight: 700, fontSize: 12 }}>אוכלוסייה</th>
                   {/* drill */}
-                  <th style={{ padding: "10px 14px", textAlign: "center", color: "#475569", fontWeight: 700, fontSize: 12 }}>חתך</th>
+                  <th style={{ padding: "10px 14px", textAlign: "center", color: "#535353", fontWeight: 700, fontSize: 12 }}>חתך</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 && (
-                  <tr><td colSpan={8} style={{ padding: "32px", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>לא נמצאו תוצאות</td></tr>
+                  <tr><td colSpan={8} style={{ padding: "32px", textAlign: "center", color: "#a1a1a1", fontSize: 13 }}>לא נמצאו תוצאות</td></tr>
                 )}
                 {filtered.map(zone => {
                   const isSel = selected?.id === zone.id;
                   const isDd  = drilldown?.id === zone.id;
-                  const bg    = isSel ? "#dbeafe" : "#fff";
+                  const bg    = isSel ? "#e8e8e8" : "#ffffff";
 
                   // dominant land use
                   const domLUEntry = Object.entries(zone.land_use).filter(([,v]) => v > 0).sort((a, b) => b[1] - a[1])[0];
-                  const domLU = domLUEntry ? LU[domLUEntry[0]] : { label: "—", color: "#94a3b8", bg: "#f9fafb" };
+                  const domLU = domLUEntry ? LU[domLUEntry[0]] : { label: "—", color: "#a1a1a1", bg: "#fafafa" };
                   const domPct = domLUEntry?.[1] || 0;
 
                   return (
@@ -347,23 +347,23 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
                       <tr key={zone.id} className={`zr${isSel ? " sel" : ""}`} onClick={() => setSelected(zone)}>
                         {/* radio */}
                         <td style={{ padding: "11px 14px", background: bg }}>
-                          <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${isSel ? "#3b82f6" : "#cbd5e1"}`, background: isSel ? "#3b82f6" : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            {isSel && <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#fff" }} />}
+                          <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${isSel ? "#7a7a7a" : "#d3d3d3"}`, background: isSel ? "#7a7a7a" : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            {isSel && <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#ffffff" }} />}
                           </div>
                         </td>
 
                         {/* code */}
                         <td style={{ padding: "11px 14px", background: bg }}>
-                          <span style={{ fontFamily: "monospace", fontWeight: 800, fontSize: 12, background: "#e0f2fe", color: "#0369a1", padding: "3px 8px", borderRadius: 5 }}>{zone.code}</span>
+                          <span style={{ fontFamily: "monospace", fontWeight: 800, fontSize: 12, background: "#eeeeee", color: "#515151", padding: "3px 8px", borderRadius: 5 }}>{zone.code}</span>
                         </td>
 
                         {/* name + type_heb badge */}
                         <td style={{ padding: "11px 14px", background: bg }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                            <span style={{ fontWeight: 600, color: "#1e293b" }}>{zone.name}</span>
+                            <span style={{ fontWeight: 600, color: "#282828" }}>{zone.name}</span>
                             <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 6px", borderRadius: 20,
-                              background: activeType === "neighborhood" ? "#ecfdf5" : activeType === "quarter" ? "#fef3c7" : "#eff6ff",
-                              color: activeType === "neighborhood" ? "#166534" : activeType === "quarter" ? "#92400e" : "#1d4ed8" }}>
+                              background: activeType === "neighborhood" ? "#f7f7f7" : activeType === "quarter" ? "#f1f1f1" : "#f5f5f5",
+                              color: activeType === "neighborhood" ? "#484848" : activeType === "quarter" ? "#535353" : "#4f4f4f" }}>
                               {zone.type_heb}
                             </span>
                           </div>
@@ -371,12 +371,12 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
 
                         {/* rova */}
                         <td style={{ padding: "11px 14px", textAlign: "center", background: bg }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, background: "#f1f5f9", color: "#475569", padding: "2px 8px", borderRadius: 20 }}>ר׳ {zone.rova}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, background: "#f4f4f4", color: "#535353", padding: "2px 8px", borderRadius: 20 }}>ר׳ {zone.rova}</span>
                         </td>
 
                         {/* yd */}
-                        <td style={{ padding: "11px 14px", textAlign: "center", fontWeight: 700, color: "#1e3a5f", background: bg }}>
-                          {zone.housing_units > 0 ? zone.housing_units.toLocaleString() : <span style={{ color: "#cbd5e1" }}>—</span>}
+                        <td style={{ padding: "11px 14px", textAlign: "center", fontWeight: 700, color: "#363636", background: bg }}>
+                          {zone.housing_units > 0 ? zone.housing_units.toLocaleString() : <span style={{ color: "#d3d3d3" }}>—</span>}
                         </td>
 
                         {/* land use */}
@@ -393,20 +393,20 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
                         <td style={{ padding: "11px 14px", textAlign: "center", background: bg }}>
                           {zone.pop.total > 0 ? (
                             <>
-                              <div style={{ fontWeight: 800, fontSize: 14, color: "#1e3a5f" }}>{zone.pop.total.toLocaleString()}</div>
-                              <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>
+                              <div style={{ fontWeight: 800, fontSize: 14, color: "#363636" }}>{zone.pop.total.toLocaleString()}</div>
+                              <div style={{ fontSize: 10, color: "#a1a1a1", marginTop: 1 }}>
                                 {zone.hh_size > 0 ? `${zone.hh_size} נפש/יח"ד` : ""}
                               </div>
                             </>
                           ) : (
-                            <span style={{ fontSize: 12, color: "#cbd5e1" }}>—</span>
+                            <span style={{ fontSize: 12, color: "#d3d3d3" }}>—</span>
                           )}
                         </td>
 
                         {/* drill toggle */}
                         <td style={{ padding: "11px 14px", textAlign: "center", background: bg }}>
                           <button onClick={e => toggleDd(e, zone)}
-                            style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid", borderColor: isDd ? "#3b82f6" : "#e2e8f0", background: isDd ? "#eff6ff" : "#fff", color: isDd ? "#2563eb" : "#94a3b8", fontSize: 12, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", transition: "all .15s" }}>
+                            style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid", borderColor: isDd ? "#7a7a7a" : "#e7e7e7", background: isDd ? "#f5f5f5" : "#ffffff", color: isDd ? "#606060" : "#a1a1a1", fontSize: 12, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", transition: "all .15s" }}>
                             {isDd ? "▲" : "▼"}
                           </button>
                         </td>
@@ -415,11 +415,11 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
                       {/* ── Drill-down panel ── */}
                       {isDd && (
                         <tr key={`dd-${zone.id}`}>
-                          <td colSpan={8} style={{ padding: 0, background: "#f8fbff", borderBottom: "2px solid #bfdbfe" }}>
+                          <td colSpan={8} style={{ padding: 0, background: "#fbfbfb", borderBottom: "2px solid #d7d7d7" }}>
                             <div className="ddp" style={{ padding: "18px 28px 22px" }}>
 
                               {/* dd tabs */}
-                              <div style={{ display: "flex", gap: 0, borderBottom: "1.5px solid #e2e8f0", marginBottom: 16 }}>
+                              <div style={{ display: "flex", gap: 0, borderBottom: "1.5px solid #e7e7e7", marginBottom: 16 }}>
                                 {[
                                   { id: "pop",   label: "חתך אוכלוסייה",  icon: "👥" },
                                   { id: "built", label: "שטחים בנויים",    icon: "🏗️" },
@@ -427,8 +427,8 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
                                 ].map(tab => (
                                   <button key={tab.id} className={`ddt${ddTab === tab.id ? " on" : ""}`} onClick={() => setDdTab(tab.id)}
                                     style={{ padding: "7px 14px", fontSize: 12, fontWeight: ddTab === tab.id ? 700 : 500,
-                                      color: ddTab === tab.id ? "#2563eb" : "#94a3b8",
-                                      borderBottom: ddTab === tab.id ? "2.5px solid #2563eb" : "2.5px solid transparent",
+                                      color: ddTab === tab.id ? "#606060" : "#a1a1a1",
+                                      borderBottom: ddTab === tab.id ? "2.5px solid #606060" : "2.5px solid transparent",
                                       marginBottom: "-1.5px", display: "flex", alignItems: "center", gap: 5 }}>
                                     <span>{tab.icon}</span>{tab.label}
                                   </button>
@@ -436,17 +436,17 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
 
                                 {/* zone meta */}
                                 <div style={{ marginRight: "auto", display: "flex", alignItems: "center", gap: 8, paddingBottom: 6, fontSize: 11 }}>
-                                  <span style={{ fontFamily: "monospace", background: "#dbeafe", color: "#1d4ed8", padding: "2px 8px", borderRadius: 5, fontWeight: 700 }}>
+                                  <span style={{ fontFamily: "monospace", background: "#e8e8e8", color: "#4f4f4f", padding: "2px 8px", borderRadius: 5, fontWeight: 700 }}>
                                     {zone.id}
                                   </span>
-                                  <span style={{ color: "#94a3b8" }}>·</span>
-                                  <span style={{ color: "#64748b" }}>{zone.type_heb}</span>
-                                  <span style={{ color: "#94a3b8" }}>·</span>
-                                  <span style={{ color: "#64748b" }}>רובע {zone.rova}</span>
+                                  <span style={{ color: "#a1a1a1" }}>·</span>
+                                  <span style={{ color: "#727272" }}>{zone.type_heb}</span>
+                                  <span style={{ color: "#a1a1a1" }}>·</span>
+                                  <span style={{ color: "#727272" }}>רובע {zone.rova}</span>
                                   {zone.mm_pct > 0 && (
                                     <>
-                                      <span style={{ color: "#94a3b8" }}>·</span>
-                                      <span style={{ color: "#64748b" }}>{zone.mm_pct}% ממלכתי</span>
+                                      <span style={{ color: "#a1a1a1" }}>·</span>
+                                      <span style={{ color: "#727272" }}>{zone.mm_pct}% ממלכתי</span>
                                     </>
                                   )}
                                 </div>
@@ -457,20 +457,20 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
                                 zone.pop.total > 0 ? (
                                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28 }}>
                                     <div>
-                                      <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 10 }}>פילוח גילאים (g*Pct × אוכלוסייה)</div>
+                                      <div style={{ fontSize: 11, fontWeight: 700, color: "#535353", marginBottom: 10 }}>פילוח גילאים (g*Pct × אוכלוסייה)</div>
                                       <PopBars pop={zone.pop} />
                                     </div>
                                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, alignContent: "start" }}>
                                       {[
-                                        { label: "0–6 (טרום חינוכי)", v: zone.pop.age_0_6, color: "#6366f1" },
-                                        { label: "6–18 (חינוכי)",    v: zone.pop.age_6_12 + zone.pop.age_12_18, color: "#3b82f6" },
-                                        { label: "18–45 (עובדים)",   v: zone.pop.age_18_45, color: "#10b981" },
-                                        { label: "70+ (קשישים)",     v: zone.pop.age_70_plus, color: "#ef4444" },
+                                        { label: "0–6 (טרום חינוכי)", v: zone.pop.age_0_6, color: "#757575" },
+                                        { label: "6–18 (חינוכי)",    v: zone.pop.age_6_12 + zone.pop.age_12_18, color: "#7a7a7a" },
+                                        { label: "18–45 (עובדים)",   v: zone.pop.age_18_45, color: "#808080" },
+                                        { label: "70+ (קשישים)",     v: zone.pop.age_70_plus, color: "#777777" },
                                       ].map(g => (
-                                        <div key={g.label} style={{ background: "#fff", borderRadius: 8, padding: "12px 14px", border: "1px solid #e2e8f0" }}>
+                                        <div key={g.label} style={{ background: "#ffffff", borderRadius: 8, padding: "12px 14px", border: "1px solid #e7e7e7" }}>
                                           <div style={{ fontSize: 17, fontWeight: 800, color: g.color }}>{g.v.toLocaleString()}</div>
-                                          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>{g.label}</div>
-                                          <div style={{ fontSize: 10, color: "#cbd5e1" }}>
+                                          <div style={{ fontSize: 10, color: "#a1a1a1", marginTop: 2 }}>{g.label}</div>
+                                          <div style={{ fontSize: 10, color: "#d3d3d3" }}>
                                             {zone.pop.total ? ((g.v / zone.pop.total) * 100).toFixed(1) : 0}%
                                           </div>
                                         </div>
@@ -478,7 +478,7 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
                                     </div>
                                   </div>
                                 ) : (
-                                  <div style={{ padding: "20px", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+                                  <div style={{ padding: "20px", textAlign: "center", color: "#a1a1a1", fontSize: 13 }}>
                                     אין נתוני אוכלוסייה לאזור זה
                                   </div>
                                 )
@@ -488,18 +488,18 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
                               {ddTab === "built" && (
                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28 }}>
                                   <div>
-                                    <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 10 }}>שטח בנוי לפי ייעוד (מ"ר)</div>
+                                    <div style={{ fontSize: 11, fontWeight: 700, color: "#535353", marginBottom: 10 }}>שטח בנוי לפי ייעוד (מ"ר)</div>
                                     <BuiltBars built={zone.built} />
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", marginBottom: 10 }}>הרכב ייעודי קרקע</div>
+                                    <div style={{ fontSize: 11, fontWeight: 700, color: "#535353", marginBottom: 10 }}>הרכב ייעודי קרקע</div>
                                     <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                                       {Object.entries(zone.land_use).filter(([,v]) => v > 0).map(([k, pct]) => {
                                         const lu2 = LU[k];
                                         return (
                                           <div key={k} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                            <div style={{ width: 88, fontSize: 11, color: "#64748b" }}>{lu2.label}</div>
-                                            <div style={{ flex: 1, height: 14, background: "#f1f5f9", borderRadius: 3, overflow: "hidden" }}>
+                                            <div style={{ width: 88, fontSize: 11, color: "#727272" }}>{lu2.label}</div>
+                                            <div style={{ flex: 1, height: 14, background: "#f4f4f4", borderRadius: 3, overflow: "hidden" }}>
                                               <div style={{ height: "100%", width: `${pct}%`, background: lu2.color, opacity: .8 }} />
                                             </div>
                                             <div style={{ width: 32, fontSize: 11, fontWeight: 700, color: lu2.color }}>{pct}%</div>
@@ -524,10 +524,10 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
                                     { label: "שטח מגורים",  value: `${(zone.built.megurim / 1000).toFixed(0)}k`, unit: 'מ"ר' },
                                     { label: "שטח מסחרי",   value: `${(zone.built.mischar / 1000).toFixed(0)}k`, unit: 'מ"ר' },
                                   ].map(kp => (
-                                    <div key={kp.label} style={{ background: "#fff", borderRadius: 9, padding: "13px 14px", border: "1px solid #e2e8f0" }}>
-                                      <div style={{ fontSize: 17, fontWeight: 800, color: "#1e3a5f" }}>{kp.value}</div>
-                                      <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}>{kp.unit}</div>
-                                      <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>{kp.label}</div>
+                                    <div key={kp.label} style={{ background: "#ffffff", borderRadius: 9, padding: "13px 14px", border: "1px solid #e7e7e7" }}>
+                                      <div style={{ fontSize: 17, fontWeight: 800, color: "#363636" }}>{kp.value}</div>
+                                      <div style={{ fontSize: 10, color: "#a1a1a1", marginTop: 1 }}>{kp.unit}</div>
+                                      <div style={{ fontSize: 11, color: "#727272", marginTop: 4 }}>{kp.label}</div>
                                     </div>
                                   ))}
                                 </div>
@@ -547,14 +547,14 @@ export default function ZoneSelector({ onSelect, onCatalog }) {
         {/* Selection confirmation */}
         {selected && (
           <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-            <span style={{ color: "#10b981", fontWeight: 700 }}>✓</span>
-            <span style={{ fontWeight: 700, color: "#1e293b" }}>{selected.name}</span>
-            <span style={{ color: "#94a3b8" }}>·</span>
-            <span style={{ fontFamily: "monospace", background: "#e0f2fe", color: "#0369a1", padding: "2px 8px", borderRadius: 5, fontSize: 12, fontWeight: 700 }}>{selected.code}</span>
-            <span style={{ color: "#94a3b8" }}>·</span>
-            <span style={{ fontSize: 12, background: "#f1f5f9", color: "#475569", padding: "2px 7px", borderRadius: 5, fontWeight: 600 }}>{selected.type_heb}</span>
-            <span style={{ color: "#94a3b8" }}>·</span>
-            <span style={{ color: "#64748b" }}>{selected.pop.total > 0 ? `${selected.pop.total.toLocaleString()} תושבים` : "אין נתוני אוכלוסייה"}</span>
+            <span style={{ color: "#808080", fontWeight: 700 }}>✓</span>
+            <span style={{ fontWeight: 700, color: "#282828" }}>{selected.name}</span>
+            <span style={{ color: "#a1a1a1" }}>·</span>
+            <span style={{ fontFamily: "monospace", background: "#eeeeee", color: "#515151", padding: "2px 8px", borderRadius: 5, fontSize: 12, fontWeight: 700 }}>{selected.code}</span>
+            <span style={{ color: "#a1a1a1" }}>·</span>
+            <span style={{ fontSize: 12, background: "#f4f4f4", color: "#535353", padding: "2px 7px", borderRadius: 5, fontWeight: 600 }}>{selected.type_heb}</span>
+            <span style={{ color: "#a1a1a1" }}>·</span>
+            <span style={{ color: "#727272" }}>{selected.pop.total > 0 ? `${selected.pop.total.toLocaleString()} תושבים` : "אין נתוני אוכלוסייה"}</span>
           </div>
         )}
 

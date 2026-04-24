@@ -1,0 +1,1412 @@
+{
+  "id": "54ec93ea",
+  "name": "SIM3",
+  "area_label": "1234",
+  "scenario_type": "local_program",
+  "status": "draft",
+  "owner": "analyst",
+  "created_at": "2026-03-22T19:09:45",
+  "updated_at": "2026-03-22T19:12:54",
+  "version": 4,
+  "versions": [
+    {
+      "version": 1,
+      "saved_at": "2026-03-22T19:11:26",
+      "population": {
+        "population": {
+          "total": 12000,
+          "age_0_1": 220,
+          "age_1_3": 430,
+          "age_0_3": 650,
+          "age_1_6": 1280,
+          "age_0_6": 1500,
+          "age_3_6": 850,
+          "age_6_12": 1200,
+          "age_11_18": 1100,
+          "age_12_18": 1050,
+          "age_70_plus": 1400
+        },
+        "globals": {
+          "housing_units": 4500,
+          "settlement_type": "B"
+        }
+      },
+      "rules": {
+        "rules": [
+          {
+            "category": "Education",
+            "service": "Daycare (0-3) - classes",
+            "basis": "age_0_3",
+            "rule_text": "50% participation / 20 kids per class; entry threshold 3 classes",
+            "required_expr": "0 if ceil_div(age_0_3 * 0.5, 20) < 3 else ceil_div(age_0_3 * 0.5, 20)",
+            "built_expr": "",
+            "land_expr": "",
+            "notes": "Participation 50% ages 0-3; avg 20 per class; minimum entry 3 classes."
+          },
+          {
+            "category": "Education",
+            "service": "Kindergarten (3-6) - classes",
+            "basis": "age_3_6",
+            "rule_text": "100% participation / 30 kids per class",
+            "required_expr": "ceil_div(age_3_6, 30)",
+            "built_expr": "ceil_div(age_3_6, 30) * 130",
+            "land_expr": "ceil_div(age_3_6, 30) * 0.5",
+            "notes": "0.5 dunam/class; built 130 sqm + yard."
+          },
+          {
+            "category": "Education",
+            "service": "Elementary school (models)",
+            "basis": "age_6_12",
+            "rule_text": "100% participation / 27 students per class",
+            "required_expr": "ceil_div(age_6_12, 27)",
+            "built_expr": "9050",
+            "land_expr": "21.6",
+            "notes": "Model mix example: 1x12, 1x18, 1x24 classes."
+          },
+          {
+            "category": "Education",
+            "service": "Secondary school (models)",
+            "basis": "age_12_18",
+            "rule_text": "100% participation / 27 students per class",
+            "required_expr": "ceil_div(age_12_18, 27)",
+            "built_expr": "16150",
+            "land_expr": "33",
+            "notes": "Model mix example: 1x30, 1x36 classes."
+          },
+          {
+            "category": "Health",
+            "service": "Family health station (Tipat Halav)",
+            "basis": "age_0_6",
+            "rule_text": "0-1: 100%; 1-6: 20%",
+            "required_expr": "age_0_1 + (age_1_6 * 0.2)",
+            "built_expr": "",
+            "land_expr": "",
+            "notes": "No dedicated land/build quotas."
+          },
+          {
+            "category": "Health",
+            "service": "Neighborhood clinic",
+            "basis": "total",
+            "rule_text": "Avoid dedicated plot; minimum 0.5 dunam if combined",
+            "required_expr": "1",
+            "built_expr": "400",
+            "land_expr": "0",
+            "notes": "Medium clinic 300-500 sqm built."
+          },
+          {
+            "category": "Culture & Community",
+            "service": "Youth club / youth movement",
+            "basis": "age_11_18",
+            "rule_text": "30-40% participation; 300-1000 regular users",
+            "required_expr": "1 if (age_11_18 * 0.35) >= 300 else 0",
+            "built_expr": "",
+            "land_expr": "",
+            "notes": "35% participation reference sizing."
+          },
+          {
+            "category": "Culture & Community",
+            "service": "Senior club (70+)",
+            "basis": "age_70_plus",
+            "rule_text": "15% participation; 200-250 regular users; 250-300 sqm built",
+            "required_expr": "1 if (age_70_plus * 0.15) >= 200 else 0",
+            "built_expr": "275 if (age_70_plus * 0.15) >= 200 else 0",
+            "land_expr": "",
+            "notes": "Allocate built area within mixed-use facility."
+          },
+          {
+            "category": "Welfare",
+            "service": "Day center (frail body)",
+            "basis": "age_70_plus",
+            "rule_text": "1.8% of 70+",
+            "required_expr": "1 if (age_70_plus * 0.018) > 0 else 0",
+            "built_expr": "550 if (age_70_plus * 0.018) > 0 else 0",
+            "land_expr": "",
+            "notes": "Small center baseline."
+          },
+          {
+            "category": "Welfare",
+            "service": "Welfare office (branch)",
+            "basis": "total",
+            "rule_text": "One branch per 30k-50k residents; ~320 sqm built",
+            "required_expr": "ceil_div(total, 50000)",
+            "built_expr": "ceil_div(total, 50000) * 320",
+            "land_expr": "",
+            "notes": "Conservative threshold at 50,000 residents."
+          },
+          {
+            "category": "Emergency",
+            "service": "MDA station",
+            "basis": "total",
+            "rule_text": "<=15k small; 15k-50k medium; >50k large",
+            "required_expr": "1",
+            "built_expr": "200 if total <= 15000 else (350 if total <= 50000 else 600)",
+            "land_expr": "1 if total <= 15000 else (1.5 if total <= 50000 else 2.5)",
+            "notes": "Population-threshold based size."
+          },
+          {
+            "category": "Emergency",
+            "service": "Fire station",
+            "basis": "total",
+            "rule_text": "Entry threshold: 30,000 residents",
+            "required_expr": "1 if total >= 30000 else 0",
+            "built_expr": "0",
+            "land_expr": "0",
+            "notes": "Below threshold returns 0."
+          },
+          {
+            "category": "Sports",
+            "service": "Football field",
+            "basis": "total",
+            "rule_text": "1 field per 20,000 residents; land 10-12 dunam",
+            "required_expr": "ceil_div(total, 20000)",
+            "built_expr": "0",
+            "land_expr": "ceil_div(total, 20000) * 11",
+            "notes": "Midpoint land value (11 dunam)."
+          },
+          {
+            "category": "Sports",
+            "service": "Swimming pool (covered)",
+            "basis": "total",
+            "rule_text": "1 pool per 25,000 residents; built 1,000 sqm; land 2-6 dunam",
+            "required_expr": "ceil_div(total, 25000)",
+            "built_expr": "ceil_div(total, 25000) * 1000",
+            "land_expr": "ceil_div(total, 25000) * 4",
+            "notes": "Midpoint land value (4 dunam)."
+          },
+          {
+            "category": "Open Space",
+            "service": "Open space - Doorstep",
+            "basis": "total",
+            "rule_text": "5 sqm per resident; >=80% green",
+            "required_expr": "total * 5",
+            "built_expr": "",
+            "land_expr": "(total * 5) / 1000",
+            "notes": "Doorstep open space standard."
+          },
+          {
+            "category": "Citywide",
+            "service": "Citywide services (misc. basket)",
+            "basis": "total + housing_units",
+            "rule_text": "500-5,000 units: 0.3 sqm per resident",
+            "required_expr": "total * 0.3 if housing_units >= 500 and housing_units <= 5000 else 0",
+            "built_expr": "",
+            "land_expr": "(total * 0.3 if housing_units >= 500 and housing_units <= 5000 else 0) / 1000",
+            "notes": "Plan housing-unit size based allocation."
+          }
+        ]
+      },
+      "results": [
+        {
+          "category": "Education",
+          "service": "Daycare (0-3) - classes",
+          "basis": "age_0_3",
+          "rule": "50% participation / 20 kids per class; entry threshold 3 classes",
+          "required_units": 17,
+          "built_sqm": NaN,
+          "land_dunam": NaN,
+          "notes": "Participation 50% ages 0-3; avg 20 per class; minimum entry 3 classes."
+        },
+        {
+          "category": "Education",
+          "service": "Kindergarten (3-6) - classes",
+          "basis": "age_3_6",
+          "rule": "100% participation / 30 kids per class",
+          "required_units": 29,
+          "built_sqm": 3770.0,
+          "land_dunam": 14.5,
+          "notes": "0.5 dunam/class; built 130 sqm + yard."
+        },
+        {
+          "category": "Education",
+          "service": "Elementary school (models)",
+          "basis": "age_6_12",
+          "rule": "100% participation / 27 students per class",
+          "required_units": 45,
+          "built_sqm": 9050.0,
+          "land_dunam": 21.6,
+          "notes": "Model mix example: 1x12, 1x18, 1x24 classes."
+        },
+        {
+          "category": "Education",
+          "service": "Secondary school (models)",
+          "basis": "age_12_18",
+          "rule": "100% participation / 27 students per class",
+          "required_units": 39,
+          "built_sqm": 16150.0,
+          "land_dunam": 33.0,
+          "notes": "Model mix example: 1x30, 1x36 classes."
+        },
+        {
+          "category": "Health",
+          "service": "Family health station (Tipat Halav)",
+          "basis": "age_0_6",
+          "rule": "0-1: 100%; 1-6: 20%",
+          "required_units": 476,
+          "built_sqm": NaN,
+          "land_dunam": NaN,
+          "notes": "No dedicated land/build quotas."
+        },
+        {
+          "category": "Health",
+          "service": "Neighborhood clinic",
+          "basis": "total",
+          "rule": "Avoid dedicated plot; minimum 0.5 dunam if combined",
+          "required_units": 1,
+          "built_sqm": 400.0,
+          "land_dunam": 0.0,
+          "notes": "Medium clinic 300-500 sqm built."
+        },
+        {
+          "category": "Culture & Community",
+          "service": "Youth club / youth movement",
+          "basis": "age_11_18",
+          "rule": "30-40% participation; 300-1000 regular users",
+          "required_units": 1,
+          "built_sqm": NaN,
+          "land_dunam": NaN,
+          "notes": "35% participation reference sizing."
+        },
+        {
+          "category": "Culture & Community",
+          "service": "Senior club (70+)",
+          "basis": "age_70_plus",
+          "rule": "15% participation; 200-250 regular users; 250-300 sqm built",
+          "required_units": 1,
+          "built_sqm": 275.0,
+          "land_dunam": NaN,
+          "notes": "Allocate built area within mixed-use facility."
+        },
+        {
+          "category": "Welfare",
+          "service": "Day center (frail body)",
+          "basis": "age_70_plus",
+          "rule": "1.8% of 70+",
+          "required_units": 1,
+          "built_sqm": 550.0,
+          "land_dunam": NaN,
+          "notes": "Small center baseline."
+        },
+        {
+          "category": "Welfare",
+          "service": "Welfare office (branch)",
+          "basis": "total",
+          "rule": "One branch per 30k-50k residents; ~320 sqm built",
+          "required_units": 1,
+          "built_sqm": 320.0,
+          "land_dunam": NaN,
+          "notes": "Conservative threshold at 50,000 residents."
+        },
+        {
+          "category": "Emergency",
+          "service": "MDA station",
+          "basis": "total",
+          "rule": "<=15k small; 15k-50k medium; >50k large",
+          "required_units": 1,
+          "built_sqm": 200.0,
+          "land_dunam": 1.0,
+          "notes": "Population-threshold based size."
+        },
+        {
+          "category": "Emergency",
+          "service": "Fire station",
+          "basis": "total",
+          "rule": "Entry threshold: 30,000 residents",
+          "required_units": 0,
+          "built_sqm": 0.0,
+          "land_dunam": 0.0,
+          "notes": "Below threshold returns 0."
+        },
+        {
+          "category": "Sports",
+          "service": "Football field",
+          "basis": "total",
+          "rule": "1 field per 20,000 residents; land 10-12 dunam",
+          "required_units": 1,
+          "built_sqm": 0.0,
+          "land_dunam": 11.0,
+          "notes": "Midpoint land value (11 dunam)."
+        },
+        {
+          "category": "Sports",
+          "service": "Swimming pool (covered)",
+          "basis": "total",
+          "rule": "1 pool per 25,000 residents; built 1,000 sqm; land 2-6 dunam",
+          "required_units": 1,
+          "built_sqm": 1000.0,
+          "land_dunam": 4.0,
+          "notes": "Midpoint land value (4 dunam)."
+        },
+        {
+          "category": "Open Space",
+          "service": "Open space - Doorstep",
+          "basis": "total",
+          "rule": "5 sqm per resident; >=80% green",
+          "required_units": 60000,
+          "built_sqm": NaN,
+          "land_dunam": 60.0,
+          "notes": "Doorstep open space standard."
+        },
+        {
+          "category": "Citywide",
+          "service": "Citywide services (misc. basket)",
+          "basis": "total + housing_units",
+          "rule": "500-5,000 units: 0.3 sqm per resident",
+          "required_units": 3600,
+          "built_sqm": NaN,
+          "land_dunam": 3.6,
+          "notes": "Plan housing-unit size based allocation."
+        }
+      ]
+    },
+    {
+      "version": 2,
+      "saved_at": "2026-03-22T19:11:41",
+      "population": {
+        "population": {
+          "total": 12000,
+          "age_0_1": 220,
+          "age_1_3": 430,
+          "age_0_3": 650,
+          "age_1_6": 1280,
+          "age_0_6": 1500,
+          "age_3_6": 850,
+          "age_6_12": 1200,
+          "age_11_18": 1100,
+          "age_12_18": 1050,
+          "age_70_plus": 1400
+        },
+        "globals": {
+          "housing_units": 4500,
+          "settlement_type": "B"
+        }
+      },
+      "rules": {
+        "rules": [
+          {
+            "category": "Education",
+            "service": "Daycare (0-3) - classes",
+            "basis": "age_0_3",
+            "rule_text": "50% participation / 20 kids per class; entry threshold 3 classes",
+            "required_expr": "0 if ceil_div(age_0_3 * 0.5, 20) < 3 else ceil_div(age_0_3 * 0.5, 20)",
+            "built_expr": "",
+            "land_expr": "",
+            "notes": "Participation 50% ages 0-3; avg 20 per class; minimum entry 3 classes."
+          },
+          {
+            "category": "Education",
+            "service": "Kindergarten (3-6) - classes",
+            "basis": "age_3_6",
+            "rule_text": "100% participation / 30 kids per class",
+            "required_expr": "ceil_div(age_3_6, 30)",
+            "built_expr": "ceil_div(age_3_6, 30) * 130",
+            "land_expr": "ceil_div(age_3_6, 30) * 0.5",
+            "notes": "0.5 dunam/class; built 130 sqm + yard."
+          },
+          {
+            "category": "Education",
+            "service": "Elementary school (models)",
+            "basis": "age_6_12",
+            "rule_text": "100% participation / 27 students per class",
+            "required_expr": "ceil_div(age_6_12, 27)",
+            "built_expr": "9050",
+            "land_expr": "21.6",
+            "notes": "Model mix example: 1x12, 1x18, 1x24 classes."
+          },
+          {
+            "category": "Education",
+            "service": "Secondary school (models)",
+            "basis": "age_12_18",
+            "rule_text": "100% participation / 27 students per class",
+            "required_expr": "ceil_div(age_12_18, 27)",
+            "built_expr": "16150",
+            "land_expr": "33",
+            "notes": "Model mix example: 1x30, 1x36 classes."
+          },
+          {
+            "category": "Health",
+            "service": "Family health station (Tipat Halav)",
+            "basis": "age_0_6",
+            "rule_text": "0-1: 100%; 1-6: 20%",
+            "required_expr": "age_0_1 + (age_1_6 * 0.2)",
+            "built_expr": "",
+            "land_expr": "",
+            "notes": "No dedicated land/build quotas."
+          },
+          {
+            "category": "Health",
+            "service": "Neighborhood clinic",
+            "basis": "total",
+            "rule_text": "Avoid dedicated plot; minimum 0.5 dunam if combined",
+            "required_expr": "1",
+            "built_expr": "400",
+            "land_expr": "0",
+            "notes": "Medium clinic 300-500 sqm built."
+          },
+          {
+            "category": "Culture & Community",
+            "service": "Youth club / youth movement",
+            "basis": "age_11_18",
+            "rule_text": "30-40% participation; 300-1000 regular users",
+            "required_expr": "1 if (age_11_18 * 0.35) >= 300 else 0",
+            "built_expr": "",
+            "land_expr": "",
+            "notes": "35% participation reference sizing."
+          },
+          {
+            "category": "Culture & Community",
+            "service": "Senior club (70+)",
+            "basis": "age_70_plus",
+            "rule_text": "15% participation; 200-250 regular users; 250-300 sqm built",
+            "required_expr": "1 if (age_70_plus * 0.15) >= 200 else 0",
+            "built_expr": "275 if (age_70_plus * 0.15) >= 200 else 0",
+            "land_expr": "",
+            "notes": "Allocate built area within mixed-use facility."
+          },
+          {
+            "category": "Welfare",
+            "service": "Day center (frail body)",
+            "basis": "age_70_plus",
+            "rule_text": "1.8% of 70+",
+            "required_expr": "1 if (age_70_plus * 0.018) > 0 else 0",
+            "built_expr": "550 if (age_70_plus * 0.018) > 0 else 0",
+            "land_expr": "",
+            "notes": "Small center baseline."
+          },
+          {
+            "category": "Welfare",
+            "service": "Welfare office (branch)",
+            "basis": "total",
+            "rule_text": "One branch per 30k-50k residents; ~320 sqm built",
+            "required_expr": "ceil_div(total, 50000)",
+            "built_expr": "ceil_div(total, 50000) * 320",
+            "land_expr": "",
+            "notes": "Conservative threshold at 50,000 residents."
+          },
+          {
+            "category": "Emergency",
+            "service": "MDA station",
+            "basis": "total",
+            "rule_text": "<=15k small; 15k-50k medium; >50k large",
+            "required_expr": "1",
+            "built_expr": "200 if total <= 15000 else (350 if total <= 50000 else 600)",
+            "land_expr": "1 if total <= 15000 else (1.5 if total <= 50000 else 2.5)",
+            "notes": "Population-threshold based size."
+          },
+          {
+            "category": "Emergency",
+            "service": "Fire station",
+            "basis": "total",
+            "rule_text": "Entry threshold: 30,000 residents",
+            "required_expr": "1 if total >= 30000 else 0",
+            "built_expr": "0",
+            "land_expr": "0",
+            "notes": "Below threshold returns 0."
+          },
+          {
+            "category": "Sports",
+            "service": "Football field",
+            "basis": "total",
+            "rule_text": "1 field per 20,000 residents; land 10-12 dunam",
+            "required_expr": "ceil_div(total, 20000)",
+            "built_expr": "0",
+            "land_expr": "ceil_div(total, 20000) * 11",
+            "notes": "Midpoint land value (11 dunam)."
+          },
+          {
+            "category": "Sports",
+            "service": "Swimming pool (covered)",
+            "basis": "total",
+            "rule_text": "1 pool per 25,000 residents; built 1,000 sqm; land 2-6 dunam",
+            "required_expr": "ceil_div(total, 25000)",
+            "built_expr": "ceil_div(total, 25000) * 1000",
+            "land_expr": "ceil_div(total, 25000) * 4",
+            "notes": "Midpoint land value (4 dunam)."
+          },
+          {
+            "category": "Open Space",
+            "service": "Open space - Doorstep",
+            "basis": "total",
+            "rule_text": "5 sqm per resident; >=80% green",
+            "required_expr": "total * 5",
+            "built_expr": "",
+            "land_expr": "(total * 5) / 1000",
+            "notes": "Doorstep open space standard."
+          },
+          {
+            "category": "Citywide",
+            "service": "Citywide services (misc. basket)",
+            "basis": "total + housing_units",
+            "rule_text": "500-5,000 units: 0.3 sqm per resident",
+            "required_expr": "total * 0.3 if housing_units >= 500 and housing_units <= 5000 else 0",
+            "built_expr": "",
+            "land_expr": "(total * 0.3 if housing_units >= 500 and housing_units <= 5000 else 0) / 1000",
+            "notes": "Plan housing-unit size based allocation."
+          }
+        ]
+      },
+      "results": [
+        {
+          "category": "Education",
+          "service": "Daycare (0-3) - classes",
+          "basis": "age_0_3",
+          "rule": "50% participation / 20 kids per class; entry threshold 3 classes",
+          "required_units": 17,
+          "built_sqm": NaN,
+          "land_dunam": NaN,
+          "notes": "Participation 50% ages 0-3; avg 20 per class; minimum entry 3 classes."
+        },
+        {
+          "category": "Education",
+          "service": "Kindergarten (3-6) - classes",
+          "basis": "age_3_6",
+          "rule": "100% participation / 30 kids per class",
+          "required_units": 29,
+          "built_sqm": 3770.0,
+          "land_dunam": 14.5,
+          "notes": "0.5 dunam/class; built 130 sqm + yard."
+        },
+        {
+          "category": "Education",
+          "service": "Elementary school (models)",
+          "basis": "age_6_12",
+          "rule": "100% participation / 27 students per class",
+          "required_units": 45,
+          "built_sqm": 9050.0,
+          "land_dunam": 21.6,
+          "notes": "Model mix example: 1x12, 1x18, 1x24 classes."
+        },
+        {
+          "category": "Education",
+          "service": "Secondary school (models)",
+          "basis": "age_12_18",
+          "rule": "100% participation / 27 students per class",
+          "required_units": 39,
+          "built_sqm": 16150.0,
+          "land_dunam": 33.0,
+          "notes": "Model mix example: 1x30, 1x36 classes."
+        },
+        {
+          "category": "Health",
+          "service": "Family health station (Tipat Halav)",
+          "basis": "age_0_6",
+          "rule": "0-1: 100%; 1-6: 20%",
+          "required_units": 476,
+          "built_sqm": NaN,
+          "land_dunam": NaN,
+          "notes": "No dedicated land/build quotas."
+        },
+        {
+          "category": "Health",
+          "service": "Neighborhood clinic",
+          "basis": "total",
+          "rule": "Avoid dedicated plot; minimum 0.5 dunam if combined",
+          "required_units": 1,
+          "built_sqm": 400.0,
+          "land_dunam": 0.0,
+          "notes": "Medium clinic 300-500 sqm built."
+        },
+        {
+          "category": "Culture & Community",
+          "service": "Youth club / youth movement",
+          "basis": "age_11_18",
+          "rule": "30-40% participation; 300-1000 regular users",
+          "required_units": 1,
+          "built_sqm": NaN,
+          "land_dunam": NaN,
+          "notes": "35% participation reference sizing."
+        },
+        {
+          "category": "Culture & Community",
+          "service": "Senior club (70+)",
+          "basis": "age_70_plus",
+          "rule": "15% participation; 200-250 regular users; 250-300 sqm built",
+          "required_units": 1,
+          "built_sqm": 275.0,
+          "land_dunam": NaN,
+          "notes": "Allocate built area within mixed-use facility."
+        },
+        {
+          "category": "Welfare",
+          "service": "Day center (frail body)",
+          "basis": "age_70_plus",
+          "rule": "1.8% of 70+",
+          "required_units": 1,
+          "built_sqm": 550.0,
+          "land_dunam": NaN,
+          "notes": "Small center baseline."
+        },
+        {
+          "category": "Welfare",
+          "service": "Welfare office (branch)",
+          "basis": "total",
+          "rule": "One branch per 30k-50k residents; ~320 sqm built",
+          "required_units": 1,
+          "built_sqm": 320.0,
+          "land_dunam": NaN,
+          "notes": "Conservative threshold at 50,000 residents."
+        },
+        {
+          "category": "Emergency",
+          "service": "MDA station",
+          "basis": "total",
+          "rule": "<=15k small; 15k-50k medium; >50k large",
+          "required_units": 1,
+          "built_sqm": 200.0,
+          "land_dunam": 1.0,
+          "notes": "Population-threshold based size."
+        },
+        {
+          "category": "Emergency",
+          "service": "Fire station",
+          "basis": "total",
+          "rule": "Entry threshold: 30,000 residents",
+          "required_units": 0,
+          "built_sqm": 0.0,
+          "land_dunam": 0.0,
+          "notes": "Below threshold returns 0."
+        },
+        {
+          "category": "Sports",
+          "service": "Football field",
+          "basis": "total",
+          "rule": "1 field per 20,000 residents; land 10-12 dunam",
+          "required_units": 1,
+          "built_sqm": 0.0,
+          "land_dunam": 11.0,
+          "notes": "Midpoint land value (11 dunam)."
+        },
+        {
+          "category": "Sports",
+          "service": "Swimming pool (covered)",
+          "basis": "total",
+          "rule": "1 pool per 25,000 residents; built 1,000 sqm; land 2-6 dunam",
+          "required_units": 1,
+          "built_sqm": 1000.0,
+          "land_dunam": 4.0,
+          "notes": "Midpoint land value (4 dunam)."
+        },
+        {
+          "category": "Open Space",
+          "service": "Open space - Doorstep",
+          "basis": "total",
+          "rule": "5 sqm per resident; >=80% green",
+          "required_units": 60000,
+          "built_sqm": NaN,
+          "land_dunam": 60.0,
+          "notes": "Doorstep open space standard."
+        },
+        {
+          "category": "Citywide",
+          "service": "Citywide services (misc. basket)",
+          "basis": "total + housing_units",
+          "rule": "500-5,000 units: 0.3 sqm per resident",
+          "required_units": 3600,
+          "built_sqm": NaN,
+          "land_dunam": 3.6,
+          "notes": "Plan housing-unit size based allocation."
+        }
+      ]
+    },
+    {
+      "version": 3,
+      "saved_at": "2026-03-22T19:12:54",
+      "population": {
+        "population": {
+          "total": 12000,
+          "age_0_1": 220,
+          "age_1_3": 430,
+          "age_0_3": 650,
+          "age_1_6": 1280,
+          "age_0_6": 1500,
+          "age_3_6": 850,
+          "age_6_12": 1200,
+          "age_11_18": 1100,
+          "age_12_18": 1050,
+          "age_70_plus": 1400
+        },
+        "globals": {
+          "housing_units": 4500,
+          "settlement_type": "B"
+        }
+      },
+      "rules": {
+        "rules": [
+          {
+            "category": "Education",
+            "service": "Daycare (0-3) - classes",
+            "basis": "age_0_3",
+            "rule_text": "50% participation / 20 kids per class; entry threshold 3 classes",
+            "required_expr": "0 if ceil_div(age_0_3 * 0.5, 20) < 3 else ceil_div(age_0_3 * 0.5, 20)",
+            "built_expr": "",
+            "land_expr": "",
+            "notes": "Participation 50% ages 0-3; avg 20 per class; minimum entry 3 classes."
+          },
+          {
+            "category": "Education",
+            "service": "Kindergarten (3-6) - classes",
+            "basis": "age_3_6",
+            "rule_text": "100% participation / 30 kids per class",
+            "required_expr": "ceil_div(age_3_6, 30)",
+            "built_expr": "ceil_div(age_3_6, 30) * 130",
+            "land_expr": "ceil_div(age_3_6, 30) * 0.5",
+            "notes": "0.5 dunam/class; built 130 sqm + yard."
+          },
+          {
+            "category": "Education",
+            "service": "Elementary school (models)",
+            "basis": "age_6_12",
+            "rule_text": "100% participation / 27 students per class",
+            "required_expr": "ceil_div(age_6_12, 27)",
+            "built_expr": "9050",
+            "land_expr": "21.6",
+            "notes": "Model mix example: 1x12, 1x18, 1x24 classes."
+          },
+          {
+            "category": "Education",
+            "service": "Secondary school (models)",
+            "basis": "age_12_18",
+            "rule_text": "100% participation / 27 students per class",
+            "required_expr": "ceil_div(age_12_18, 27)",
+            "built_expr": "16150",
+            "land_expr": "33",
+            "notes": "Model mix example: 1x30, 1x36 classes."
+          },
+          {
+            "category": "Health",
+            "service": "Family health station (Tipat Halav)",
+            "basis": "age_0_6",
+            "rule_text": "0-1: 100%; 1-6: 20%",
+            "required_expr": "age_0_1 + (age_1_6 * 0.2)",
+            "built_expr": "",
+            "land_expr": "",
+            "notes": "No dedicated land/build quotas."
+          },
+          {
+            "category": "Health",
+            "service": "Neighborhood clinic",
+            "basis": "total",
+            "rule_text": "Avoid dedicated plot; minimum 0.5 dunam if combined",
+            "required_expr": "1",
+            "built_expr": "400",
+            "land_expr": "0",
+            "notes": "Medium clinic 300-500 sqm built."
+          },
+          {
+            "category": "Culture & Community",
+            "service": "Youth club / youth movement",
+            "basis": "age_11_18",
+            "rule_text": "30-40% participation; 300-1000 regular users",
+            "required_expr": "1 if (age_11_18 * 0.35) >= 300 else 0",
+            "built_expr": "",
+            "land_expr": "",
+            "notes": "35% participation reference sizing."
+          },
+          {
+            "category": "Culture & Community",
+            "service": "Senior club (70+)",
+            "basis": "age_70_plus",
+            "rule_text": "15% participation; 200-250 regular users; 250-300 sqm built",
+            "required_expr": "1 if (age_70_plus * 0.15) >= 200 else 0",
+            "built_expr": "275 if (age_70_plus * 0.15) >= 200 else 0",
+            "land_expr": "",
+            "notes": "Allocate built area within mixed-use facility."
+          },
+          {
+            "category": "Welfare",
+            "service": "Day center (frail body)",
+            "basis": "age_70_plus",
+            "rule_text": "1.8% of 70+",
+            "required_expr": "1 if (age_70_plus * 0.018) > 0 else 0",
+            "built_expr": "550 if (age_70_plus * 0.018) > 0 else 0",
+            "land_expr": "",
+            "notes": "Small center baseline."
+          },
+          {
+            "category": "Welfare",
+            "service": "Welfare office (branch)",
+            "basis": "total",
+            "rule_text": "One branch per 30k-50k residents; ~320 sqm built",
+            "required_expr": "ceil_div(total, 50000)",
+            "built_expr": "ceil_div(total, 50000) * 320",
+            "land_expr": "",
+            "notes": "Conservative threshold at 50,000 residents."
+          },
+          {
+            "category": "Emergency",
+            "service": "MDA station",
+            "basis": "total",
+            "rule_text": "<=15k small; 15k-50k medium; >50k large",
+            "required_expr": "1",
+            "built_expr": "200 if total <= 15000 else (350 if total <= 50000 else 600)",
+            "land_expr": "1 if total <= 15000 else (1.5 if total <= 50000 else 2.5)",
+            "notes": "Population-threshold based size."
+          },
+          {
+            "category": "Emergency",
+            "service": "Fire station",
+            "basis": "total",
+            "rule_text": "Entry threshold: 30,000 residents",
+            "required_expr": "1 if total >= 30000 else 0",
+            "built_expr": "0",
+            "land_expr": "0",
+            "notes": "Below threshold returns 0."
+          },
+          {
+            "category": "Sports",
+            "service": "Football field",
+            "basis": "total",
+            "rule_text": "1 field per 20,000 residents; land 10-12 dunam",
+            "required_expr": "ceil_div(total, 20000)",
+            "built_expr": "0",
+            "land_expr": "ceil_div(total, 20000) * 11",
+            "notes": "Midpoint land value (11 dunam)."
+          },
+          {
+            "category": "Sports",
+            "service": "Swimming pool (covered)",
+            "basis": "total",
+            "rule_text": "1 pool per 25,000 residents; built 1,000 sqm; land 2-6 dunam",
+            "required_expr": "ceil_div(total, 25000)",
+            "built_expr": "ceil_div(total, 25000) * 1000",
+            "land_expr": "ceil_div(total, 25000) * 4",
+            "notes": "Midpoint land value (4 dunam)."
+          },
+          {
+            "category": "Open Space",
+            "service": "Open space - Doorstep",
+            "basis": "total",
+            "rule_text": "5 sqm per resident; >=80% green",
+            "required_expr": "total * 5",
+            "built_expr": "",
+            "land_expr": "(total * 5) / 1000",
+            "notes": "Doorstep open space standard."
+          },
+          {
+            "category": "Citywide",
+            "service": "Citywide services (misc. basket)",
+            "basis": "total + housing_units",
+            "rule_text": "500-5,000 units: 0.3 sqm per resident",
+            "required_expr": "total * 0.3 if housing_units >= 500 and housing_units <= 5000 else 0",
+            "built_expr": "",
+            "land_expr": "(total * 0.3 if housing_units >= 500 and housing_units <= 5000 else 0) / 1000",
+            "notes": "Plan housing-unit size based allocation."
+          }
+        ]
+      },
+      "results": [
+        {
+          "category": "Education",
+          "service": "Daycare (0-3) - classes",
+          "basis": "age_0_3",
+          "rule": "50% participation / 20 kids per class; entry threshold 3 classes",
+          "required_units": 17,
+          "built_sqm": NaN,
+          "land_dunam": NaN,
+          "notes": "Participation 50% ages 0-3; avg 20 per class; minimum entry 3 classes."
+        },
+        {
+          "category": "Education",
+          "service": "Kindergarten (3-6) - classes",
+          "basis": "age_3_6",
+          "rule": "100% participation / 30 kids per class",
+          "required_units": 29,
+          "built_sqm": 3770.0,
+          "land_dunam": 14.5,
+          "notes": "0.5 dunam/class; built 130 sqm + yard."
+        },
+        {
+          "category": "Education",
+          "service": "Elementary school (models)",
+          "basis": "age_6_12",
+          "rule": "100% participation / 27 students per class",
+          "required_units": 45,
+          "built_sqm": 9050.0,
+          "land_dunam": 21.6,
+          "notes": "Model mix example: 1x12, 1x18, 1x24 classes."
+        },
+        {
+          "category": "Education",
+          "service": "Secondary school (models)",
+          "basis": "age_12_18",
+          "rule": "100% participation / 27 students per class",
+          "required_units": 39,
+          "built_sqm": 16150.0,
+          "land_dunam": 33.0,
+          "notes": "Model mix example: 1x30, 1x36 classes."
+        },
+        {
+          "category": "Health",
+          "service": "Family health station (Tipat Halav)",
+          "basis": "age_0_6",
+          "rule": "0-1: 100%; 1-6: 20%",
+          "required_units": 476,
+          "built_sqm": NaN,
+          "land_dunam": NaN,
+          "notes": "No dedicated land/build quotas."
+        },
+        {
+          "category": "Health",
+          "service": "Neighborhood clinic",
+          "basis": "total",
+          "rule": "Avoid dedicated plot; minimum 0.5 dunam if combined",
+          "required_units": 1,
+          "built_sqm": 400.0,
+          "land_dunam": 0.0,
+          "notes": "Medium clinic 300-500 sqm built."
+        },
+        {
+          "category": "Culture & Community",
+          "service": "Youth club / youth movement",
+          "basis": "age_11_18",
+          "rule": "30-40% participation; 300-1000 regular users",
+          "required_units": 1,
+          "built_sqm": NaN,
+          "land_dunam": NaN,
+          "notes": "35% participation reference sizing."
+        },
+        {
+          "category": "Culture & Community",
+          "service": "Senior club (70+)",
+          "basis": "age_70_plus",
+          "rule": "15% participation; 200-250 regular users; 250-300 sqm built",
+          "required_units": 1,
+          "built_sqm": 275.0,
+          "land_dunam": NaN,
+          "notes": "Allocate built area within mixed-use facility."
+        },
+        {
+          "category": "Welfare",
+          "service": "Day center (frail body)",
+          "basis": "age_70_plus",
+          "rule": "1.8% of 70+",
+          "required_units": 1,
+          "built_sqm": 550.0,
+          "land_dunam": NaN,
+          "notes": "Small center baseline."
+        },
+        {
+          "category": "Welfare",
+          "service": "Welfare office (branch)",
+          "basis": "total",
+          "rule": "One branch per 30k-50k residents; ~320 sqm built",
+          "required_units": 1,
+          "built_sqm": 320.0,
+          "land_dunam": NaN,
+          "notes": "Conservative threshold at 50,000 residents."
+        },
+        {
+          "category": "Emergency",
+          "service": "MDA station",
+          "basis": "total",
+          "rule": "<=15k small; 15k-50k medium; >50k large",
+          "required_units": 1,
+          "built_sqm": 200.0,
+          "land_dunam": 1.0,
+          "notes": "Population-threshold based size."
+        },
+        {
+          "category": "Emergency",
+          "service": "Fire station",
+          "basis": "total",
+          "rule": "Entry threshold: 30,000 residents",
+          "required_units": 0,
+          "built_sqm": 0.0,
+          "land_dunam": 0.0,
+          "notes": "Below threshold returns 0."
+        },
+        {
+          "category": "Sports",
+          "service": "Football field",
+          "basis": "total",
+          "rule": "1 field per 20,000 residents; land 10-12 dunam",
+          "required_units": 1,
+          "built_sqm": 0.0,
+          "land_dunam": 11.0,
+          "notes": "Midpoint land value (11 dunam)."
+        },
+        {
+          "category": "Sports",
+          "service": "Swimming pool (covered)",
+          "basis": "total",
+          "rule": "1 pool per 25,000 residents; built 1,000 sqm; land 2-6 dunam",
+          "required_units": 1,
+          "built_sqm": 1000.0,
+          "land_dunam": 4.0,
+          "notes": "Midpoint land value (4 dunam)."
+        },
+        {
+          "category": "Open Space",
+          "service": "Open space - Doorstep",
+          "basis": "total",
+          "rule": "5 sqm per resident; >=80% green",
+          "required_units": 60000,
+          "built_sqm": NaN,
+          "land_dunam": 60.0,
+          "notes": "Doorstep open space standard."
+        },
+        {
+          "category": "Citywide",
+          "service": "Citywide services (misc. basket)",
+          "basis": "total + housing_units",
+          "rule": "500-5,000 units: 0.3 sqm per resident",
+          "required_units": 3600,
+          "built_sqm": NaN,
+          "land_dunam": 3.6,
+          "notes": "Plan housing-unit size based allocation."
+        }
+      ]
+    }
+  ],
+  "population": {
+    "population": {
+      "total": 12000,
+      "age_0_1": 220,
+      "age_1_3": 430,
+      "age_0_3": 650,
+      "age_1_6": 1280,
+      "age_0_6": 1500,
+      "age_3_6": 850,
+      "age_6_12": 1200,
+      "age_11_18": 1100,
+      "age_12_18": 1050,
+      "age_70_plus": 1400
+    },
+    "globals": {
+      "housing_units": 4500,
+      "settlement_type": "B"
+    }
+  },
+  "rules": {
+    "rules": [
+      {
+        "category": "Education",
+        "service": "Daycare (0-3) - classes",
+        "basis": "age_0_3",
+        "rule_text": "50% participation / 20 kids per class; entry threshold 3 classes",
+        "required_expr": "0 if ceil_div(age_0_3 * 0.5, 20) < 3 else ceil_div(age_0_3 * 0.5, 20)",
+        "built_expr": "",
+        "land_expr": "",
+        "notes": "Participation 50% ages 0-3; avg 20 per class; minimum entry 3 classes."
+      },
+      {
+        "category": "Education",
+        "service": "Kindergarten (3-6) - classes",
+        "basis": "age_3_6",
+        "rule_text": "100% participation / 30 kids per class",
+        "required_expr": "ceil_div(age_3_6, 30)",
+        "built_expr": "ceil_div(age_3_6, 30) * 130",
+        "land_expr": "ceil_div(age_3_6, 30) * 0.5",
+        "notes": "0.5 dunam/class; built 130 sqm + yard."
+      },
+      {
+        "category": "Education",
+        "service": "Elementary school (models)",
+        "basis": "age_6_12",
+        "rule_text": "100% participation / 27 students per class",
+        "required_expr": "ceil_div(age_6_12, 27)",
+        "built_expr": "9050",
+        "land_expr": "21.6",
+        "notes": "Model mix example: 1x12, 1x18, 1x24 classes."
+      },
+      {
+        "category": "Education",
+        "service": "Secondary school (models)",
+        "basis": "age_12_18",
+        "rule_text": "100% participation / 27 students per class",
+        "required_expr": "ceil_div(age_12_18, 27)",
+        "built_expr": "16150",
+        "land_expr": "33",
+        "notes": "Model mix example: 1x30, 1x36 classes."
+      },
+      {
+        "category": "Health",
+        "service": "Family health station (Tipat Halav)",
+        "basis": "age_0_6",
+        "rule_text": "0-1: 100%; 1-6: 20%",
+        "required_expr": "age_0_1 + (age_1_6 * 0.2)",
+        "built_expr": "",
+        "land_expr": "",
+        "notes": "No dedicated land/build quotas."
+      },
+      {
+        "category": "Health",
+        "service": "Neighborhood clinic",
+        "basis": "total",
+        "rule_text": "Avoid dedicated plot; minimum 0.5 dunam if combined",
+        "required_expr": "1",
+        "built_expr": "400",
+        "land_expr": "0",
+        "notes": "Medium clinic 300-500 sqm built."
+      },
+      {
+        "category": "Culture & Community",
+        "service": "Youth club / youth movement",
+        "basis": "age_11_18",
+        "rule_text": "30-40% participation; 300-1000 regular users",
+        "required_expr": "1 if (age_11_18 * 0.35) >= 300 else 0",
+        "built_expr": "",
+        "land_expr": "",
+        "notes": "35% participation reference sizing."
+      },
+      {
+        "category": "Culture & Community",
+        "service": "Senior club (70+)",
+        "basis": "age_70_plus",
+        "rule_text": "15% participation; 200-250 regular users; 250-300 sqm built",
+        "required_expr": "1 if (age_70_plus * 0.15) >= 200 else 0",
+        "built_expr": "275 if (age_70_plus * 0.15) >= 200 else 0",
+        "land_expr": "",
+        "notes": "Allocate built area within mixed-use facility."
+      },
+      {
+        "category": "Welfare",
+        "service": "Day center (frail body)",
+        "basis": "age_70_plus",
+        "rule_text": "1.8% of 70+",
+        "required_expr": "1 if (age_70_plus * 0.018) > 0 else 0",
+        "built_expr": "550 if (age_70_plus * 0.018) > 0 else 0",
+        "land_expr": "",
+        "notes": "Small center baseline."
+      },
+      {
+        "category": "Welfare",
+        "service": "Welfare office (branch)",
+        "basis": "total",
+        "rule_text": "One branch per 30k-50k residents; ~320 sqm built",
+        "required_expr": "ceil_div(total, 50000)",
+        "built_expr": "ceil_div(total, 50000) * 320",
+        "land_expr": "",
+        "notes": "Conservative threshold at 50,000 residents."
+      },
+      {
+        "category": "Emergency",
+        "service": "MDA station",
+        "basis": "total",
+        "rule_text": "<=15k small; 15k-50k medium; >50k large",
+        "required_expr": "1",
+        "built_expr": "200 if total <= 15000 else (350 if total <= 50000 else 600)",
+        "land_expr": "1 if total <= 15000 else (1.5 if total <= 50000 else 2.5)",
+        "notes": "Population-threshold based size."
+      },
+      {
+        "category": "Emergency",
+        "service": "Fire station",
+        "basis": "total",
+        "rule_text": "Entry threshold: 30,000 residents",
+        "required_expr": "1 if total >= 30000 else 0",
+        "built_expr": "0",
+        "land_expr": "0",
+        "notes": "Below threshold returns 0."
+      },
+      {
+        "category": "Sports",
+        "service": "Football field",
+        "basis": "total",
+        "rule_text": "1 field per 20,000 residents; land 10-12 dunam",
+        "required_expr": "ceil_div(total, 20000)",
+        "built_expr": "0",
+        "land_expr": "ceil_div(total, 20000) * 11",
+        "notes": "Midpoint land value (11 dunam)."
+      },
+      {
+        "category": "Sports",
+        "service": "Swimming pool (covered)",
+        "basis": "total",
+        "rule_text": "1 pool per 25,000 residents; built 1,000 sqm; land 2-6 dunam",
+        "required_expr": "ceil_div(total, 25000)",
+        "built_expr": "ceil_div(total, 25000) * 1000",
+        "land_expr": "ceil_div(total, 25000) * 4",
+        "notes": "Midpoint land value (4 dunam)."
+      },
+      {
+        "category": "Open Space",
+        "service": "Open space - Doorstep",
+        "basis": "total",
+        "rule_text": "5 sqm per resident; >=80% green",
+        "required_expr": "total * 5",
+        "built_expr": "",
+        "land_expr": "(total * 5) / 1000",
+        "notes": "Doorstep open space standard."
+      },
+      {
+        "category": "Citywide",
+        "service": "Citywide services (misc. basket)",
+        "basis": "total + housing_units",
+        "rule_text": "500-5,000 units: 0.3 sqm per resident",
+        "required_expr": "total * 0.3 if housing_units >= 500 and housing_units <= 5000 else 0",
+        "built_expr": "",
+        "land_expr": "(total * 0.3 if housing_units >= 500 and housing_units <= 5000 else 0) / 1000",
+        "notes": "Plan housing-unit size based allocation."
+      }
+    ]
+  },
+  "results": [
+    {
+      "category": "Education",
+      "service": "Daycare (0-3) - classes",
+      "basis": "age_0_3",
+      "rule": "50% participation / 20 kids per class; entry threshold 3 classes",
+      "required_units": 17,
+      "built_sqm": NaN,
+      "land_dunam": NaN,
+      "notes": "Participation 50% ages 0-3; avg 20 per class; minimum entry 3 classes."
+    },
+    {
+      "category": "Education",
+      "service": "Kindergarten (3-6) - classes",
+      "basis": "age_3_6",
+      "rule": "100% participation / 30 kids per class",
+      "required_units": 29,
+      "built_sqm": 3770.0,
+      "land_dunam": 14.5,
+      "notes": "0.5 dunam/class; built 130 sqm + yard."
+    },
+    {
+      "category": "Education",
+      "service": "Elementary school (models)",
+      "basis": "age_6_12",
+      "rule": "100% participation / 27 students per class",
+      "required_units": 45,
+      "built_sqm": 9050.0,
+      "land_dunam": 21.6,
+      "notes": "Model mix example: 1x12, 1x18, 1x24 classes."
+    },
+    {
+      "category": "Education",
+      "service": "Secondary school (models)",
+      "basis": "age_12_18",
+      "rule": "100% participation / 27 students per class",
+      "required_units": 39,
+      "built_sqm": 16150.0,
+      "land_dunam": 33.0,
+      "notes": "Model mix example: 1x30, 1x36 classes."
+    },
+    {
+      "category": "Health",
+      "service": "Family health station (Tipat Halav)",
+      "basis": "age_0_6",
+      "rule": "0-1: 100%; 1-6: 20%",
+      "required_units": 476,
+      "built_sqm": NaN,
+      "land_dunam": NaN,
+      "notes": "No dedicated land/build quotas."
+    },
+    {
+      "category": "Health",
+      "service": "Neighborhood clinic",
+      "basis": "total",
+      "rule": "Avoid dedicated plot; minimum 0.5 dunam if combined",
+      "required_units": 1,
+      "built_sqm": 400.0,
+      "land_dunam": 0.0,
+      "notes": "Medium clinic 300-500 sqm built."
+    },
+    {
+      "category": "Culture & Community",
+      "service": "Youth club / youth movement",
+      "basis": "age_11_18",
+      "rule": "30-40% participation; 300-1000 regular users",
+      "required_units": 1,
+      "built_sqm": NaN,
+      "land_dunam": NaN,
+      "notes": "35% participation reference sizing."
+    },
+    {
+      "category": "Culture & Community",
+      "service": "Senior club (70+)",
+      "basis": "age_70_plus",
+      "rule": "15% participation; 200-250 regular users; 250-300 sqm built",
+      "required_units": 1,
+      "built_sqm": 275.0,
+      "land_dunam": NaN,
+      "notes": "Allocate built area within mixed-use facility."
+    },
+    {
+      "category": "Welfare",
+      "service": "Day center (frail body)",
+      "basis": "age_70_plus",
+      "rule": "1.8% of 70+",
+      "required_units": 1,
+      "built_sqm": 550.0,
+      "land_dunam": NaN,
+      "notes": "Small center baseline."
+    },
+    {
+      "category": "Welfare",
+      "service": "Welfare office (branch)",
+      "basis": "total",
+      "rule": "One branch per 30k-50k residents; ~320 sqm built",
+      "required_units": 1,
+      "built_sqm": 320.0,
+      "land_dunam": NaN,
+      "notes": "Conservative threshold at 50,000 residents."
+    },
+    {
+      "category": "Emergency",
+      "service": "MDA station",
+      "basis": "total",
+      "rule": "<=15k small; 15k-50k medium; >50k large",
+      "required_units": 1,
+      "built_sqm": 200.0,
+      "land_dunam": 1.0,
+      "notes": "Population-threshold based size."
+    },
+    {
+      "category": "Emergency",
+      "service": "Fire station",
+      "basis": "total",
+      "rule": "Entry threshold: 30,000 residents",
+      "required_units": 0,
+      "built_sqm": 0.0,
+      "land_dunam": 0.0,
+      "notes": "Below threshold returns 0."
+    },
+    {
+      "category": "Sports",
+      "service": "Football field",
+      "basis": "total",
+      "rule": "1 field per 20,000 residents; land 10-12 dunam",
+      "required_units": 1,
+      "built_sqm": 0.0,
+      "land_dunam": 11.0,
+      "notes": "Midpoint land value (11 dunam)."
+    },
+    {
+      "category": "Sports",
+      "service": "Swimming pool (covered)",
+      "basis": "total",
+      "rule": "1 pool per 25,000 residents; built 1,000 sqm; land 2-6 dunam",
+      "required_units": 1,
+      "built_sqm": 1000.0,
+      "land_dunam": 4.0,
+      "notes": "Midpoint land value (4 dunam)."
+    },
+    {
+      "category": "Open Space",
+      "service": "Open space - Doorstep",
+      "basis": "total",
+      "rule": "5 sqm per resident; >=80% green",
+      "required_units": 60000,
+      "built_sqm": NaN,
+      "land_dunam": 60.0,
+      "notes": "Doorstep open space standard."
+    },
+    {
+      "category": "Citywide",
+      "service": "Citywide services (misc. basket)",
+      "basis": "total + housing_units",
+      "rule": "500-5,000 units: 0.3 sqm per resident",
+      "required_units": 3600,
+      "built_sqm": NaN,
+      "land_dunam": 3.6,
+      "notes": "Plan housing-unit size based allocation."
+    }
+  ],
+  "comments": [
+    {
+      "ts": "2026-03-22T19:10:35",
+      "author": "משה",
+      "text": "לשייך לתבע 1234"
+    }
+  ]
+}

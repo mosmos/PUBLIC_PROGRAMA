@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>עורך חוקי שירותים</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #e8e8e8;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar h1 {
+      font-size: 1rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .topbar-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .edit-badge {
+      background: #555;
+      color: #fff;
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 0.78rem;
+      display: none;
+    }
+
+    .edit-badge.visible { display: inline-block; }
+
+    /* ── Filter bar ── */
+    .filterbar {
+      background: #f0f0f0;
+      border-bottom: 1px solid #ccc;
+      padding: 10px 24px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filterbar label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #444;
+      white-space: nowrap;
+    }
+
+    .filterbar select,
+    .filterbar input[type="text"] {
+      padding: 6px 10px;
+      border: 1.5px solid #bbb;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      background: #fff;
+      color: #1a1a1a;
+      outline: none;
+    }
+
+    .filterbar select:focus,
+    .filterbar input[type="text"]:focus { border-color: #555; }
+
+    .filterbar input[type="text"] { min-width: 200px; }
+
+    /* ── Main layout ── */
+    .main {
+      display: flex;
+      flex: 1;
+      gap: 0;
+      overflow: hidden;
+      height: calc(100vh - 96px);
+    }
+
+    /* ── Left panel — rules list ── */
+    .rules-panel {
+      flex: 0 0 58%;
+      overflow-y: auto;
+      padding: 16px 20px;
+      border-left: 1px solid #ccc;
+    }
+
+    .category-block { margin-bottom: 6px; }
+
+    .cat-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #333;
+      color: #fff;
+      padding: 7px 12px;
+      cursor: pointer;
+      border-radius: 5px 5px 0 0;
+      user-select: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .cat-toggle .arrow { transition: transform 0.18s; font-size: 0.7rem; }
+    .cat-toggle.collapsed .arrow { transform: rotate(-90deg); }
+
+    .cat-count {
+      background: #555;
+      border-radius: 10px;
+      padding: 1px 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      margin-right: auto;
+    }
+
+    .cat-rows { border: 1px solid #ccc; border-top: none; border-radius: 0 0 5px 5px; overflow: hidden; }
+
+    .rule-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid #e8e8e8;
+      gap: 10px;
+      transition: background 0.12s;
+      cursor: pointer;
+    }
+
+    .rule-row:last-child { border-bottom: none; }
+    .rule-row:hover { background: #f5f5f5; }
+    .rule-row.active { background: #ebebeb; border-right: 3px solid #333; }
+    .rule-row.edited { border-right: 3px solid #555; }
+    .rule-row.edited .rule-name::after {
+      content: " ✎";
+      color: #555;
+      font-size: 0.75rem;
+    }
+
+    .rule-name {
+      flex: 1;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .rule-basis {
+      font-size: 0.75rem;
+      color: #777;
+      white-space: nowrap;
+    }
+
+    .btn-edit {
+      padding: 4px 10px;
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-edit:hover { background: #666; }
+
+    /* ── Right panel — edit form ── */
+    .edit-panel {
+      flex: 0 0 42%;
+      overflow-y: auto;
+      background: #fff;
+      padding: 20px 22px;
+      border-right: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .edit-placeholder {
+      color: #aaa;
+      font-size: 0.9rem;
+      text-align: center;
+      margin: auto;
+    }
+
+    .edit-form { display: none; flex-direction: column; gap: 14px; }
+    .edit-form.visible { display: flex; }
+
+    .edit-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #555;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 5px;
+      margin-top: 6px;
+    }
+
+    .form-field { display: flex; flex-direction: column; gap: 4px; }
+
+    .form-field label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #444;
+    }
+
+    .form-field input[type="text"],
+    .form-field input[type="number"],
+    .form-field textarea,
+    .form-field select {
+      padding: 7px 10px;
+      border: 1.5px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      color: #1a1a1a;
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.14s;
+      width: 100%;
+    }
+
+    .form-field input:focus,
+    .form-field textarea:focus,
+    .form-field select:focus {
+      border-color: #555;
+      background: #fff;
+    }
+
+    .form-field textarea {
+      resize: vertical;
+      min-height: 54px;
+    }
+
+    .form-field textarea.expr {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.82rem;
+      background: #f5f5f5;
+      min-height: 48px;
+    }
+
+    .form-field textarea.expr:focus { background: #fff; }
+
+    /* ── Preview ── */
+    .preview-box {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .preview-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .preview-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .preview-inputs .form-field label { font-size: 0.72rem; }
+    .preview-inputs .form-field input { padding: 5px 8px; font-size: 0.82rem; }
+
+    .preview-result {
+      display: none;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px 12px;
+      font-size: 0.83rem;
+    }
+
+    .preview-result.visible { display: block; }
+
+    .preview-result .res-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .preview-result .res-row:last-child { border-bottom: none; }
+    .preview-result .res-val { font-weight: 700; }
+    .preview-result .res-error { color: #c00; font-size: 0.78rem; }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 9px 16px;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.14s;
+    }
+
+    .btn-dark { background: #333; color: #fff; }
+    .btn-dark:hover:not(:disabled) { background: #555; }
+    .btn-dark:disabled { background: #aaa; cursor: not-allowed; }
+
+    .btn-outline {
+      background: #fff;
+      color: #333;
+      border: 1.5px solid #555;
+    }
+
+    .btn-outline:hover { background: #f0f0f0; }
+
+    .btn-sm { padding: 6px 12px; font-size: 0.80rem; }
+
+    .save-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    /* ── No results ── */
+    .no-results {
+      color: #aaa;
+      font-size: 0.85rem;
+      padding: 20px;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .main { flex-direction: column; height: auto; }
+      .rules-panel, .edit-panel { flex: none; width: 100%; height: auto; border: none; }
+      .edit-panel { border-top: 2px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Top bar ── -->
+<div class="topbar">
+  <h1>עורך חוקי חישוב שירותים ציבוריים</h1>
+  <div class="topbar-controls">
+    <span class="edit-badge" id="editBadge">0 שינויים</span>
+    <button class="btn btn-outline btn-sm" id="downloadBtn" disabled>⬇ הורד JSON</button>
+  </div>
+</div>
+
+<!-- ── Filter bar ── -->
+<div class="filterbar">
+  <label for="catFilter">קטגוריה:</label>
+  <select id="catFilter">
+    <option value="">כל הקטגוריות</option>
+  </select>
+  <label for="searchInput">חיפוש:</label>
+  <input type="text" id="searchInput" placeholder="שם שירות, בסיס, הערות..." />
+  <button class="btn btn-outline btn-sm" id="expandAllBtn">펼 הרחב הכל</button>
+  <button class="btn btn-outline btn-sm" id="collapseAllBtn">כווץ הכל</button>
+</div>
+
+<!-- ── Main ── -->
+<div class="main">
+
+  <!-- Rules list -->
+  <div class="rules-panel" id="rulesPanel">
+    <div class="no-results">טוען חוקים...</div>
+  </div>
+
+  <!-- Edit form -->
+  <div class="edit-panel" id="editPanel">
+    <div class="edit-placeholder" id="editPlaceholder">
+      ← לחץ על <strong>ערוך</strong> ליד חוק כדי לערוך אותו
+    </div>
+
+    <div class="edit-form" id="editForm">
+
+      <div class="edit-section-title">פרטי השירות</div>
+
+      <div class="form-field">
+        <label>שם השירות</label>
+        <input type="text" id="fService" />
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <div class="form-field" style="flex:1">
+          <label>קטגוריה</label>
+          <input type="text" id="fCategory" list="catList" />
+          <datalist id="catList"></datalist>
+        </div>
+        <div class="form-field" style="flex:1">
+          <label>בסיס חישוב</label>
+          <input type="text" id="fBasis" />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>תיאור החוק</label>
+        <textarea id="fRuleText" rows="2"></textarea>
+      </div>
+
+      <div class="edit-section-title">נוסחאות</div>
+
+      <div class="form-field">
+        <label>כמות נדרשת (required_expr)</label>
+        <textarea class="expr" id="fRequiredExpr" rows="2"></textarea>
+      </div>
+
+      <div class="form-field">
+        <label>שטח בנוי מ"ר (built_expr)</label>
+        <textarea class="expr" id="fBuiltExpr" rows="2"></textarea>
+      </div>
+
+      <div class="form-field">
+        <label>קרקע דונם (land_expr)</label>
+        <textarea class="expr" id="fLandExpr" rows="2"></textarea>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <div class="form-field" style="flex:1">
+          <label>מרחק הליכה (מ')</label>
+          <input type="number" id="fWalkDistance" min="0" step="50" placeholder="null" />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>הערות</label>
+        <textarea id="fNotes" rows="3"></textarea>
+      </div>
+
+      <!-- Preview -->
+      <div class="edit-section-title">תצוגה מקדימה</div>
+
+      <div class="preview-box">
+        <div class="preview-title">הזן אוכלוסיית בדיקה ולחץ חשב</div>
+
+        <div class="preview-inputs">
+          <div class="form-field">
+            <label>סה"כ אוכלוסייה</label>
+            <input type="number" id="pvTotal" value="1000" min="100" step="100" />
+          </div>
+          <div class="form-field">
+            <label>kinder (גיל 0–5)</label>
+            <input type="number" id="pvKinder" value="80" min="0" />
+          </div>
+          <div class="form-field">
+            <label>יסודי (6–11)</label>
+            <input type="number" id="pvPrimary" value="60" min="0" />
+          </div>
+          <div class="form-field">
+            <label>על-יסודי (12–17)</label>
+            <input type="number" id="pvHigh" value="50" min="0" />
+          </div>
+          <div class="form-field">
+            <label>70+ (קשישים)</label>
+            <input type="number" id="pvElder" value="120" min="0" />
+          </div>
+          <div class="form-field">
+            <label>יח"ד</label>
+            <input type="number" id="pvUnits" value="400" min="1" />
+          </div>
+        </div>
+
+        <button class="btn btn-dark btn-sm" id="previewBtn">חשב תצוגה מקדימה</button>
+
+        <div class="preview-result" id="previewResult"></div>
+      </div>
+
+      <!-- Save -->
+      <div class="save-row">
+        <button class="btn btn-dark" id="saveRuleBtn">💾 שמור שינויים לחוק זה</button>
+        <button class="btn btn-outline btn-sm" id="resetRuleBtn">בטל שינויים</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────
+let rulesData   = null;   // original full object from /api/rules-source
+let editedRules = [];     // working copy of rules array
+let editedSet   = new Set();  // indices of edited rules
+let activeIdx   = null;   // currently selected rule index (in editedRules)
+let collapsed   = new Set();  // collapsed category names
+
+// ── Load rules ────────────────────────────────────────────────────────────
+async function loadRules() {
+  try {
+    const res = await fetch("/api/rules-source");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    rulesData   = await res.json();
+    editedRules = rulesData.rules.map(r => ({ ...r }));  // shallow copy per rule
+    buildCategoryFilter();
+    renderRulesList();
+  } catch (err) {
+    document.getElementById("rulesPanel").innerHTML =
+      `<div class="no-results">שגיאה בטעינת החוקים: ${err.message}</div>`;
+  }
+}
+
+// ── Category filter ───────────────────────────────────────────────────────
+function buildCategoryFilter() {
+  const cats = [...new Set(editedRules.map(r => r.category))];
+  const sel  = document.getElementById("catFilter");
+  const dl   = document.getElementById("catList");
+  cats.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+    dl.appendChild(opt.cloneNode(true));
+  });
+}
+
+// ── Filter helpers ────────────────────────────────────────────────────────
+function getFilter() {
+  return {
+    cat:    document.getElementById("catFilter").value,
+    search: document.getElementById("searchInput").value.trim().toLowerCase(),
+  };
+}
+
+function ruleMatches(r, { cat, search }) {
+  if (cat && r.category !== cat) return false;
+  if (search) {
+    const hay = `${r.service} ${r.basis || ""} ${r.notes || ""} ${r.rule_text || ""}`.toLowerCase();
+    if (!hay.includes(search)) return false;
+  }
+  return true;
+}
+
+// ── Render rules list ─────────────────────────────────────────────────────
+function renderRulesList() {
+  const filter   = getFilter();
+  const panel    = document.getElementById("rulesPanel");
+
+  // Group by category
+  const groups   = {};
+  editedRules.forEach((r, idx) => {
+    if (!ruleMatches(r, filter)) return;
+    if (!groups[r.category]) groups[r.category] = [];
+    groups[r.category].push({ r, idx });
+  });
+
+  const cats = Object.keys(groups);
+  if (cats.length === 0) {
+    panel.innerHTML = `<div class="no-results">לא נמצאו חוקים התואמים את הסינון</div>`;
+    return;
+  }
+
+  panel.innerHTML = "";
+
+  cats.forEach(cat => {
+    const isCollapsed = collapsed.has(cat);
+    const block = document.createElement("div");
+    block.className = "category-block";
+    block.dataset.cat = cat;
+
+    const header = document.createElement("div");
+    header.className = `cat-toggle${isCollapsed ? " collapsed" : ""}`;
+    header.innerHTML = `
+      <span class="arrow">▼</span>
+      <span>${cat}</span>
+      <span class="cat-count">${groups[cat].length}</span>`;
+    header.addEventListener("click", () => toggleCategory(cat));
+    block.appendChild(header);
+
+    const rowsDiv = document.createElement("div");
+    rowsDiv.className = "cat-rows";
+    rowsDiv.style.display = isCollapsed ? "none" : "";
+
+    groups[cat].forEach(({ r, idx }) => {
+      const row = document.createElement("div");
+      row.className = `rule-row${idx === activeIdx ? " active" : ""}${editedSet.has(idx) ? " edited" : ""}`;
+      row.dataset.idx = idx;
+      row.innerHTML = `
+        <span class="rule-name">${r.service}</span>
+        <span class="rule-basis">${r.basis || ""}</span>
+        <button class="btn-edit" data-idx="${idx}">✏ ערוך</button>`;
+      row.addEventListener("click", e => {
+        if (e.target.classList.contains("btn-edit") || e.target.dataset.idx !== undefined) {
+          selectRule(parseInt(row.dataset.idx));
+        }
+      });
+      rowsDiv.appendChild(row);
+    });
+
+    block.appendChild(rowsDiv);
+    panel.appendChild(block);
+  });
+}
+
+// ── Toggle category ───────────────────────────────────────────────────────
+function toggleCategory(cat) {
+  if (collapsed.has(cat)) collapsed.delete(cat);
+  else collapsed.add(cat);
+  renderRulesList();
+}
+
+// ── Select rule ───────────────────────────────────────────────────────────
+function selectRule(idx) {
+  activeIdx = idx;
+  renderRulesList();  // refresh highlights
+  populateEditForm(editedRules[idx]);
+  document.getElementById("editPlaceholder").style.display = "none";
+  document.getElementById("editForm").classList.add("visible");
+  document.getElementById("previewResult").classList.remove("visible");
+  document.getElementById("previewResult").innerHTML = "";
+  // Scroll edit panel to top
+  document.getElementById("editPanel").scrollTop = 0;
+}
+
+// ── Populate edit form ────────────────────────────────────────────────────
+function populateEditForm(r) {
+  document.getElementById("fService").value      = r.service       || "";
+  document.getElementById("fCategory").value     = r.category      || "";
+  document.getElementById("fBasis").value        = r.basis         || "";
+  document.getElementById("fRuleText").value     = r.rule_text     || "";
+  document.getElementById("fRequiredExpr").value = r.required_expr || "";
+  document.getElementById("fBuiltExpr").value    = r.built_expr    || "";
+  document.getElementById("fLandExpr").value     = r.land_expr     || "";
+  document.getElementById("fNotes").value        = r.notes         || "";
+  document.getElementById("fWalkDistance").value =
+    r.walk_distance_m != null ? r.walk_distance_m : "";
+}
+
+// ── Read form values back to a rule object ────────────────────────────────
+function readFormValues() {
+  const wd = document.getElementById("fWalkDistance").value.trim();
+  return {
+    ...editedRules[activeIdx],
+    service:        document.getElementById("fService").value.trim(),
+    category:       document.getElementById("fCategory").value.trim(),
+    basis:          document.getElementById("fBasis").value.trim(),
+    rule_text:      document.getElementById("fRuleText").value.trim(),
+    required_expr:  document.getElementById("fRequiredExpr").value.trim(),
+    built_expr:     document.getElementById("fBuiltExpr").value.trim(),
+    land_expr:      document.getElementById("fLandExpr").value.trim(),
+    notes:          document.getElementById("fNotes").value.trim(),
+    walk_distance_m: wd === "" ? null : Number(wd),
+  };
+}
+
+// ── Save rule changes ─────────────────────────────────────────────────────
+function saveRule() {
+  if (activeIdx === null) return;
+  editedRules[activeIdx] = readFormValues();
+  editedSet.add(activeIdx);
+  updateEditBadge();
+  renderRulesList();
+}
+
+// ── Reset rule to original ────────────────────────────────────────────────
+function resetRule() {
+  if (activeIdx === null) return;
+  editedRules[activeIdx] = { ...rulesData.rules[activeIdx] };
+  editedSet.delete(activeIdx);
+  populateEditForm(editedRules[activeIdx]);
+  updateEditBadge();
+  renderRulesList();
+}
+
+// ── Edit badge ────────────────────────────────────────────────────────────
+function updateEditBadge() {
+  const badge = document.getElementById("editBadge");
+  const dl    = document.getElementById("downloadBtn");
+  const n     = editedSet.size;
+  badge.textContent = `${n} שינויים`;
+  badge.classList.toggle("visible", n > 0);
+  dl.disabled = n === 0;
+}
+
+// ── Preview ───────────────────────────────────────────────────────────────
+async function runPreview() {
+  if (activeIdx === null) return;
+
+  const rule = readFormValues();  // use current (unsaved) form values
+
+  const total   = parseInt(document.getElementById("pvTotal").value)   || 1000;
+  const kinder  = parseInt(document.getElementById("pvKinder").value)  || 0;
+  const primary = parseInt(document.getElementById("pvPrimary").value) || 0;
+  const high    = parseInt(document.getElementById("pvHigh").value)    || 0;
+  const elder   = parseInt(document.getElementById("pvElder").value)   || 0;
+  const units   = parseInt(document.getElementById("pvUnits").value)   || 400;
+
+  const zone = {
+    housing_units: units,
+    plan_model: "B",
+    pop: {
+      total, kinder,
+      primary_school: primary,
+      high_school:    high,
+      elder70:        elder,
+      haredi_p:       0,
+      traditional_p:  0,
+      special_ed_p:   0,
+    }
+  };
+
+  const btn = document.getElementById("previewBtn");
+  btn.disabled = true;
+  btn.textContent = "מחשב...";
+
+  let result;
+  try {
+    const res = await fetch("/api/calculate", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ zone, rulesOverride: { rules: [rule] } }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    result = data.results?.[0] ?? null;
+  } catch (err) {
+    showPreviewError(err.message);
+    btn.disabled = false;
+    btn.textContent = "חשב תצוגה מקדימה";
+    return;
+  }
+
+  btn.disabled = false;
+  btn.textContent = "חשב תצוגה מקדימה";
+
+  if (!result) { showPreviewError("אין תוצאה"); return; }
+
+  const fmt = v => {
+    if (v === null || v === undefined) return "—";
+    if (typeof v === "string" && v.startsWith("ERROR")) return `<span class="res-error">${v}</span>`;
+    if (typeof v === "number") return Number.isInteger(v) ? v.toLocaleString() : v.toFixed(2);
+    return String(v);
+  };
+
+  const el = document.getElementById("previewResult");
+  el.innerHTML = `
+    <div class="res-row"><span>כמות נדרשת</span><span class="res-val">${fmt(result.required_units)}</span></div>
+    <div class="res-row"><span>שטח בנוי (מ"ר)</span><span class="res-val">${fmt(result.built_sqm)}</span></div>
+    <div class="res-row"><span>קרקע (דונם)</span><span class="res-val">${fmt(result.land_dunam)}</span></div>
+    <div class="res-row"><span>פעיל</span><span class="res-val">${result.isActive ? "✔ כן" : "✘ לא"}</span></div>`;
+  el.classList.add("visible");
+}
+
+function showPreviewError(msg) {
+  const el = document.getElementById("previewResult");
+  el.innerHTML = `<span class="res-error">שגיאה: ${msg}</span>`;
+  el.classList.add("visible");
+}
+
+// ── Download JSON ─────────────────────────────────────────────────────────
+function downloadJSON() {
+  const output = { ...rulesData, rules: editedRules };
+  const blob   = new Blob([JSON.stringify(output, null, 2)], { type: "application/json" });
+  const url    = URL.createObjectURL(blob);
+  const today  = new Date().toISOString().slice(0, 10);
+  const a      = document.createElement("a");
+  a.href       = url;
+  a.download   = `rules_edited_${today}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Expand / Collapse all ─────────────────────────────────────────────────
+function expandAll() {
+  collapsed.clear();
+  renderRulesList();
+}
+
+function collapseAll() {
+  const cats = [...new Set(editedRules.map(r => r.category))];
+  cats.forEach(c => collapsed.add(c));
+  renderRulesList();
+}
+
+// ── Event listeners ───────────────────────────────────────────────────────
+document.getElementById("catFilter").addEventListener("change",   renderRulesList);
+document.getElementById("searchInput").addEventListener("input",  renderRulesList);
+document.getElementById("expandAllBtn").addEventListener("click", expandAll);
+document.getElementById("collapseAllBtn").addEventListener("click", collapseAll);
+document.getElementById("saveRuleBtn").addEventListener("click",  saveRule);
+document.getElementById("resetRuleBtn").addEventListener("click", resetRule);
+document.getElementById("previewBtn").addEventListener("click",   runPreview);
+document.getElementById("downloadBtn").addEventListener("click",  downloadJSON);
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+loadRules();
+</script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+{
+  "rules": [
+    {
+      "category": "Education",
+      "service": "Haredi Boys Elementary School (11-year)",
+      "basis": "age_6_13_haredi_boys",
+      "rule_text": "Haredi boys elementary: settlement-type dependent. B: 112 m²/class, 0.2 dunam/class. C: 125 m²/class, 0.25 dunam/class. 20 students/class.",
+      "required_expr": "ceil_div(age_6_12 * haredi_pct, 20)",
+      "built_expr": "ceil_div(age_6_12 * haredi_pct, 20) * (112 if settlement_type == 'B' else 125)",
+      "land_expr": "ceil_div(age_6_12 * haredi_pct, 20) * (0.2 if settlement_type == 'B' else 0.25)",
+      "notes": "Activated only when haredi_pct > 0. Weighted land: 18% kindergarten-rate (0.375 dunam) + 82% class-rate (B:0.2 / C:0.25). 20 students per class.",
+      "is_active_condition": "haredi_pct > 0",
+      "parameters": {
+        "class_size": 20,
+        "built_per_class_B": 112,
+        "built_per_class_C": 125,
+        "land_per_class_B": 0.2,
+        "land_per_class_C": 0.25
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Education",
+      "service": "Haredi Boys Secondary School (4-year)",
+      "basis": "age_14_17_haredi_boys",
+      "rule_text": "Haredi boys secondary: B: 145 m²/class, 0.35 dunam/class. C: 160 m²/class, 0.3 dunam/class. 20 students/class.",
+      "required_expr": "ceil_div(age_14_17 * haredi_pct, 20)",
+      "built_expr": "ceil_div(age_14_17 * haredi_pct, 20) * (145 if settlement_type == 'B' else 160)",
+      "land_expr": "ceil_div(age_14_17 * haredi_pct, 20) * (0.35 if settlement_type == 'B' else 0.3)",
+      "notes": "Activated only when haredi_pct > 0. B: 145 m² + 0.35 dunam per class. C: 160 m² + 0.3 dunam per class.",
+      "is_active_condition": "haredi_pct > 0",
+      "parameters": {
+        "class_size": 20,
+        "built_per_class_B": 145,
+        "built_per_class_C": 160,
+        "land_per_class_B": 0.35,
+        "land_per_class_C": 0.3
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Education",
+      "service": "Haredi Girls Elementary School (8-year)",
+      "basis": "age_6_13_haredi_girls",
+      "rule_text": "Haredi girls elementary: B: 165 m²/class, 0.4 dunam/class. C: 185 m²/class, 0.3 dunam/class. 27 students/class.",
+      "required_expr": "ceil_div(age_6_12 * haredi_pct, 27)",
+      "built_expr": "ceil_div(age_6_12 * haredi_pct, 27) * (165 if settlement_type == 'B' else 185)",
+      "land_expr": "ceil_div(age_6_12 * haredi_pct, 27) * (0.4 if settlement_type == 'B' else 0.3)",
+      "notes": "Activated only when haredi_pct > 0. 27 students per class. B: 165 m² + 0.4 dunam. C: 185 m² + 0.3 dunam.",
+      "is_active_condition": "haredi_pct > 0",
+      "parameters": {
+        "class_size": 27,
+        "built_per_class_B": 165,
+        "built_per_class_C": 185,
+        "land_per_class_B": 0.4,
+        "land_per_class_C": 0.3
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Education",
+      "service": "Haredi Girls Secondary School (4-year)",
+      "basis": "age_14_17_haredi_girls",
+      "rule_text": "Haredi girls secondary: B: 205 m²/class, 0.5 dunam/class. C: 230 m²/class, 0.4 dunam/class. 27 students/class.",
+      "required_expr": "ceil_div(age_14_17 * haredi_pct, 27)",
+      "built_expr": "ceil_div(age_14_17 * haredi_pct, 27) * (205 if settlement_type == 'B' else 230)",
+      "land_expr": "ceil_div(age_14_17 * haredi_pct, 27) * (0.5 if settlement_type == 'B' else 0.4)",
+      "notes": "Activated only when haredi_pct > 0. 27 students per class. B: 205 m² + 0.5 dunam. C: 230 m² + 0.4 dunam.",
+      "is_active_condition": "haredi_pct > 0",
+      "parameters": {
+        "class_size": 27,
+        "built_per_class_B": 205,
+        "built_per_class_C": 230,
+        "land_per_class_B": 0.5,
+        "land_per_class_C": 0.4
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Education",
+      "service": "Special Education Daycare (0-2)",
+      "basis": "age_0_3",
+      "rule_text": "Special education daycare: special_education_pct of cohort. 6 children/class. 187.5 m²/class. 0.375 dunam/class.",
+      "required_expr": "ceil_div(age_0_3 * special_education_pct, 6)",
+      "built_expr": "ceil_div(age_0_3 * special_education_pct, 6) * 187.5",
+      "land_expr": "ceil_div(age_0_3 * special_education_pct, 6) * 0.375",
+      "notes": "Activated when special_education_pct > 0. 750 m² for 4 classes. 1.5 dunam for 4 classes.",
+      "is_active_condition": "special_education_pct > 0",
+      "parameters": {
+        "class_size": 6,
+        "built_per_class": 187.5,
+        "land_per_class": 0.375
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Education",
+      "service": "Special Education Kindergarten (3-6)",
+      "basis": "age_3_6",
+      "rule_text": "Special education kindergarten: special_education_pct of cohort. 6 children/class. 130 m²/class + 200 m² yard. 0.375 dunam/class.",
+      "required_expr": "ceil_div(age_3_6 * special_education_pct, 6)",
+      "built_expr": "ceil_div(age_3_6 * special_education_pct, 6) * 130",
+      "land_expr": "ceil_div(age_3_6 * special_education_pct, 6) * 0.375",
+      "notes": "Activated when special_education_pct > 0. 6 students/class. 130 m² built + 200 m² yard per class.",
+      "is_active_condition": "special_education_pct > 0",
+      "parameters": {
+        "class_size": 6,
+        "built_per_class": 130,
+        "yard_per_class": 200,
+        "land_per_class": 0.375
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Education",
+      "service": "Special Education Primary School",
+      "basis": "age_6_12",
+      "rule_text": "Special education primary: special_education_pct of age 6-12. 10 students/class. 193.5 m²/class. 0.3 dunam/class.",
+      "required_expr": "ceil_div(age_6_12 * special_education_pct, 10)",
+      "built_expr": "ceil_div(age_6_12 * special_education_pct, 10) * 193.5",
+      "land_expr": "ceil_div(age_6_12 * special_education_pct, 10) * 0.3",
+      "notes": "Activated when special_education_pct > 0. 10 students/class. 193.5 m² built. 0.3 dunam per class.",
+      "is_active_condition": "special_education_pct > 0",
+      "parameters": {
+        "class_size": 10,
+        "built_per_class": 193.5,
+        "land_per_class": 0.3
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Education",
+      "service": "Special Education Secondary School",
+      "basis": "age_12_18",
+      "rule_text": "Special education secondary: special_education_pct of age 12-18. 10 students/class. 147 m²/class. 0.3 dunam/class.",
+      "required_expr": "ceil_div(age_12_18 * special_education_pct, 10)",
+      "built_expr": "ceil_div(age_12_18 * special_education_pct, 10) * 147",
+      "land_expr": "ceil_div(age_12_18 * special_education_pct, 10) * 0.3",
+      "notes": "Activated when special_education_pct > 0. 10 students/class. 147 m² built. 0.3 dunam per class.",
+      "is_active_condition": "special_education_pct > 0",
+      "parameters": {
+        "class_size": 10,
+        "built_per_class": 147,
+        "land_per_class": 0.3
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Education",
+      "service": "Enrichment & Development (citywide basket)",
+      "basis": "total",
+      "rule_text": "Enrichment programs (gifted center, maritime school, Hila, youth employment, etc.) allocated as part of citywide basket. No direct formula — included in citywide allocation.",
+      "required_expr": "",
+      "built_expr": "",
+      "land_expr": "",
+      "notes": "Included as part of citywide public-space allocation. Services include: Gifted center, maritime education school, Hila, Miftan, Matia, Psagot, agricultural farm. No standalone land quota.",
+      "is_active_condition": null,
+      "parameters": {},
+      "classification": "כלל עירוני"
+    },
+    {
+      "category": "Welfare",
+      "service": "Additional Welfare Institutions (citywide basket)",
+      "basis": "total",
+      "rule_text": "Welfare basket allocation: 0.025 m²/person as part of citywide allocation. Includes day centers, clubs, sheltered workshops.",
+      "required_expr": "total * 0.025",
+      "built_expr": "",
+      "land_expr": "(total * 0.025) / 1000",
+      "notes": "0.05 m²/person included in citywide allocation. Services: early childhood center, adult day centers, autism centers, disabled clubs, sheltered workshops. No dedicated land plot.",
+      "is_active_condition": null,
+      "parameters": {
+        "allocation_rate_per_person": 0.025
+      },
+      "classification": "כלל עירוני"
+    },
+    {
+      "category": "Culture & Community",
+      "service": "Community Center",
+      "basis": "total",
+      "rule_text": "1 community center per ~5,000 regular users (20% participation). 5,000 m² built. 3 dunam land.",
+      "required_expr": "ceil_div(total * 0.2, 5000)",
+      "built_expr": "ceil_div(total * 0.2, 5000) * 5000",
+      "land_expr": "ceil_div(total * 0.2, 5000) * 3",
+      "notes": "20% regular users. 5,000 m² built per center. 3 dunam per center. Sports pool/hall area covered under sports rules.",
+      "is_active_condition": null,
+      "parameters": {
+        "participation_rate": 0.2,
+        "users_per_center": 5000,
+        "built_per_center_m2": 5000,
+        "land_per_center_dunam": 3
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Religion",
+      "service": "Synagogue",
+      "basis": "total",
+      "rule_text": "Population × 0.49 × traditional_rate. 250 worshippers per synagogue. 1.1 m²/worshipper. 0.25 dunam per synagogue (50% allocation — rest combined in buildings).",
+      "required_expr": "ceil_div(total * 0.49 * traditional_pct, 250)",
+      "built_expr": "ceil_div(total * 0.49 * traditional_pct, 250) * 275",
+      "land_expr": "ceil_div(total * 0.49 * traditional_pct, 250) * 0.25",
+      "notes": "0.49 = male share of Jewish population. traditional_pct = rate of traditional/religious population. 1.1 m²/worshipper average. 0.25 dunam per synagogue — only 50% of demand gets dedicated plot; the rest combined in other buildings.",
+      "is_active_condition": "traditional_pct > 0",
+      "parameters": {
+        "male_share": 0.49,
+        "worshippers_per_synagogue": 250,
+        "built_per_worshipper_m2": 1.1,
+        "land_per_synagogue_dunam": 0.25,
+        "allocation_coefficient": 0.5
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Religion",
+      "service": "Women's Ritual Bath (Mikveh)",
+      "basis": "total",
+      "rule_text": "Population × traditional_rate × 0.07. 23 women per pool. 60 m²/pool. 0.125 dunam/pool.",
+      "required_expr": "ceil_div(total * traditional_pct * 0.07, 23)",
+      "built_expr": "ceil_div(total * traditional_pct * 0.07, 23) * 60",
+      "land_expr": "ceil_div(total * traditional_pct * 0.07, 23) * 0.125",
+      "notes": "0.07 coefficient = proportion of women of childbearing age after excluding pregnancy/birth periods. 60 m²/pool (weighted average). 0.125 dunam per pool (0.5 dunam for 4 pools).",
+      "is_active_condition": "traditional_pct > 0",
+      "parameters": {
+        "demand_coefficient": 0.07,
+        "women_per_pool": 23,
+        "built_per_pool_m2": 60,
+        "land_per_pool_dunam": 0.125
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Sports",
+      "service": "Football Stadium (citywide)",
+      "basis": "total",
+      "rule_text": "1 stadium per 150,000 residents. 20 dunam per stadium (~15,000 seats). Citywide public space.",
+      "required_expr": "1 if total >= 150000 else 0",
+      "built_expr": "",
+      "land_expr": "20 if total >= 150000 else 0",
+      "notes": "Entry threshold: 150,000 residents. 20 dunam per large stadium. Classified as citywide public space (שב\"צ כלל עירוני).",
+      "is_active_condition": "total >= 150000",
+      "parameters": {
+        "entry_threshold": 150000,
+        "land_per_stadium_dunam": 20
+      },
+      "classification": "כלל עירוני"
+    },
+    {
+      "category": "Sports",
+      "service": "Athletics Stadium (citywide)",
+      "basis": "total",
+      "rule_text": "1 athletics stadium per 250,000 residents. 20 dunam per facility. Citywide public space.",
+      "required_expr": "1 if total >= 250000 else 0",
+      "built_expr": "",
+      "land_expr": "20 if total >= 250000 else 0",
+      "notes": "Entry threshold: 250,000 residents. 20 dunam per facility. Classified as citywide public space (שב\"צ כלל עירוני).",
+      "is_active_condition": "total >= 250000",
+      "parameters": {
+        "entry_threshold": 250000,
+        "land_per_facility_dunam": 20
+      },
+      "classification": "כלל עירוני"
+    },
+    {
+      "category": "Sports",
+      "service": "Tennis Court",
+      "basis": "total",
+      "rule_text": "1 court per 4,000 residents. 0.7 dunam per court. Only 50% of demand receives dedicated land allocation.",
+      "required_expr": "ceil_div(total, 4000)",
+      "built_expr": "",
+      "land_expr": "ceil_div(total, 4000) * 0.7 * 0.5",
+      "notes": "1 court per 4,000 residents. 0.7 dunam per court (2.8 dunam for cluster of 4). 50% allocation coefficient — remainder sourced from public open space (שצ\"פ). Combined only in community center Model 3.",
+      "is_active_condition": null,
+      "parameters": {
+        "residents_per_court": 4000,
+        "land_per_court_dunam": 0.7,
+        "allocation_coefficient": 0.5
+      },
+      "classification": "מקומי"
+    },
+    {
+      "category": "Sports",
+      "service": "Sports Hall (indoor)",
+      "basis": "age_6_12",
+      "rule_text": "Derived from school classes: 1 hall per 18 elementary classes + 1 hall per 36 secondary classes. No dedicated land. Combined in school/community center/commercial project.",
+      "required_expr": "ceil_div(ceil_div(age_6_12, 30), 18) + ceil_div(ceil_div(age_12_18, 30), 36)",
+      "built_expr": "",
+      "land_expr": "",
+      "notes": "No dedicated land allocation. 550–1,450 m² built per hall (not counted in land quota). Combined in school building, community center, or commercial project. Not classified as public-space allocation.",
+      "is_active_condition": null,
+      "parameters": {
+        "elementary_classes_per_hall": 18,
+        "secondary_classes_per_hall": 36,
+        "built_range_min_m2": 550,
+        "built_range_max_m2": 1450
+      },
+      "classification": "ללא"
+    },
+    {
+      "category": "Emergency",
+      "service": "Police Station (citywide)",
+      "basis": "total",
+      "rule_text": "1 station per 150,000 residents. 4,500 m² built (medium/large station). 3 dunam land. Citywide public space.",
+      "required_expr": "ceil_div(total, 150000)",
+      "built_expr": "ceil_div(total, 150000) * 4500",
+      "land_expr": "ceil_div(total, 150000) * 3",
+      "notes": "Entry threshold: 150,000 (based on existing city conditions). 4,500 m² built for medium/large station. 3 dunam (high building rights allow smaller plot for large station). Citywide שב\"צ. Replaces the smaller community policing center in the original rules.json.",
+      "is_active_condition": null,
+      "parameters": {
+        "residents_per_station": 150000,
+        "built_per_station_m2": 4500,
+        "land_per_station_dunam": 3
+      },
+      "classification": "כלל עירוני"
+    },
+    {
+      "category": "Open Space",
+      "service": "Urban Open Space",
+      "basis": "total",
+      "rule_text": "2 m² per resident (both existing and new development). Minimum 80% green infrastructure.",
+      "required_expr": "total * 2",
+      "built_expr": "",
+      "land_expr": "(total * 2) / 1000",
+      "notes": "2 m²/resident, applies to both existing and new fabric. Minimum 80% green. Can be partially or fully reduced if citywide open-space balance (10 m²/resident) is met. Existing green infrastructure must be preserved.",
+      "is_active_condition": null,
+      "parameters": {
+        "sqm_per_resident": 2,
+        "min_green_pct": 0.8
+      },
+      "classification": "עירוני"
+    },
+    {
+      "category": "Open Space",
+      "service": "Citywide Open Space",
+      "basis": "total",
+      "rule_text": "New development only: 3 m² per resident. Existing fabric: 0 (no citywide open space allocated). 100% green. Up to completion of 10 m²/resident citywide standard.",
+      "required_expr": "total * 3 if settlement_type in ('B', 'new') else 0",
+      "built_expr": "",
+      "land_expr": "(total * 3 / 1000) if settlement_type in ('B', 'new') else 0",
+      "notes": "New development only. 3 m²/resident up to completion of 10 m²/resident citywide target. 100% green infrastructure. Search area: entire municipal boundary (can include land outside city per guidelines).",
+      "is_active_condition": null,
+      "parameters": {
+        "sqm_per_resident_new": 3,
+        "sqm_per_resident_existing": 0,
+        "min_green_pct": 1.0,
+        "citywide_target_sqm_per_resident": 10
+      },
+      "classification": "כלל עירוני"
+    }
+  ]
+}

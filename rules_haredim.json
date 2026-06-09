@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "description": "חינוך חרדי — חלק מ-rules.json הועבר לקובץ נפרד"
+  },
+  "rules": [
+    {
+      "category": "חינוך",
+      "service": "יסודי חרדי בנים (11 שנתי)",
+      "basis": "ages 5-13",
+      "rule_text": "ביקוש לפי % אוכלוסייה חרדית; 20 ילדים בכיתה",
+      "required_expr": "ceil_div((primary_school + kinder*1/6 + high_school*2/6) * haredi_p, 20)",
+      "built_expr": "((primary_school + kinder*1/6 + high_school*2/6) * haredi_p / 20) * (112 if plan_model == 'B' else 125)",
+      "land_expr": "((primary_school + kinder*1/6 + high_school*2/6) * haredi_p / 20) * (0.25 if plan_model == 'B' else 0.2)",
+      "notes": "11 שנתון: גילאי 5-13 (גן חובה + יסודי + 2 שנתונים על-יסודי). 0.375 דונם לכיתת גן (2/11 מהשנתונים).",
+      "walk_distance_m": 625
+    },
+    {
+      "category": "חינוך",
+      "service": "על-יסודי חרדי בנים (4 שנתי)",
+      "basis": "high_school",
+      "rule_text": "ביקוש לפי % אוכלוסייה חרדית; 20 ילדים בכיתה",
+      "required_expr": "ceil_div((high_school * (4/6)) * haredi_p, 20)",
+      "built_expr": "((high_school * (4/6)) * haredi_p / 20) * (145 if plan_model == 'B' else 160)",
+      "land_expr": "((high_school * (4/6)) * haredi_p / 20) * (0.35 if plan_model == 'B' else 0.3)",
+      "notes": "4 שנתונים מתוך 6 בקבוצת על-יסודי.",
+      "walk_distance_m": null
+    },
+    {
+      "category": "חינוך",
+      "service": "יסודי חרדי בנות (8 שנתי)",
+      "basis": "ages 6-13",
+      "rule_text": "ביקוש לפי % אוכלוסייה חרדית; 27 בנות בכיתה",
+      "required_expr": "ceil_div((primary_school + high_school * (2/6)) * haredi_p, 27)",
+      "built_expr": "((primary_school + high_school * (2/6)) * haredi_p / 27) * (165 if plan_model == 'B' else 185)",
+      "land_expr": "((primary_school + high_school * (2/6)) * haredi_p / 27) * (0.4 if plan_model == 'B' else 0.3)",
+      "notes": "8 שנתונים (יסודי 6-11 + 2 שנתונים על-יסודי 12-13).",
+      "walk_distance_m": 625
+    },
+    {
+      "category": "חינוך",
+      "service": "על-יסודי חרדי בנות (4 שנתי)",
+      "basis": "high_school * 4/6",
+      "rule_text": "ביקוש לפי % אוכלוסייה חרדית; 27 בנות בכיתה",
+      "required_expr": "ceil_div(high_school * (4/6) * haredi_p, 27)",
+      "built_expr": "(high_school * (4/6) * haredi_p / 27) * (205 if plan_model == 'B' else 230)",
+      "land_expr": "(high_school * (4/6) * haredi_p / 27) * (0.5 if plan_model == 'B' else 0.4)",
+      "notes": "4 שנתונים מתוך 6 בקבוצת על-יסודי.",
+      "walk_distance_m": null
+    }
+  ]
+}

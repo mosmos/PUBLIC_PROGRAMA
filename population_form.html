@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מחשבון אוכלוסייה ושירותים</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #e8e8e8;
+      color: #1a1a1a;
+      min-height: 100vh;
+      padding: 32px 20px;
+    }
+
+    h1.page-title {
+      text-align: center;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 24px;
+      letter-spacing: 0.01em;
+    }
+
+    /* ── Two-panel layout ── */
+    .panels {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+      padding: 28px 30px;
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .panel-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #111;
+      border-bottom: 2.5px solid #555;
+      padding-bottom: 10px;
+      margin-bottom: 22px;
+    }
+
+    /* ── Form controls ── */
+    .field { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 5px;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid #bbb;
+      border-radius: 6px;
+      font-size: 0.93rem;
+      color: #1a1a1a;
+      background: #f7f7f7;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      border-color: #555;
+      background: #fff;
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: #777;
+      margin-top: 4px;
+      min-height: 1.1em;
+    }
+
+    .error {
+      color: #555;
+      font-size: 0.80rem;
+      margin-top: 4px;
+      display: none;
+      font-weight: 600;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      width: 100%;
+      padding: 11px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 6px;
+    }
+
+    .btn-primary {
+      background: #333;
+      color: #fff;
+    }
+    .btn-primary:hover:not(:disabled) { background: #555; }
+    .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* ── Population output ── */
+    #popOutput { margin-top: 22px; display: none; }
+
+    .summary-box {
+      background: #f0f0f0;
+      border-radius: 7px;
+      padding: 11px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+    }
+
+    .summary-box .val {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #111;
+    }
+
+    .summary-box .sub {
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    /* ── Shared table styles ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    thead tr { background: #ebebeb; }
+
+    th, td {
+      padding: 7px 10px;
+      text-align: right;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      font-weight: 700;
+      color: #333;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover { background: #f5f5f5; }
+
+    tfoot td {
+      font-weight: 700;
+      background: #ebebeb;
+      border-top: 2px solid #ccc;
+    }
+
+    .bar-cell { width: 80px; }
+
+    .bar-bg {
+      background: #ddd;
+      border-radius: 3px;
+      height: 7px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: #555;
+      border-radius: 3px;
+    }
+
+    /* ── Services panel ── */
+    #svcWaiting {
+      color: #888;
+      font-size: 0.88rem;
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    #svcForm { display: none; }
+    #svcOutput { display: none; margin-top: 22px; }
+
+    .pop-summary-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.78rem;
+      color: #333;
+    }
+
+    .chip strong { color: #111; }
+
+    .row-2col {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row-2col .field { flex: 1; }
+
+    /* Services table */
+    .cat-header td {
+      background: #333;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.80rem;
+      padding: 5px 10px;
+      letter-spacing: 0.04em;
+    }
+
+    .inactive-row { opacity: 0.38; }
+
+    .num-cell { text-align: left; direction: ltr; }
+
+    .formula-cell {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.74rem;
+      color: #555;
+      direction: ltr;
+      text-align: left;
+      white-space: normal;
+      word-break: break-word;
+      min-width: 160px;
+      line-height: 1.7;
+    }
+
+    .formula-label {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 0.70rem;
+      font-weight: 700;
+      color: #999;
+      letter-spacing: 0.03em;
+    }
+
+    .hide-formula .formula-cell,
+    .hide-formula .formula-col-header { display: none; }
+
+    .btn-toggle-formula {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border: 1.5px solid #bbb;
+      border-radius: 5px;
+      background: #f0f0f0;
+      font-size: 0.80rem;
+      font-weight: 600;
+      color: #444;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .btn-toggle-formula:hover { background: #e4e4e4; border-color: #999; }
+    .btn-toggle-formula.active { background: #333; color: #fff; border-color: #333; }
+
+    @media (max-width: 860px) {
+      .panels { flex-direction: column-reverse; }
+      .row-2col { flex-direction: column; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<h1 class="page-title">מחשבון אוכלוסייה ושירותים</h1>
+
+<div class="panels">
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- LEFT PANEL — Population                           -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="panel">
+    <div class="panel-title">חישוב אוכלוסייה חדשה לפי פרופיל שכונה</div>
+
+    <div class="field">
+      <label for="newUnits">יחידות דיור חדשות</label>
+      <input type="number" id="newUnits" min="1" step="1" placeholder="לדוגמה: 500" />
+      <div class="error" id="unitsError">נא להזין מספר שלם חיובי</div>
+    </div>
+
+    <div class="field">
+      <label for="zonePicker">בחר פרופיל אוכלוסייה (שכונה)</label>
+      <select id="zonePicker">
+        <option value="">— טוען רשימת שכונות... —</option>
+      </select>
+      <div class="hint" id="zoneMeta"></div>
+      <div class="error" id="zoneError">נא לבחור שכונה</div>
+    </div>
+
+    <button class="btn btn-primary" id="calcPopBtn" disabled>חשב אוכלוסייה</button>
+
+    <!-- Population output -->
+    <div id="popOutput">
+      <div class="summary-box">
+        <div>
+          סה"כ אוכלוסייה חדשה
+          <div class="sub" id="popFormula"></div>
+        </div>
+        <div class="val" id="popTotal"></div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>קבוצת גיל</th>
+            <th>%</th>
+            <th>נפשות</th>
+            <th class="bar-cell">גרף</th>
+          </tr>
+        </thead>
+        <tbody id="popTableBody"></tbody>
+        <tfoot>
+          <tr>
+            <td>סה"כ</td>
+            <td id="popFootPct"></td>
+            <td id="popFootTotal"></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- RIGHT PANEL — Services                            -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="panel" id="svcPanel">
+    <div class="panel-title">שירותי ציבור נדרשים</div>
+
+    <!-- Waiting state -->
+    <div id="svcWaiting">
+      → חשב תחילה אוכלוסייה בטופס השמאלי<br>התוצאות יופיעו כאן
+    </div>
+
+    <!-- Services form (shown after population calculated) -->
+    <div id="svcForm">
+
+      <!-- Population chips summary -->
+      <div class="pop-summary-chips" id="svcChips"></div>
+
+      <!-- Demographic inputs -->
+      <div class="row-2col">
+        <div class="field">
+          <label for="harediPct">% חרדים</label>
+          <input type="number" id="harediPct" min="0" max="100" step="0.1" value="0" />
+        </div>
+        <div class="field">
+          <label for="traditionalPct">% שומרי מסורת</label>
+          <input type="number" id="traditionalPct" min="0" max="100" step="0.1" value="0" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="planModel">סוג התכנית</label>
+        <select id="planModel">
+          <option value="B">B — מתחם חדש</option>
+          <option value="C">C — מרקם קיים</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" id="calcSvcBtn">חשב שירותים נדרשים</button>
+    </div>
+
+    <!-- Services output -->
+    <div id="svcOutputHeader" style="display:none; margin-top:18px;">
+      <button class="btn-toggle-formula active" id="toggleFormulaBtn" onclick="toggleFormula()">
+        <span id="toggleFormulaIcon">✓</span> הצג נוסחאות
+      </button>
+    </div>
+    <div id="svcOutput"></div>
+  </div>
+
+</div><!-- .panels -->
+
+<script>
+// ── Constants ────────────────────────────────────────────────────────────
+const AGE_GROUPS = [
+  { key: "age_0_3",    label: "0–3"   },
+  { key: "age_3_6",    label: "3–6"   },
+  { key: "age_6_12",   label: "6–12"  },
+  { key: "age_12_18",  label: "12–18" },
+  { key: "age_18_45",  label: "18–45" },
+  { key: "age_45_70",  label: "45–70" },
+  { key: "age_70_plus",label: "70+"   },
+];
+
+const CATEGORY_LABELS = {
+  "חינוך":                  "חינוך",
+  "בריאות":                 "בריאות",
+  "רווחה":                  "רווחה",
+  "תרבות וקהילה":           "תרבות וקהילה",
+  "דת":                     "דת",
+  "ספורט":                  "ספורט",
+  "שירותי חירום והצלה":     "שירותי חירום והצלה",
+};
+
+// ── State ────────────────────────────────────────────────────────────────
+let zonesMap = {};
+let lastPopResult = null;   // { newUnits, newTotalPop, ageValues, zone }
+
+// ── Zones loader ─────────────────────────────────────────────────────────
+async function loadZones() {
+  let data = null;
+  try {
+    const res = await fetch("/api/zones");
+    if (res.ok) data = await res.json();
+    else throw new Error(`HTTP ${res.status}`);
+  } catch (err) {
+    document.getElementById("zonePicker").innerHTML =
+      `<option value="">— שגיאה: ${err.message} —</option>`;
+    return;
+  }
+
+  const zones = data.neighborhoods || [];
+  const select = document.getElementById("zonePicker");
+  select.innerHTML = '<option value="">— בחר שכונה —</option>';
+  zones.forEach(z => {
+    zonesMap[z.id] = z;
+    const opt = document.createElement("option");
+    opt.value = z.id;
+    opt.textContent = `${z.name}  (${z.type_heb || z.type})`;
+    select.appendChild(opt);
+  });
+  document.getElementById("calcPopBtn").disabled = false;
+}
+
+// ── Zone meta hint ────────────────────────────────────────────────────────
+function showZoneMeta(zone) {
+  const el = document.getElementById("zoneMeta");
+  if (!zone) { el.textContent = ""; return; }
+  el.innerHTML =
+    `hh_size: <strong>${zone.hh_size}</strong> &nbsp;|&nbsp; ` +
+    `יח"ד קיימות: <strong>${(zone.housing_units||0).toLocaleString()}</strong> &nbsp;|&nbsp; ` +
+    `אוכלוסייה: <strong>${(zone.pop?.total||0).toLocaleString()}</strong>`;
+}
+
+// ── Population calculation ────────────────────────────────────────────────
+function calcPopulation() {
+  const unitsInput = document.getElementById("newUnits");
+  const zoneSelect = document.getElementById("zonePicker");
+
+  let valid = true;
+  const raw = unitsInput.value.trim();
+  const newUnits = parseInt(raw, 10);
+  const unitsOk = raw && !isNaN(newUnits) && newUnits > 0 && String(newUnits) === raw;
+  document.getElementById("unitsError").style.display = unitsOk ? "none" : "block";
+  if (!unitsOk) valid = false;
+
+  const zone = zonesMap[zoneSelect.value];
+  document.getElementById("zoneError").style.display = zone ? "none" : "block";
+  if (!zone) valid = false;
+
+  if (!valid) return;
+
+  const hhSize      = Number(zone.hh_size) || 0;
+  const newTotalPop = Math.round(newUnits * hhSize);
+  const existingPop = zone.pop || {};
+  const existingTotal = Number(existingPop.total) || 1;
+
+  const ageValues = {};
+  const rows = AGE_GROUPS.map(g => {
+    const share    = (Number(existingPop[g.key]) || 0) / existingTotal;
+    const newCount = Math.round(share * newTotalPop);
+    ageValues[g.key] = newCount;
+    return { label: g.label, share, newCount };
+  });
+
+  const maxNew = Math.max(...rows.map(r => r.newCount), 1);
+  const sumNew = rows.reduce((s, r) => s + r.newCount, 0);
+
+  // Render population table
+  document.getElementById("popFormula").textContent =
+    `${newUnits.toLocaleString()} יח"ד × ${hhSize} נפש/יח"ד`;
+  document.getElementById("popTotal").textContent =
+    newTotalPop.toLocaleString() + " נפשות";
+
+  const tbody = document.getElementById("popTableBody");
+  tbody.innerHTML = "";
+  rows.forEach(r => {
+    const barW = Math.round((r.newCount / maxNew) * 100);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.label}</td>
+      <td>${(r.share * 100).toFixed(1)}%</td>
+      <td><strong>${r.newCount.toLocaleString()}</strong></td>
+      <td class="bar-cell">
+        <div class="bar-bg"><div class="bar-fill" style="width:${barW}%"></div></div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("popFootPct").textContent =
+    (rows.reduce((s,r) => s + r.share, 0) * 100).toFixed(1) + "%";
+  document.getElementById("popFootTotal").textContent = sumNew.toLocaleString();
+  document.getElementById("popOutput").style.display = "block";
+
+  // Store result and activate services form
+  lastPopResult = { newUnits, newTotalPop, ageValues, zone };
+  activateServicesForm();
+}
+
+// ── Activate services panel ───────────────────────────────────────────────
+function activateServicesForm() {
+  const { newUnits, newTotalPop, ageValues, zone } = lastPopResult;
+
+  // Chips
+  const kinder        = (ageValues.age_0_3 || 0) + (ageValues.age_3_6 || 0);
+  const primarySchool = ageValues.age_6_12  || 0;
+  const highSchool    = ageValues.age_12_18 || 0;
+  const elder70       = ageValues.age_70_plus || 0;
+
+  const chips = [
+    { label: "סה\"כ",          val: newTotalPop.toLocaleString() + " נפשות" },
+    { label: "0–5 (kinder)",   val: kinder.toLocaleString() },
+    { label: "6–11 (יסודי)",  val: primarySchool.toLocaleString() },
+    { label: "12–17 (ע\"י)", val: highSchool.toLocaleString() },
+    { label: "70+ (קשישים)",  val: elder70.toLocaleString() },
+    { label: "יח\"ד",          val: newUnits.toLocaleString() },
+  ];
+
+  document.getElementById("svcChips").innerHTML = chips.map(c =>
+    `<span class="chip">${c.label}: <strong>${c.val}</strong></span>`
+  ).join("");
+
+  // Pre-fill demographic defaults from zone if available
+  const harediDefault = Math.round((Number(zone.haredi_pct) || 0) * 100) / 100;
+  const mmDefault     = Math.round((Number(zone.mm_pct)     || 0) * 100) / 100;
+  document.getElementById("harediPct").value     = harediDefault;
+  document.getElementById("traditionalPct").value = mmDefault;
+
+  document.getElementById("svcWaiting").style.display = "none";
+  document.getElementById("svcForm").style.display    = "block";
+  document.getElementById("svcOutput").style.display  = "none";
+}
+
+// ── Services calculation ──────────────────────────────────────────────────
+async function calcServices() {
+  if (!lastPopResult) return;
+
+  const { newUnits, newTotalPop, ageValues, zone } = lastPopResult;
+  const harediP     = (parseFloat(document.getElementById("harediPct").value)     || 0) / 100;
+  const traditionalP= (parseFloat(document.getElementById("traditionalPct").value) || 0) / 100;
+  const planModel   = document.getElementById("planModel").value;
+
+  const kinder        = (ageValues.age_0_3 || 0) + (ageValues.age_3_6 || 0);
+  const primarySchool = ageValues.age_6_12  || 0;
+  const highSchool    = ageValues.age_12_18 || 0;
+  const elder70       = ageValues.age_70_plus || 0;
+
+  // Build zone dict — put all variables in pop so build_context copies them
+  const zonePayload = {
+    housing_units: newUnits,
+    plan_model: planModel,
+    pop: {
+      total:          newTotalPop,
+      kinder:         kinder,
+      primary_school: primarySchool,
+      high_school:    highSchool,
+      elder70:        elder70,
+      haredi_p:       harediP,
+      traditional_p:  traditionalP,
+      special_ed_p:   0,
+    }
+  };
+
+  const btn = document.getElementById("calcSvcBtn");
+  btn.disabled = true;
+  btn.textContent = "מחשב...";
+
+  let results;
+  try {
+    const res = await fetch("/api/calculate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ zone: zonePayload }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    results = data.results;
+  } catch (err) {
+    document.getElementById("svcOutput").innerHTML =
+      `<p style="color:#555;margin-top:16px">שגיאה: ${err.message}</p>`;
+    document.getElementById("svcOutput").style.display = "block";
+    btn.disabled = false;
+    btn.textContent = "חשב שירותים נדרשים";
+    return;
+  }
+
+  btn.disabled = false;
+  btn.textContent = "חשב שירותים נדרשים";
+
+  renderServices(results);
+}
+
+// ── Render services results ───────────────────────────────────────────────
+function renderServices(results) {
+  // Group by category
+  const grouped = {};
+  results.forEach(r => {
+    if (!grouped[r.category]) grouped[r.category] = [];
+    grouped[r.category].push(r);
+  });
+
+  const fmt = v => {
+    if (v === null || v === undefined) return "—";
+    if (typeof v === "string") return v;
+    if (typeof v === "number") {
+      if (Number.isInteger(v)) return v.toLocaleString();
+      return v.toFixed(2);
+    }
+    return String(v);
+  };
+
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>שירות</th>
+          <th>כמות</th>
+          <th>בנוי (מ"ר)</th>
+          <th>קרקע (ד')</th>
+          <th class="formula-col-header">נוסחה</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  Object.keys(grouped).forEach(cat => {
+    html += `<tr class="cat-header"><td colspan="5">${cat}</td></tr>`;
+    grouped[cat].forEach(r => {
+      const inactive = !r.isActive || r.required_units === null || r.required_units === 0;
+      const builtLine = r.built_expr && r.built_expr.trim()
+        ? `<span class="formula-label">בנוי:</span> ${r.built_expr.trim()}` : null;
+      const landLine  = r.land_expr  && r.land_expr.trim()
+        ? `<span class="formula-label">קרקע:</span> ${r.land_expr.trim()}`  : null;
+      const formulaHtml = [builtLine, landLine].filter(Boolean).join("<br>") || "—";
+      html += `
+        <tr class="${inactive ? "inactive-row" : ""}">
+          <td>${r.service}</td>
+          <td class="num-cell">${fmt(r.required_units)}</td>
+          <td class="num-cell">${r.built_sqm !== null ? fmt(r.built_sqm) : "—"}</td>
+          <td class="num-cell">${r.land_dunam !== null ? fmt(r.land_dunam) : "—"}</td>
+          <td class="formula-cell">${formulaHtml}</td>
+        </tr>`;
+    });
+  });
+
+  html += `</tbody></table>`;
+
+  const out = document.getElementById("svcOutput");
+  out.innerHTML = html;
+  out.style.display = "block";
+  document.getElementById("svcOutputHeader").style.display = "block";
+  // Re-apply current formula visibility state
+  applyFormulaVisibility();
+  out.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// ── Formula toggle ────────────────────────────────────────────────────────
+let formulaVisible = true;
+
+function applyFormulaVisibility() {
+  const out = document.getElementById("svcOutput");
+  out.classList.toggle("hide-formula", !formulaVisible);
+  const btn = document.getElementById("toggleFormulaBtn");
+  if (formulaVisible) {
+    btn.classList.add("active");
+    document.getElementById("toggleFormulaIcon").textContent = "✓";
+  } else {
+    btn.classList.remove("active");
+    document.getElementById("toggleFormulaIcon").textContent = "○";
+  }
+}
+
+function toggleFormula() {
+  formulaVisible = !formulaVisible;
+  applyFormulaVisibility();
+}
+
+// ── Event listeners ───────────────────────────────────────────────────────
+document.getElementById("zonePicker").addEventListener("change", e => {
+  showZoneMeta(zonesMap[e.target.value] || null);
+  document.getElementById("zoneError").style.display = "none";
+});
+
+document.getElementById("newUnits").addEventListener("input", () => {
+  document.getElementById("unitsError").style.display = "none";
+});
+
+document.getElementById("newUnits").addEventListener("keydown", e => {
+  if (e.key === "Enter") calcPopulation();
+});
+
+document.getElementById("calcPopBtn").addEventListener("click", calcPopulation);
+document.getElementById("calcSvcBtn").addEventListener("click", calcServices);
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+loadZones();
+
+</script>
+</body>
+</html>

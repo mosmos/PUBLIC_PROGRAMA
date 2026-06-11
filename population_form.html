@@ -238,15 +238,15 @@
     .num-cell { text-align: left; direction: ltr; }
 
     .formula-cell {
-      font-family: 'Consolas', 'Courier New', monospace;
-      font-size: 0.74rem;
-      color: #555;
-      direction: ltr;
-      text-align: left;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 0.78rem;
+      color: #444;
+      direction: rtl;
+      text-align: right;
       white-space: normal;
       word-break: break-word;
-      min-width: 160px;
-      line-height: 1.7;
+      min-width: 180px;
+      line-height: 1.6;
     }
 
     .formula-label {
@@ -550,7 +550,7 @@ function activateServicesForm() {
   const harediDefault = Math.round((Number(zone.haredi_pct) || 0) * 100) / 100;
   const mmDefault     = Math.round((Number(zone.mm_pct)     || 0) * 100) / 100;
   document.getElementById("harediPct").value     = harediDefault;
-  document.getElementById("traditionalPct").value = mmDefault;
+  document.getElementById("traditionalPct").value = 0;
 
   document.getElementById("svcWaiting").style.display = "none";
   document.getElementById("svcForm").style.display    = "block";
@@ -652,11 +652,7 @@ function renderServices(results) {
     html += `<tr class="cat-header"><td colspan="5">${cat}</td></tr>`;
     grouped[cat].forEach(r => {
       const inactive = !r.isActive || r.required_units === null || r.required_units === 0;
-      const builtLine = r.built_expr && r.built_expr.trim()
-        ? `<span class="formula-label">בנוי:</span> ${r.built_expr.trim()}` : null;
-      const landLine  = r.land_expr  && r.land_expr.trim()
-        ? `<span class="formula-label">קרקע:</span> ${r.land_expr.trim()}`  : null;
-      const formulaHtml = [builtLine, landLine].filter(Boolean).join("<br>") || "—";
+      const formulaHtml = (r.rule && r.rule.trim()) || "—";
       html += `
         <tr class="${inactive ? "inactive-row" : ""}">
           <td>${r.service}</td>

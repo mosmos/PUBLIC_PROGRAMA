@@ -1,0 +1,1266 @@
+{
+  "rules": [
+    {
+      "category": "חינוך",
+      "service": "מעון יום",
+      "basis": "kinder (ages 0-2)",
+      "rule_text": "ביקוש 50% משנתון 0-2; 20 ילדים בכיתה",
+      "required_expr": "ceil_div((kinder * 0.5) * 0.5, 20)",
+      "built_expr": "((kinder * 0.5) * 0.5 / 20) * 140",
+      "land_expr": "((kinder * 0.5) * 0.5 / 20) * 0.2",
+      "notes": "ביקוש 50% מגילאי 0-2 (חצי מ-kinder). 140 מ\"ר בנוי לכיתה (ממוצע משוקלל). 0.2 דונם לכיתה (1 דונם ל-3-5 כיתות). מרחק הליכה 750 מ'.",
+      "walk_distance_m": 750,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 3 (workbook 'טבלת חישוב' row 4)",
+        "category_A": "חינוך",
+        "service_B": "מעון יום",
+        "target_population_C": "=Kinder/2",
+        "demand_rate_D": "=50%-D11",
+        "users_E": "=C3*D3",
+        "unit_size_F": 20,
+        "units_required_G": "=E3/F3",
+        "built_sqm_per_unit_H": 140,
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "=G3*H3",
+        "yard_sqm_K": "=G3*0.66*50",
+        "balcony_sqm_L": "=G3*0.33*20",
+        "land_dunam_per_unit_text_M": "0.2 דונם לכיתה",
+        "land_dunam_per_unit_N": 0.2,
+        "land_total_dunam_O": "=N3*G3",
+        "explanation_P": "ביקוש מוצע - 50% משנתונים 0-2.\nשטח בנוי נדרש הינו 140 מ\"ר ברוטו לכיתה ממוצע משקולל ומעוגל למה שמגדיר התדריך - 3 כיתות ראשונות בגודל 147 מ\"ר ו-2 כיתות נוספות בגודל 125 מר לכיתה.\nשטח קרקע נדרש - 0.2 דונם לכיתה. התדריך מגדיר 1 דונם ל-3-5 כיתות.",
+        "walk_distance_Q": 750
+      },
+      "excel_comparison": {
+        "status": "partial",
+        "issues": [
+          "Excel demand D3 = '=50%-D11' (50% minus the special-education share); JSON uses a flat 0.5 and does not subtract special_ed_p. Identical only while special_ed_p = 0.",
+          "Excel units G3 = E3/F3 is continuous (no rounding, no entry threshold); JSON required_expr uses ceil_div. The old 3-class entry threshold does not exist in this Excel.",
+          "Excel also computes yard K3 = G3*0.66*50 and balcony L3 = G3*0.33*20; JSON schema has no yard/balcony fields."
+        ]
+      }
+    },
+    {
+      "category": "חינוך",
+      "service": "גן ילדים",
+      "basis": "kinder (ages 3-5)",
+      "rule_text": "ביקוש 100% משנתון 3-5; 30 ילדים בכיתה",
+      "required_expr": "ceil_div(kinder * 0.5, 30)",
+      "built_expr": "(kinder * 0.5 / 30) * 130",
+      "land_expr": "(kinder * 0.5 / 30) * 0.33",
+      "notes": "ביקוש 100% מגילאי 3-5 (חצי מ-kinder). 130 מ\"ר בנוי לכיתה. 0.33 דונם לכיתה.",
+      "walk_distance_m": 400,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 4 (workbook 'טבלת חישוב' row 5)",
+        "category_A": "חינוך",
+        "service_B": "גן ילדים",
+        "target_population_C": "=Kinder/2",
+        "demand_rate_D": "=100% - D12",
+        "users_E": "=C4*D4",
+        "unit_size_F": 30,
+        "units_required_G": "=E4/F4",
+        "built_sqm_per_unit_H": 130,
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "=G4*H4",
+        "yard_sqm_K": "=G4*200",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_text_M": "1-3 כיתות: 0.5 ד' לכיתה.\n4 כיתות: 1.5 ד' לכיתה.\n5-6 כיתות: 6 ד' לכיתה.\nחט\"צ: 1-1.5 ד' (2-4 כיתות)",
+        "land_dunam_per_unit_N": 0.33,
+        "land_total_dunam_O": "=N4*G4",
+        "explanation_P": "חישוב גודל כיתה לפי 30 ילדים בשנתון.\nשטח בנוי נדרש הוא 130 מ\"ר ליחידה (כפי שמגדיר התדריך).\nשטח קרקע נדרש הוא 0.33 דונם לכיתה לפי החלופה החסכונית ביותר שמציע התדריך: 6 כיתות על 2 דונם.",
+        "walk_distance_Q": "250-500"
+      },
+      "excel_comparison": {
+        "status": "partial",
+        "issues": [
+          "Excel demand D4 = '=100% - D12' (minus special-education share); JSON uses flat 1.0.",
+          "Excel computes yard K4 = G4*200 (200 sqm yard per class); not represented in JSON."
+        ]
+      }
+    },
+    {
+      "category": "חינוך",
+      "service": "יסודי (6 שנתי)",
+      "basis": "primary_school",
+      "rule_text": "ביקוש 100% משנתונים 6-11; 30 תלמידים בכיתה. דגם B - 168 מ\"ר/כיתה, 0.4 ד'; דגם C - 187 מ\"ר/כיתה, 0.3 ד'",
+      "required_expr": "ceil_div(primary_school, 30)",
+      "built_expr": "(primary_school / 30) * (168 if plan_model == 'B' else 187)",
+      "land_expr": "(primary_school / 30) * (0.4 if plan_model == 'B' else 0.3)",
+      "notes": "דגם B = מתחם חדש; דגם C = מרקם קיים (ברירת מחדל). מרחק הליכה 500-750 מ'.",
+      "walk_distance_m": 625,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 5 (workbook 'טבלת חישוב' row 6)",
+        "category_A": "חינוך",
+        "service_B": "יסודי (6 שנתי)",
+        "target_population_C": "=Primary_School",
+        "demand_rate_D": "=100%-D13",
+        "users_E": "=C5*D5",
+        "unit_size_F": 30,
+        "units_required_G": "=E5/F5",
+        "built_sqm_per_unit_H": "בנוסחה:\nדגם B (שכונה חדשה) - 168 מ\"ר ממוצע לכיתה.\nדגם C (מרקם קיים) - 187 מ\"ר לכיתה - ברירת מחדל",
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "=IF(Kind=\"מתחם חדש\",168*G5,IF(Kind=\"מרקם קיים\",187*G5))",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_text_M": "דגם B: \n0.4 דונם לכיתה.\nדגם C:\n0.3 דונם לכיתה.",
+        "land_dunam_per_unit_N": "בנוסחה\n(יש לבחור דגם תכנית במסך B, C בלשונית אוכלוסיית יעד - ברירת המחדל היא דגם C)",
+        "land_total_dunam_O": "=IF(Kind=\"מתחם חדש\",0.4*G5,IF(Kind=\"מרקם קיים\",0.3*G5))",
+        "explanation_P": "חישוב גודל כתה: 30 תלמידים.\nהשטח הנדרש מחושב לפי דגם התכנית: B - מתחם חדש, C - רקמה קיימת. חושב על פי ממוצע משוקלל.\nהקצאת שטח בנוי: עבור תכנית מדגם B - נדרשת הקצאה של 168 מ\"ר בנוי לכיתה. עבור דגם C - הקצאה של 187 מ\"ר לכיתה.\nהקצאת שטח קרקע: עבור תכנית מדגם B - נדרשת הקצאה של 0.4 דונם לכיתה לכיתה. עבור דגם C - הקצאה של 0.3 דונם לכיתה.\n",
+        "walk_distance_Q": "500-750"
+      },
+      "excel_comparison": {
+        "status": "partial",
+        "issues": [
+          "Excel demand D5 = '=100%-D13' (minus special-education share); JSON uses flat 1.0.",
+          "Built/land per class match exactly: B=168 sqm & 0.4 dunam, C=187 sqm & 0.3 dunam; Excel keys on Kind='מתחם חדש'/'מרקם קיים', JSON on plan_model 'B'/else."
+        ]
+      }
+    },
+    {
+      "category": "חינוך",
+      "service": "על-יסודי (6 שנתי)",
+      "basis": "high_school",
+      "rule_text": "ביקוש 100% משנתונים 12-17; 30 תלמידים בכיתה. דגם B - 243 מ\"ר/כיתה, 0.5 ד'; דגם C - 268 מ\"ר/כיתה, 0.4 ד'",
+      "required_expr": "ceil_div(high_school, 30)",
+      "built_expr": "(high_school / 30) * (243 if plan_model == 'B' else 268)",
+      "land_expr": "(high_school / 30) * (0.5 if plan_model == 'B' else 0.4)",
+      "notes": "דגם B = מתחם חדש; דגם C = מרקם קיים (ברירת מחדל).",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 6 (workbook 'טבלת חישוב' row 7)",
+        "category_A": "חינוך",
+        "service_B": "על-יסודי (6 שנתי)",
+        "target_population_C": "=High_School",
+        "demand_rate_D": "=100%-D14",
+        "users_E": "=C6*D6",
+        "unit_size_F": 30,
+        "units_required_G": "=E6/F6",
+        "built_sqm_per_unit_H": "בנוסחה:\nדגם B (שכונה חדשה) - 243 מ\"ר ממוצע לכיתה.\nדגם C (מרקם קיים) - 268  מ\"ר לכיתה - ברירת מחדל",
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "=IF(Kind=\"מתחם חדש\",243*G6,IF(Kind=\"מרקם קיים\",268*G6))",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_text_M": "דגם B: \n0.5 דונם לכיתה.\nדגם C:\n0.4 דונם לכיתה.",
+        "land_dunam_per_unit_N": "בנוסחה\n(יש לבחור דגם תכנית במסך B, C בלשונית אוכלוסיית יעד - ברירת המחדל היא דגם C)",
+        "land_total_dunam_O": "=IF(Kind=\"מתחם חדש\",0.5*G6,IF(Kind=\"מרקם קיים\",0.4*G6))",
+        "explanation_P": "חישוב גודל כתה: 30 תלמידים.\nהשטח הנדרש מחושב לפי דגם התכנית: B - מתחם חדש, C - רקמה קיימת. חושב על פי ממוצע משוקלל.\nהקצאת שטח בנוי: עבור תכנית מדגם B - נדרשת הקצאה של 243 מ\"ר בנוי לכיתה. עבור דגם C - הקצאה של 268 מ\"ר לכיתה.\nהקצאת שטח קרקע: עבור תכנית מדגם B - נדרשת הקצאה של 0.5 דונם לכיתה לכיתה. עבור דגם C - הקצאה של 0.4 דונם לכיתה.\n",
+        "walk_distance_Q": "-"
+      },
+      "excel_comparison": {
+        "status": "partial",
+        "issues": [
+          "Excel demand D6 = '=100%-D14' (minus special-education share); JSON uses flat 1.0.",
+          "Built/land per class match exactly: B=243 sqm & 0.5 dunam, C=268 sqm & 0.4 dunam."
+        ]
+      }
+    },
+    {
+      "category": "חינוך",
+      "service": "מעון יום - חינוך מיוחד",
+      "basis": "kinder",
+      "rule_text": "ברירת מחדל 0%; בתכנית גדולה ניתן להפעיל 2%; 6 ילדים בכיתה",
+      "required_expr": "ceil_div(kinder * special_ed_p, 6)",
+      "built_expr": "(kinder * special_ed_p / 6) * 187.5",
+      "land_expr": "(kinder * special_ed_p / 6) * 0.375",
+      "notes": "1.5 דונם ל-4 כיתות (0.375 דונם לכיתה).",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 11 (workbook 'טבלת חישוב' row 12)",
+        "category_A": "חינוך",
+        "service_B": "מעון יום - חינוך מיוחד",
+        "target_population_C": "=Kinder/2",
+        "demand_rate_D": "=Special_Education",
+        "users_E": "=C11*D11",
+        "unit_size_F": 6,
+        "units_required_G": "=E11/F11",
+        "built_sqm_per_unit_H": 187.5,
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "=G11*H11",
+        "yard_sqm_K": "=G11*187.5",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_text_M": "1.5 דונם ל-4 כיתות (0.375 דונם לכיתה).",
+        "land_dunam_per_unit_N": 0.375,
+        "land_total_dunam_O": "=G11*N11",
+        "explanation_P": "במידה ויש תכנית גדולה בה המשמעויות של החינוך המיוחד רלוונטיות, ניתן לשנות את אחוז המשתמשים בטבלת החישוב מ-0% ל-2% ולהפעיל את החישוב הפרוגרמתי גם על ילדי החינוך המיוחד.\nשטח בנוי נדרש: 4 כיתות בשטח של 750 מ\"ר בנוי (187.5 לכיתה).\nשטח קרקע נדרש: 4 כיתות בשטח 1.5 דונם (0.375 דונן לכיתה).",
+        "walk_distance_Q": "-"
+      },
+      "excel_comparison": {
+        "status": "conflict",
+        "issues": [
+          "TARGET POPULATION MISMATCH (factor 2): Excel C12 = '=Kinder/2' (only ages 0-2 half of kinder) with D12 = Special_Education; JSON uses the full kinder (ceil_div(kinder * special_ed_p, 6)). JSON result is 2x the Excel result.",
+          "Excel computes yard K12 = G12*187.5; not represented in JSON.",
+          "Built 187.5 sqm/class and land 0.375 dunam/class match."
+        ]
+      }
+    },
+    {
+      "category": "חינוך",
+      "service": "גן ילדים - חינוך מיוחד",
+      "basis": "kinder",
+      "rule_text": "ברירת מחדל 0%; ניתן להפעיל 2%; 6 ילדים בכיתה",
+      "required_expr": "ceil_div(kinder * special_ed_p, 6)",
+      "built_expr": "(kinder * special_ed_p / 6) * 130",
+      "land_expr": "(kinder * special_ed_p / 6) * 0.375",
+      "notes": "130 מ\"ר בנוי + 200 מ\"ר חצר לכיתה.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 12 (workbook 'טבלת חישוב' row 13)",
+        "category_A": "חינוך",
+        "service_B": "גן ילדים - חינוך מיוחד",
+        "target_population_C": "=Kinder/2",
+        "demand_rate_D": "=Special_Education",
+        "users_E": "=C12*D12",
+        "unit_size_F": 6,
+        "units_required_G": "=E12/F12",
+        "built_sqm_per_unit_H": 130,
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "=G12*H12",
+        "yard_sqm_K": "=G12*200",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_text_M": "0.5 דונם לכיתה.\n1.5 דונם ל-4 כיתות (0.375 דונם לכיתה)",
+        "land_dunam_per_unit_N": 0.375,
+        "land_total_dunam_O": "=G12*N12",
+        "explanation_P": "במידה ויש תכנית גדולה בה המשמעויות של החינוך המיוחד רלוונטיות, ניתן לשנות את אחוז המשתמשים בטבלת החישוב מ-0% ל-2% ולהפעיל את החישוב הפרוגרמתי גם על ילדי החינוך המיוחד.\nגודל כיתה: 6 תלמידים.\nשטח בנוי: 130 מ\"ר לכיתה + 200 מ\"ר לחצר).\nשטח קרקע נדרש: 0.375 דונם לכיתה.",
+        "walk_distance_Q": "-"
+      },
+      "excel_comparison": {
+        "status": "conflict",
+        "issues": [
+          "TARGET POPULATION MISMATCH (factor 2): Excel C13 = '=Kinder/2' (ages 3-5 half) with D13 = Special_Education; JSON uses the full kinder. JSON result is 2x the Excel result.",
+          "Excel computes yard K13 = G13*200; not represented in JSON.",
+          "Built 130 sqm/class and land 0.375 dunam/class match."
+        ]
+      }
+    },
+    {
+      "category": "חינוך",
+      "service": "בית ספר חינוך מיוחד - יסודי",
+      "basis": "primary_school",
+      "rule_text": "ברירת מחדל 0%; ניתן להפעיל 2%; 10 תלמידים בכיתה",
+      "required_expr": "ceil_div(primary_school * special_ed_p, 10)",
+      "built_expr": "(primary_school * special_ed_p / 10) * 193.5",
+      "land_expr": "(primary_school * special_ed_p / 10) * 0.3",
+      "notes": "193.5 מ\"ר לכיתה; 0.3 דונם לכיתה.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 13 (workbook 'טבלת חישוב' row 14)",
+        "category_A": "חינוך",
+        "service_B": "בית ספר חינוך מיוחד - יסודי",
+        "target_population_C": "=Primary_School",
+        "demand_rate_D": "=Special_Education",
+        "users_E": "=C13*D13",
+        "unit_size_F": 10,
+        "units_required_G": "=E13/F13",
+        "built_sqm_per_unit_H": 193.5,
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "=G13*H13",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_text_M": "0.3 דונם לכיתה",
+        "land_dunam_per_unit_N": 0.3,
+        "land_total_dunam_O": "=G13*N13",
+        "explanation_P": "במידה ויש תכנית גדולה בה המשמעויות של החינוך המיוחד רלוונטיות, ניתן לשנות את אחוז המשתמשים בטבלת החישוב מ-0% ל-2% ולהפעיל את החישוב הפרוגרמתי גם על ילדי החינוך המיוחד.\nגודל כיתה: 10 תלמידים.\nשטח בנוי: 193.5 מ\"ר לכיתה.\nשטח קרקע נדרש: 0.3 דונם לכיתה.",
+        "walk_distance_Q": "-"
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: C=Primary_School, D=Special_Education, F=10, H=193.5, N=0.3."
+        ]
+      }
+    },
+    {
+      "category": "חינוך",
+      "service": "בית ספר חינוך מיוחד - על-יסודי",
+      "basis": "high_school",
+      "rule_text": "ברירת מחדל 0%; ניתן להפעיל 2%; 10 תלמידים בכיתה",
+      "required_expr": "ceil_div(high_school * special_ed_p, 10)",
+      "built_expr": "(high_school * special_ed_p / 10) * 147",
+      "land_expr": "(high_school * special_ed_p / 10) * 0.3",
+      "notes": "147 מ\"ר לכיתה; 0.3 דונם לכיתה.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 14 (workbook 'טבלת חישוב' row 15)",
+        "category_A": "חינוך",
+        "service_B": "בית ספר חינוך מיוחד - על-יסודי",
+        "target_population_C": "=High_School",
+        "demand_rate_D": "=Special_Education",
+        "users_E": "=C14*D14",
+        "unit_size_F": 10,
+        "units_required_G": "=E14/F14",
+        "built_sqm_per_unit_H": 147,
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "=G14*H14",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_text_M": "0.3 דונם לכיתה",
+        "land_dunam_per_unit_N": 0.3,
+        "land_total_dunam_O": "=G14*N14",
+        "explanation_P": "במידה ויש תכנית גדולה בה המשמעויות של החינוך המיוחד רלוונטיות, ניתן לשנות את אחוז המשתמשים בטבלת החישוב מ-0% ל-2% ולהפעיל את החישוב הפרוגרמתי גם על ילדי החינוך המיוחד.\nגודל כיתה: 10 תלמידים.\nשטח בנוי: 147 מ\"ר לכיתה.\nשטח קרקע נדרש: 0.3 דונם לכיתה.",
+        "walk_distance_Q": "-"
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: C=High_School, D=Special_Education, F=10, H=147, N=0.3."
+        ]
+      }
+    },
+    {
+      "category": "בריאות",
+      "service": "תחנה לבריאות המשפחה",
+      "basis": "kinder (ages 0-5)",
+      "rule_text": "100% משנתון 0-1 + 20% משנתונים 1-6; 1000 משתמשים לתחנה (4 אחיות)",
+      "required_expr": "ceil_div((kinder/6) + ((kinder*5/6) * 0.2), 400)",
+      "built_expr": "(((kinder/6) + ((kinder*5/6) * 0.2)) / 400) * 250",
+      "land_expr": "0",
+      "notes": "100% משנתון 0-1 + 20% משנתונים 1-5. גודל יחידה: 400 משתמשים (4 אחיות × 100 ילדים). 250 מ\"ר בנוי לתחנה. אין הקצאת קרקע נורמטיבית.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 17 (workbook 'טבלת חישוב' row 18)",
+        "category_A": "בריאות",
+        "service_B": "תחנה לבריאות המשפחה",
+        "target_population_C": "=Kinder+P_N_Unique*Primary_School_p",
+        "demand_rate_D": "100% שנתון 0-1\n20% מגילאי 1-6",
+        "users_E": "=P_N_Unique*Kinder_p+P_N_Unique*Kinder_p*4*20%+P_N_Unique*Primary_School_p*20%",
+        "unit_size_F": 400,
+        "units_required_G": "=E17/F17",
+        "built_sqm_per_unit_H": 250,
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "=G17*H17",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_total_dunam_O": "-",
+        "explanation_P": "ביקוש לשירות: 100% מגילאי שנתון 1. 20% מגילאי שנתונים 2-6.\nגודל יחידה: 100 ילדים על אחות. 4 אחיות לתחנה נורמטיבית.\nשטח בנוי נדרש: 250 מ\"ר לתחנה (4 אחיות)\nהוחלט לא להקצות קרקע בחישוב הנורמטיבי. \nשבמידה ומעוניינים להקצות קרקע אפשר בתנאי שמשולב עם שירותים נוספים, במבנה של 2 קומות או יותר ועל מגרש שלא יעלה על 250 מ\"ר.\n",
+        "walk_distance_Q": "-"
+      },
+      "excel_comparison": {
+        "status": "partial",
+        "issues": [
+          "Users composition differs: Excel E18 = P_N_Unique*Kinder_p + P_N_Unique*Kinder_p*4*20% + P_N_Unique*Primary_School_p*20% (1 kinder cohort @100% + 4 kinder cohorts @20% + 1 primary cohort @20%); JSON = kinder/6 + (kinder*5/6)*0.2 (1 cohort @100% + 5 kinder cohorts @20%, no primary cohort). Numerically equal only if a kinder cohort equals a primary cohort in size.",
+          "Unit size 400, built 250 sqm/station, no land allocation - all match."
+        ]
+      }
+    },
+    {
+      "category": "בריאות",
+      "service": "מרפאה שכונתית",
+      "basis": "total",
+      "rule_text": "ביקוש 100%; 0.1 מ\"ר בנוי לנפש",
+      "required_expr": "1",
+      "built_expr": "total * 0.1",
+      "land_expr": "0",
+      "notes": "התדריך מגדיר 3 גדלים: קטנה 200-300, בינונית 300-500, גדולה 500-1,000 מ\"ר. אין הקצאת קרקע ייעודית.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 18 (workbook 'טבלת חישוב' row 19)",
+        "category_A": "בריאות",
+        "service_B": "מרפאה שכונתית",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=C18*D18",
+        "units_required_G": "-",
+        "built_sqm_per_user_I": 0.1,
+        "built_total_J": "=E18*I18",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_total_dunam_O": "-",
+        "explanation_P": "ביקוש לשירות: 100% מהאוכלוסייה.\nשטח בנוי נדרש: 0.1 מ\"ר בנוי לנפש.\nהתדריך מגדיר 3 גדלים של מרפאות:\n200-300 מ\"ר מרפאה קטנה.\n300-500 מ\"ר מרפאה גדול.\n500-1,000 מ\"ר מרפאה גדולה.\nלא תהיה הקצאה של שטח קרקע. במידה ומעוניינים להקצות קרקע אפשר בתנאי שמשולב עם שירותים נוספים, במבנה של 2 קומות או יותר.\n",
+        "walk_distance_Q": "-"
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Match: built = users * 0.1 sqm/person (I19=0.1, J19=E19*I19); no unit count in Excel (G19='-'), JSON required_expr=1 is a JSON-side convention."
+        ]
+      }
+    },
+    {
+      "category": "רווחה",
+      "service": "מרכז יום לקשיש - מוגבלים ותשושי נפש",
+      "basis": "elder70",
+      "rule_text": "ביקוש 2% מגילאי 70+; סף כניסה 60 מטופלים; 10 מ\"ר/מטופל; 0.01 דונם/מטופל",
+      "required_expr": "1 if (elder70 * 0.02) >= 60 else 0",
+      "built_expr": "(elder70 * 0.02) * 10 if (elder70 * 0.02) >= 60 else 0",
+      "land_expr": "(elder70 * 0.02) * 0.01 if (elder70 * 0.02) >= 60 else 0",
+      "notes": "איחוד מוגבלים + תשושי נפש. ממוצע משוקלל של גדלים קטן/בינוני/גדול.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 20 (workbook 'טבלת חישוב' row 21)",
+        "category_A": "רווחה",
+        "service_B": "מרכז יום לקשיש - מוגבלים ותשושי נפש",
+        "target_population_C": "=Elder70",
+        "demand_rate_D": 0.02,
+        "users_E": "=C20*D20",
+        "unit_size_F": 60,
+        "units_required_G": "=E20/F20",
+        "built_sqm_per_user_I": 10,
+        "built_total_J": "=IF(E20>=F20, E20*I20,0)",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_text_M": "0.01 דונם למטופל\n(במידה ויש סף כניסה)",
+        "land_dunam_per_unit_N": 0.01,
+        "land_total_dunam_O": "=IF(E20>=F20, E20*N20,0)",
+        "explanation_P": "ביקוש לשירות: 2% מגילאי 70+\nהתדריך מחלק את הביקוש בין מרכז יום למוגבלים לבין מרכז יום לתשושי נפש. כיוון שההקצאות למרכז יום לתשושי נפש הן מאוד נמוכות הוחלט לאחד את שתיהן יחד.\nשטח בנוי נדרש: יחושב במידה וקיים סף כניסה (60 מטופלים) - 10 מ\"ר לנפש = ממוצע משוקלל של ההקצאות למוסד קטן, בינוני, גדול.\nשטח קרקע נדרש: החישוב הוא לפי ממוצע של 0.01 דונם למטופל – פחות ממה שמציע התדריך, זאת כיוון שהחישוב בתדריך הינו לפי בנייה בקומה אחת (על פי % הבנייה) - חישוב בזבזני לתל-אביב. "
+      },
+      "excel_comparison": {
+        "status": "partial",
+        "issues": [
+          "Built/land threshold logic matches: J21 = IF(E21>=F21, E21*10, 0), O21 = IF(E21>=F21, E21*0.01, 0) with F21=60.",
+          "Units differ in convention: Excel G21 = E21/F21 (continuous, no threshold); JSON required_expr is binary 1/0 on the 60-patient threshold."
+        ]
+      }
+    },
+    {
+      "category": "רווחה",
+      "service": "מחלקה לשירותים חברתיים (לשכת רווחה)",
+      "basis": "total",
+      "rule_text": "שלוחה אחת ל-30,000 תושבים; 320 מ\"ר ללשכה",
+      "required_expr": "ceil_div(total, 30000)",
+      "built_expr": "(total / 30000) * 320",
+      "land_expr": "0",
+      "notes": "סף הביקוש 30,000-50,000 תושבים. אין הקצאת קרקע ייעודית.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 21 (workbook 'טבלת חישוב' row 22)",
+        "category_A": "רווחה",
+        "service_B": "מחלקה לשירותים חברתיים (לשכת רווחה)",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=C21*D21",
+        "unit_size_F": 30000,
+        "units_required_G": "=E21/F21",
+        "built_sqm_per_unit_H": 320,
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "=G21*H21",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "explanation_P": "ביקוש לשירות: שלוחה לכל 30,000-50,000 תושבים\nשטח בנוי נדרש: 320 מ\"ר ללשכה.\nשטח קרקע נדרש: מוצע שלא להקצות קרקע ייעודית ללשכת רווחה."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Match: 1 branch per 30,000 residents, 320 sqm. Excel G22 continuous vs JSON ceil_div (convention only)."
+        ]
+      }
+    },
+    {
+      "category": "רווחה",
+      "service": "מוסדות רווחה נוספים",
+      "basis": "total",
+      "rule_text": "0.025 נפש; ייכלל בהקצאה כלל-עירונית",
+      "required_expr": "total * 0.025",
+      "built_expr": "total * 0.05",
+      "land_expr": "0",
+      "notes": "כולל: מרכז לגיל הרך, מרכז יום טיפולי, אוטיסטים, רב-שירותים לעיוור, מועדוניות, מרכז יום לנכים, מע\"ש.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 22 (workbook 'טבלת חישוב' row 23)",
+        "category_A": "רווחה",
+        "service_B": "מוסדות רוווחה נוספים",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 0.025,
+        "users_E": "=C22*D22",
+        "built_sqm_per_user_I": "-",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "explanation_P": "הקצאה של 0.05 מ\"ר לנפש כחלק מההקצאה הכלל עירוני.\nמתייחס לשימושים - מרכז לגיל הרך, מרכז יום טיפולי למבוגרים, אוטיסטים, מרכז רב-שירותים לעיוור, מועדוניות (חנ\"מ), מרכז יום לנכים, מסגרות חוץ ביתיות, מע\"ש ושירותים נוספים."
+      },
+      "excel_comparison": {
+        "status": "conflict",
+        "issues": [
+          "ALLOCATION TYPE MISMATCH: Excel row 22 has NO built/land formulas (J/O empty) - the 0.05 sqm/person allocation lives in the citywide welfare basket (rows 48-49) as LAND. JSON puts built_expr = total * 0.05 (built sqm). Risk of double counting with JSON rule index 28 (citywide welfare).",
+          "JSON required_expr = total*0.025 mirrors Excel users E23 = C23*0.025 - matches."
+        ]
+      }
+    },
+    {
+      "category": "תרבות וקהילה",
+      "service": "מרכז קהילתי",
+      "basis": "total",
+      "rule_text": "ביקוש 20%; 5,000 משתמשים קבועים למרכז; 5,000 מ\"ר; 3 דונם",
+      "required_expr": "ceil_div(total * 0.2, 5000)",
+      "built_expr": "(total * 0.2 / 5000) * 5000",
+      "land_expr": "(total * 0.2 / 5000) * 3",
+      "notes": "1 מ\"ר למשתמש קבוע (זכויות בנייה גבוהות מהתדריך). שטח לבריכה/ספורט מגיע מסעיף הספורט.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 24 (workbook 'טבלת חישוב' row 25)",
+        "category_A": "תרבות וקהילה",
+        "service_B": "מרכז קהילתי",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 0.2,
+        "users_E": "=C24*D24",
+        "unit_size_F": 5000,
+        "units_required_G": "=E24/F24",
+        "built_sqm_per_unit_H": 5000,
+        "built_total_J": "=G24*H24",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_N": 3,
+        "land_total_dunam_O": "=G24*N24",
+        "explanation_P": "ביקוש לשירות: 20% (התדריך מגדיר 15%-20% משתמשים קבועים בערים גדולות).\nמשתמשים קבועים: 5,000 למרכז קהילתי (בינוני).\nשטח בנוי נדרש: 5,000 מ\"ר למרכז קהילתי. משקף זכויות בנויה גבוהות יותר מאשר מציע התדריך ובהתאמה למרכזים הקהילתיים בעיר.\nשטח קרקע נדרש: 3 דונם למרכז.\nשטח הקרקע הנדרש לבריכה או מתקני ספורט אחרים, במידה ויש כוונה לשלב אותם במרכז הקהילתי יתקבל מסעיף שירותי הספורט."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: demand 20%, 5,000 users/center, 5,000 sqm built, 3 dunam land."
+        ]
+      }
+    },
+    {
+      "category": "תרבות וקהילה",
+      "service": "מועדון נוער/תנועת נוער",
+      "basis": "ages 10-17",
+      "rule_text": "ביקוש 30% מ-9 שנתונים בגילאי 9-17; 500 חניכים למועדון; 0.83 מ\"ר/משתמש; 1.5 דונם",
+      "required_expr": "ceil_div((primary_school*2/6 + high_school) * 0.3, 500)",
+      "built_expr": "((primary_school*2/6 + high_school) * 0.3) * 0.83",
+      "land_expr": "((primary_school*2/6 + high_school) * 0.3 / 500) * 1.5",
+      "notes": "אוכלוסיית יעד: 10-17 (8 שנתונים: 2 שנתוני יסודי 10-11 + כל על-יסודי). ביקוש 30%. 500 חניכים למועדון, 0.83 מ\"ר/משתמש, 1.5 דונם.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 25 (workbook 'טבלת חישוב' row 26)",
+        "category_A": "תרבות וקהילה",
+        "service_B": "מועדון נוער/תנועת נוער",
+        "target_population_C": "=P_N_Unique*Primary_School_p*2+High_School",
+        "demand_rate_D": 0.3,
+        "users_E": "=C25*D25",
+        "unit_size_F": 500,
+        "units_required_G": "=E25/F25",
+        "built_sqm_per_user_I": 0.83,
+        "built_total_J": "=E25*I25",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_N": 1.5,
+        "land_total_dunam_O": "=G25*N25",
+        "explanation_P": "אוכלוסיית יעד: 9-17 (9 שנתונים).\nביקוש: 30%.\nשטח בנוי נדרש: 0.83 מ\"ר למשתמש (ממוצע משוקלל של הגדלים המוצעים בתדריך).\nשטח קרקע נדרש: 1.5 דונם עבור 500 משתמשים (מועדון בינוני). במידה וקיים שצ\"פ צמוד ניתן להפחית ההקצאה ל-1 דונם למועדון בינוני."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Match: Excel C26 = P_N_Unique*Primary_School_p*2 + High_School is equivalent to JSON primary_school*2/6 + high_school. Demand 30%, 500 users/club, built = users*0.83, land = units*1.5 all match."
+        ]
+      }
+    },
+    {
+      "category": "תרבות וקהילה",
+      "service": "מועדון לקשיש (לאזרח הותיק)",
+      "basis": "elder70",
+      "rule_text": "ביקוש 15% מ-70+; 200 חברים למועדון; 250 מ\"ר",
+      "required_expr": "ceil_div(elder70 * 0.15, 200)",
+      "built_expr": "(elder70 * 0.15 / 200) * 250",
+      "land_expr": "0",
+      "notes": "התדריך מציע לא להקצות מגרש ייעודי.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 26 (workbook 'טבלת חישוב' row 27)",
+        "category_A": "תרבות וקהילה",
+        "service_B": "מועדון לקשיש (לאזרח הותיק)",
+        "target_population_C": "=Elder70",
+        "demand_rate_D": 0.15,
+        "users_E": "=C26*D26",
+        "unit_size_F": 200,
+        "units_required_G": "=E26/F26",
+        "built_sqm_per_unit_H": 250,
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "=G26*H26",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "explanation_P": "אוכלוסיית יעד: 70+\nביקוש לשירות: 15%.\nמשתמשים קבועים: 200 קשישים (התדריך מגדיר 200-250).\nשטח בנוי נדרש: 250 מ\"ר (התדריך מגדיר 250-300 מ\"ר).\nהתדריך מציע לא להקצות מגרש ייעודי לשימוש זה."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: demand 15% of 70+, 200 members/club, 250 sqm built, no dedicated land."
+        ]
+      }
+    },
+    {
+      "category": "דת",
+      "service": "בית כנסת",
+      "basis": "total",
+      "rule_text": "ביקוש = סה\"כ * 0.49 * שיעור שומרי המסורת; 250 מתפללים לבית כנסת; 1.1 מ\"ר/מתפלל; 0.25 דונם/בית כנסת",
+      "required_expr": "ceil_div(total * 0.49 * traditional_p, 250)",
+      "built_expr": "(total * 0.49 * traditional_p) * 1.1",
+      "land_expr": "(total * 0.49 * traditional_p / 250) * 0.25",
+      "notes": "0.5 דונם לבית כנסת אך הקצאה תהיה ל-50% מבתי הכנסת בלבד (היתר משולב בקומת קרקע). 1 מ\"ר קרקע למתפלל.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 29 (workbook 'טבלת חישוב' row 30)",
+        "category_A": "דת",
+        "service_B": "בית כנסת",
+        "target_population_C": "=P_ALL*0.49",
+        "demand_rate_D": "=Traditional_p",
+        "users_E": "=C29*D29",
+        "unit_size_F": 250,
+        "units_required_G": "=E29/F29",
+        "built_sqm_per_user_I": 1.1,
+        "built_total_J": "=E29*I29",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_N": 0.25,
+        "land_total_dunam_O": "=G29*N29",
+        "explanation_P": "אוכלוסיית יעד: סך המתפללים באופן תדיר\nביקוש לשירות: סה\"כ האוכלוסייה*0.49*שיעור שומרי המסורת באוכלוסיית היעד\nשטח בנוי נדרש: 1.1 מ\"ר בנוי למתפלל תדיר.\nשטח קרקע נדרש: 0.25 דונם לבית כנסת.\nהסבר: 250 מתפללים על 0.25 דונם (0.5 דונם לבית כנסת אך הקצאה תהיה ל-50% מבתי הכנסת בלבד).\nכלומר, 1 מ\"ר קרקע למתפלל או 0.25 דונם לבית כנסת (250 משתמשים) - כמו בתדריך הישן."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: target = P_ALL*0.49*Traditional_p, 250 worshippers/synagogue, built = users*1.1, land = units*0.25 dunam."
+        ]
+      }
+    },
+    {
+      "category": "דת",
+      "service": "מקווה טוהרה לנשים",
+      "basis": "total",
+      "rule_text": "ביקוש = סה\"כ * שיעור שומרי המסורת * 0.07; 23 משתמשות לבור; 60 מ\"ר/בור; 0.125 דונם/בור",
+      "required_expr": "ceil_div(total * traditional_p * 0.07, 23)",
+      "built_expr": "(total * traditional_p * 0.07 / 23) * 60",
+      "land_expr": "(total * traditional_p * 0.07 / 23) * 0.125",
+      "notes": "0.07 = משקל נשים בגיל פריון בקבוצת שומרי המסורת, בניכוי תקופות הריון/לידה. 0.5 דונם ל-4 בורות.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 30 (workbook 'טבלת חישוב' row 31)",
+        "category_A": "דת",
+        "service_B": "מקווה טוהרה לנשים",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": "=Traditional_p",
+        "users_E": "=C30*D30*0.07",
+        "unit_size_F": 23,
+        "units_required_G": "=E30/F30",
+        "built_sqm_per_unit_H": 60,
+        "built_total_J": "=G30*H30",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_N": 0.125,
+        "land_total_dunam_O": "=G30*N30",
+        "explanation_P": "אוכלוסיית יעד: נשים נשואות בגיל פריון – 22-50. לצורך החישוב בלבד לוקחים את כלל האוכלוסייה.\nשיעור ביקוש: 23/(רמת דתיות בשכונה *שיעור המשתתפות) = מספר בורות נדרשים.\nשיעור המשתתפות: \n0.07 - מקדם שמשקף את משקל הנשים בקבוצת הגיל הרלוונטית (באוכלוסייה שומרי המסורת) בניקוי נשים שאינן משתמשות בזמן הריון ולאחר הלידה סה\"כ משך שנתיים לכל ילד.\nשטח בנוי נדרש: 60 מ\"ר בנוי לבור. ממוצע משוכלל של הגדלים המוצעים בתדריך.\nשטח קרקע נדרש: 0.125 דונם לבור (0.5 דונם ל-4 בורות)."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: users = total*Traditional_p*0.07, 23 users/bor, 60 sqm built/unit, 0.125 dunam/unit."
+        ]
+      }
+    },
+    {
+      "category": "ספורט",
+      "service": "איצטדיון כדורגל",
+      "basis": "total",
+      "rule_text": "1 איצטדיון ל-150,000 תושבים; 20 דונם",
+      "required_expr": "total / 150000",
+      "built_expr": "0",
+      "land_expr": "(total / 150000) * 20",
+      "notes": "20 דונם לאיצטדיון גדול (~15,000 מושבים). ייכלל בשב\"צ הכלל-עירוני.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 32 (workbook 'טבלת חישוב' row 33)",
+        "category_A": "ספורט",
+        "service_B": "איצטדיון כדורגל",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D32*C32",
+        "unit_size_F": 150000,
+        "units_required_G": "=E32/F32",
+        "built_sqm_per_unit_H": "-",
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "-",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_N": 20,
+        "land_total_dunam_O": "=N32*G32",
+        "explanation_P": "סף כניסה: אצטדיון לכל 150,000 תושבים.\nשטח קרקע נדרש: 20 דונם לכל לאצטדיון גדול.\n (התדריך מגדיר 12 דונם לאצטדיון קטן של עד 5,000 מושבים  ו-20 לאצטדיון גדול של כ-15,000 מושבים).\nיכלל בשב\"צ הכלל עירוני."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: 1 per 150,000 residents, 20 dunam, no built area."
+        ]
+      }
+    },
+    {
+      "category": "ספורט",
+      "service": "איצטדיון אתלטיקה קלה",
+      "basis": "total",
+      "rule_text": "1 מתקן ל-250,000 תושבים; 20 דונם",
+      "required_expr": "total / 250000",
+      "built_expr": "0",
+      "land_expr": "(total / 250000) * 20",
+      "notes": "ייכלל בשב\"צ הכלל-עירוני.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 33 (workbook 'טבלת חישוב' row 34)",
+        "category_A": "ספורט",
+        "service_B": "איצטדיון אתלטיקה קלה",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D33*C33",
+        "unit_size_F": 250000,
+        "units_required_G": "=E33/F33",
+        "built_sqm_per_unit_H": "-",
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "-",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_N": 20,
+        "land_total_dunam_O": "=N33*G33",
+        "explanation_P": "סף כניסה: מתקן לכל 250,000 תושבים.\nשטח קרקע נדרש: 20 דונם לכל למתקן.\nיכלל בשב\"צ הכלל עירוני."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: 1 per 250,000 residents, 20 dunam."
+        ]
+      }
+    },
+    {
+      "category": "ספורט",
+      "service": "מגרש כדורגל",
+      "basis": "total",
+      "rule_text": "1 מגרש ל-20,000 תושבים; 12 דונם; הקצאה 50% (יתר משב\"צ אחר)",
+      "required_expr": "total / 20000",
+      "built_expr": "0",
+      "land_expr": "(total / 20000) * 12 * 0.5",
+      "notes": "12 דונם = ממוצע בין מגרש קטן (8 ד') לגדול (15 ד'). מקסימום אחד לרובע/שכונה. ייכלל בשב\"צ המקומי.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 34 (workbook 'טבלת חישוב' row 35)",
+        "category_A": "ספורט",
+        "service_B": "מגרש כדורגל",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D34*C34",
+        "unit_size_F": 20000,
+        "units_required_G": "=E34/F34",
+        "built_sqm_per_unit_H": "-",
+        "built_sqm_per_user_I": "-",
+        "built_total_J": "-",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_N": 12,
+        "land_total_dunam_O": "=N34*0.5*G34",
+        "explanation_P": "סף כניסה: מגרש לכל 20,000 תושבים.לא יותר ממגרש אחד לרובע/שכונה.\nשטח קרקע נדרש: 12 דונם למגרש כדורגל \n(ממוצע בין 8 דונם למגרש קטן ובצמוד לו מגרש אימונים, לבין 15 דונם למגרש גדול + 2 מגרשי אימונים צמודים). תינתן הקצאה ל-50% בלבד מהמגרשים - יתר ההקצאה מתוך מגרש ציבורי לשימוש אחר.\nיכלל בשב\"צ המקומי."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: 1 per 20,000 residents, land = units * 12 dunam * 0.5 (O35 = N35*0.5*G35)."
+        ]
+      }
+    },
+    {
+      "category": "ספורט",
+      "service": "בריכת שחייה",
+      "basis": "total",
+      "rule_text": "1 בריכה ל-25,000 תושבים; 1,000 מ\"ר בנוי; 2 דונם",
+      "required_expr": "total / 25000",
+      "built_expr": "(total / 25000) * 1000",
+      "land_expr": "(total / 25000) * 2",
+      "notes": "1 בריכה ל-25,000 תושבים; 1,000 מ\"ר בנוי; 2 דונם. שילוב במרכזים קהילתיים אפשרי. * הערה: המחשבון המקורי מציג ערך נמוך ב~30% (אולי מקדם שילוב), כאן הנוסחה הנורמטיבית המלאה.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 35 (workbook 'טבלת חישוב' row 36)",
+        "category_A": "ספורט",
+        "service_B": "בריכת שחייה",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D35*C35",
+        "unit_size_F": 25000,
+        "units_required_G": "=(E35/F35)*0.7",
+        "built_sqm_per_unit_H": 1000,
+        "built_total_J": "=G35*H35",
+        "yard_sqm_K": "-",
+        "balcony_sqm_L": "-",
+        "land_dunam_per_unit_N": 2,
+        "land_total_dunam_O": "=G35*N35",
+        "explanation_P": "סף כניסה: בריכה ל-25,000 תושבים.\nשטח בנוי נדרש: 1,000 מ\"ר לבריכה מקורה.\nשטח קרקע נדרש: 2 דונם לבריכה. \nהשטח מיועד אך ורק לבריכה עצמה ולא למדשאות מסביב. באופן עקרוני בריכות שחייה ישולבו במתקנים קהילתיים אחרים (כדוגמת מרכז קהילתי). שילוב של הבריכה עם מתקן קהילתי נוסף יאפשר את השטח המספיק לשני השימושים יחד.\nייכלל בשב\"צ מקומי."
+      },
+      "excel_comparison": {
+        "status": "conflict",
+        "issues": [
+          "UNITS FACTOR MISMATCH: Excel G36 = (E36/F36)*0.7 - applies a 0.7 reduction factor to the pool count, which propagates to built (J36 = G36*1000) and land (O36 = G36*2). JSON uses the full normative total/25000 without the 0.7 factor (documented choice in JSON notes). Excel result is 30% lower on units, built, and land.",
+          "This confirms the previously unexplained ~30% workbook deviation: the factor is exactly 0.7, applied in the units formula."
+        ]
+      }
+    },
+    {
+      "category": "ספורט",
+      "service": "מגרש טניס",
+      "basis": "total",
+      "rule_text": "1 מגרש ל-4,000 תושבים; 0.7 דונם/מגרש; הקצאה 50% (יתר משצ\"פ)",
+      "required_expr": "total / 4000",
+      "built_expr": "0",
+      "land_expr": "(total / 4000) * 0.7 * 0.5",
+      "notes": "2.8 דונם למקבץ קטן (4 מגרשים צמודים). ההקצאה הייעודית לטניס תהיה על שב\"צ, רק עבור 50% מהמגרשים.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 36 (workbook 'טבלת חישוב' row 37)",
+        "category_A": "ספורט",
+        "service_B": "מגרש טניס",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D36*C36",
+        "unit_size_F": 4000,
+        "units_required_G": "=E36/F36",
+        "land_dunam_per_unit_N": 0.7,
+        "land_total_dunam_O": "=G36*N36*0.5",
+        "explanation_P": "סף כניסה: מגרש ל-4,000 תושבים.\nהתדריך מגדיר 4 מגרשים ל-30,000-50,000 תושבים. מגרש ל-4,000 תושבים משקף את המצב כיום בעיר. מינהל הספורט מציג שהביקוש גבוה ויש לשמור על היחס הנ\"ל.\nשטח קרקע נדרש: 2.8 דונם למקבץ קטן (4 מגרשים צמודים - 0.7 דונם למגרש). ההקצאה הייעודית למגרשי טניס תהיה על שב\"צ, אך רק עבור 50% מהמגרשים הנדרשים. יתר ההקצאה תבוא מהשצ\"פ."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: 1 per 4,000 residents, land = units * 0.7 dunam * 0.5 (O37 = G37*N37*0.5)."
+        ]
+      }
+    },
+    {
+      "category": "ספורט",
+      "service": "אולם ספורט",
+      "basis": "total",
+      "rule_text": "מספר אולמות מחושב לפי בתי הספר (אולם ל-18 כיתות יסודי + 36 כיתות על-יסודי)",
+      "required_expr": "ceil_div(primary_school/30, 18) + ceil_div(high_school/30, 36)",
+      "built_expr": "0",
+      "land_expr": "0",
+      "notes": "לא יוקצה שטח ייעודי לאולמות - ישולבו בבתי-ספר, מרכז קהילתי או שטח בנוי בפרויקט סחיר.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 37 (workbook 'טבלת חישוב' row 38)",
+        "category_A": "ספורט",
+        "service_B": "אולם ספורט",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D37*C37",
+        "unit_size_F": "-",
+        "units_required_G": "=(G5/18)+(G6/36)",
+        "explanation_P": "כמות אולמות נדרשת: מחושב לפי כמות בתי הספר - אולם ל-18 כיתות יסודי ואולם ל-36 כיתות על-יסודי.\nשטח בנוי נדרש (לפי התדריך, לא נכנס להקצאות):\nאולם קטן – 550 מ\"ר – ישולב בכל בית ספר יסודי.\nאולם בינוני – 1,000 מ\"ר – ישולב בבית ספר יסודי גדול ועל-יסודי.\nאולם גדול – 1,450 מ\"ר – ישולב בבית ספר על-יסודי או מרכז ספורט עירוני.\nהיכל ספורט – 3,000 מ\"ר – ימוקם בסמוך או בשילוב עם בית-ספר על יסודי גדול או כחלק ממכסת השטחים הכלל-עירוניים.\nארנה – 10,000 מ\"ר – כלל עירוני\nשטח קרקע נדרש: לא יוקצה שטח/מגרש ייעוד לאולמות ספורט – הם יתווספו לשימושים קהילתיים אחרים: בית-ספר, מרכז קהילתי, שטח בנוי בפרויקט סחיר וכו'."
+      },
+      "excel_comparison": {
+        "status": "partial",
+        "issues": [
+          "Formula structure matches (halls = primary classes/18 + high-school classes/36) but rounding differs: Excel G38 = (G5/18)+(G6/36) is fully continuous (uses unrounded class counts); JSON applies ceil_div to each term, rounding each up to a whole hall.",
+          "Both agree no dedicated built/land allocation."
+        ]
+      }
+    },
+    {
+      "category": "שירותי חירום והצלה",
+      "service": "תחנת משטרה",
+      "basis": "total",
+      "rule_text": "1 תחנה ל-150,000 תושבים; 4,500 מ\"ר; 3 דונם",
+      "required_expr": "total / 150000",
+      "built_expr": "(total / 150000) * 4500",
+      "land_expr": "(total / 150000) * 3",
+      "notes": "תחנה בינונית/גדולה. שטח קרקע קטן בשל זכויות בנייה גבוהות. ייכלל בשב\"צ הכלל-עירוני.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 41 (workbook 'טבלת חישוב' row 42)",
+        "category_A": "שירותי חירום והצלה",
+        "service_B": "תחנת משטרה",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D41*C41",
+        "unit_size_F": 150000,
+        "units_required_G": "=E41/F41",
+        "built_sqm_per_unit_H": 4500,
+        "built_total_J": "=G41*H41",
+        "land_dunam_per_unit_N": 3,
+        "land_total_dunam_O": "=G41*N41",
+        "explanation_P": "סף הכניסה: תחנה ל-150,000 (לפי המצב הקיים בעיר)\nשטח בנוי נדרש: הקצאה של 4,500 מ\"ר בנוי כמו תחנה בינונית/גדולה ובהתאם לזכויות הבנייה הגבוהות בעיר. \nשטח קרקע נדרש: 3 דונם לתחנה (כמו תחנה בינונית) – זכויות הבנייה הגבוהות בעיר מאפשרות שטח מגרש קטן יותר לתחנה גדולה.\nיכלל בשב\"צ הכלל עירוני."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: 1 per 150,000 residents, 4,500 sqm built, 3 dunam land."
+        ]
+      }
+    },
+    {
+      "category": "שירותי חירום והצלה",
+      "service": "תחנת מגן דוד אדום",
+      "basis": "total",
+      "rule_text": "1 תחנה ל-200,000 תושבים; 700 מ\"ר; 2.5 דונם",
+      "required_expr": "total / 200000",
+      "built_expr": "(total / 200000) * 700",
+      "land_expr": "(total / 200000) * 2.5",
+      "notes": "תחנה גדולה לפי התדריך. ייכלל בשב\"צ הכלל-עירוני.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 42 (workbook 'טבלת חישוב' row 43)",
+        "category_A": "שירותי חירום והצלה",
+        "service_B": "תחנת מגן דוד אדום",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D42*C42",
+        "unit_size_F": 200000,
+        "units_required_G": "=E42/F42",
+        "built_sqm_per_unit_H": 700,
+        "built_total_J": "=G42*H42",
+        "land_dunam_per_unit_N": 2.5,
+        "land_total_dunam_O": "=N42*G42",
+        "explanation_P": "סף הכניסה: תחנה ל-200,000 (לפי המצב הקיים בעיר)\nשטח בנוי נדרש: 700 מ\"ר לתחנה (כמו תחנה גדולה בתדריך).\nשטח קרקע נדרש: 2.5 דונם לתחנה - לפי תחנה גדולה בתדריך.\nיכלל בשב\"צ הכלל עירוני."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: 1 per 200,000 residents, 700 sqm built, 2.5 dunam land."
+        ]
+      }
+    },
+    {
+      "category": "שירותי חירום והצלה",
+      "service": "תחנת כיבוי אש",
+      "basis": "total",
+      "rule_text": "1 תחנה ל-100,000 תושבים; 1,000 מ\"ר; 3 דונם",
+      "required_expr": "total / 100000",
+      "built_expr": "(total / 100000) * 1000",
+      "land_expr": "(total / 100000) * 3",
+      "notes": "תחנה גדולה (1,000 מ\"ר). שטח קרקע 3 דונם כתחנה בינונית. ייכלל בשב\"צ הכלל-עירוני.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 43 (workbook 'טבלת חישוב' row 44)",
+        "category_A": "שירותי חירום והצלה",
+        "service_B": "תחנת כיבוי אש",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D43*C43",
+        "unit_size_F": 100000,
+        "units_required_G": "=E43/F43",
+        "built_sqm_per_unit_H": 1000,
+        "built_total_J": "=G43*H43",
+        "land_dunam_per_unit_N": 3,
+        "land_total_dunam_O": "=G43*N43",
+        "explanation_P": "סף הכניסה: תחנה ל-100,000 (לפי המצב הקיים בעיר)\nשטח בנוי נדרש: 1,000 מ\"ר לתחנה (תחנה גדולה בתדריך).\nשטח קרקע נדרש: 3 דונם, לפי תחנה בינונית בתדריך.\nיכלל בשב\"צ הכלל עירוני."
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: 1 per 100,000 residents, 1,000 sqm built, 3 dunam land."
+        ]
+      }
+    },
+    {
+      "category": "שירותים כלל-עירוניים",
+      "service": "מוסדות כלל-עירוניים (אוכלוסייה מתווספת)",
+      "basis": "total + housing_units",
+      "rule_text": "עד 500 יח\"ד: אין הקצאה. 500-5,000 יח\"ד: 0.28 מ\"ר/נפש. מעל 5,000 יח\"ד: 0.75 מ\"ר/נפש",
+      "required_expr": "1",
+      "built_expr": "0",
+      "land_expr": "(0 if housing_units < 500 else (total * 0.28 / 1000 if housing_units <= 5000 else total * 0.75 / 1000))",
+      "notes": "כולל: בית הרשות, תיאטרון, מוזיאון, ספרייה מרכזית, בית כנסת מרכזי, מחסנים לוגיסטיים, משרדי ממשלה, בית משפט. ייכלל בשב\"צ הכלל-עירוני.",
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 47 (workbook 'טבלת חישוב' row 48)",
+        "category_A": "שירותים כלל-עירוניים\nאוכלוסייה מתווספת בתכנית",
+        "service_B": "מוסדות כלל עירוניים",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D47*C47",
+        "plan_size_class_F": "=IF(AND(Housing_Units>0,Housing_Units<500),\"תכנית קטנה - עד 500 יח''ד\",IF(AND(Housing_Units>=500,Housing_Units<5000),\"תכנית בינונית - 500-5,000 יח''ד\",\"תכנית גדולה - מעל 5,000 יח''ד\"))",
+        "land_sqm_per_person_G": "=IF(AND(Housing_Units>0,Housing_Units<500),0,IF(AND(Housing_Units>=500, Housing_Units<5000),0.28,0.75))",
+        "land_total_dunam_H": "=G47*E47/1000",
+        "explanation_I": "התדריך מגדיר:\nעד 500 יח\"ד - אין הקצאה כלל עירונית.\n500-5,000 יח\"ד - 0.3 מ\"ר לנפש (0.28 לכלל עירוני רגיל).\nמעל 5,000 יח\"ד - 0.8 מ\"ר לנפש (0.75 לכלל עירוני רגיל).\n",
+        "included_uses_K": "בית הרשות המקומית, תיאטרון עירוני, מוזיאון, מרכז מוזיקה, קונסרבטוריון, סינמטק, בית כנסת מרכזי, ספרייה מרכזית, מרכז קשישים כלל יישובי, מחסנים לוגיסטיים של הרשות, מחסני מ\"ח, משרדי ממשלה, בית משפט/בית דין רבני, מוסדות ציבור אחרים."
+      },
+      "excel_comparison": {
+        "status": "conflict",
+        "issues": [
+          "BOUNDARY MISMATCH at exactly 5,000 units: Excel G47 uses Housing_Units < 5000 for the 0.28 tier (so 5,000 units -> 0.75); JSON uses housing_units <= 5000 for 0.28 (so 5,000 units -> 0.28).",
+          "EDGE CASE at 0 units: Excel condition AND(Housing_Units>0, Housing_Units<500) is false when Housing_Units=0, so Excel falls through to 0.75; JSON returns 0. (The Excel behavior at 0 is likely unintended, but it is what the formula does.)",
+          "Tier values 0 / 0.28 / 0.75 sqm-land per person match."
+        ]
+      }
+    },
+    {
+      "category": "שירותים כלל-עירוניים",
+      "service": "מוסדות רווחה כלל-עירוניים (אוכלוסייה מתווספת)",
+      "basis": "total + housing_units",
+      "rule_text": "עד 500 יח\"ד: אין הקצאה. 500-5,000 יח\"ד: 0.02 מ\"ר/נפש. מעל 5,000 יח\"ד: 0.05 מ\"ר/נפש",
+      "required_expr": "1",
+      "built_expr": "0",
+      "land_expr": "(0 if housing_units < 500 else (total * 0.02 / 1000 if housing_units <= 5000 else total * 0.05 / 1000))",
+      "notes": "כולל: מרכז לגיל הרך, מרכז יום טיפולי, אוטיסטים, רב-שירותים לעיוור, מועדוניות, דיור חוץ ביתי, מע\"ש.",
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 49 (workbook 'טבלת חישוב' row 50)",
+        "category_A": "שירותים רווחה כלל-עירוניים\nאוכלוסייה מתווספת בתכנית",
+        "service_B": "מוסדות רווחה כלל עירוניים",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D49*C49",
+        "plan_size_class_F": "=IF(AND(Housing_Units>0,Housing_Units<500),\"תכנית קטנה - עד 500 יח''ד\",IF(AND(Housing_Units>=500,Housing_Units<5000),\"תכנית בינונית - 500-5,000 יח''ד\",\"תכנית גדולה - מעל 5,000 יח''ד\"))",
+        "land_sqm_per_person_G": "=IF(AND(Housing_Units>0,Housing_Units<500),0,IF(AND(Housing_Units>=500, Housing_Units<5000),0.02,0.05))",
+        "land_total_dunam_H": "=IF(AND(F49=\"2 - תכנית גדולה\", G49*E49/1000<1),1,G49*E49/1000)",
+        "explanation_I": "התדריך מגדיר:\nעד 500 יח\"ד - אין הקצאה כלל עירונית.\n500-5,000 יח\"ד - 0.3 מ\"ר לנפש (0.02 לכלל עירוני רווחה).\nמעל 5,000 יח\"ד - 0.8 מ\"ר לנפש (0.05 לכלל עירוני רווחה).\n",
+        "included_uses_K": "מרכז לגיל הרך, מרכז יום טיפולי למבוגרים, אוטיסטים, מרכז רב-שירותים לעיוור, מועדוניות, מרכז יום לנכים, מסגרות דיור חוץ ביתיות, מפעל מוגן/מע\"ש."
+      },
+      "excel_comparison": {
+        "status": "conflict",
+        "issues": [
+          "Same 5,000-unit boundary mismatch and 0-unit edge case as the general citywide rule (Excel: <5000 -> 0.02, else 0.05; JSON: <=5000 -> 0.02).",
+          "MINIMUM FLOOR MISSING IN JSON: Excel H49 = IF(AND(F49=\"2 - תכנית גדולה\", G49*E49/1000<1), 1, G49*E49/1000) - intends a 1-dunam minimum for large plans. JSON has no floor.",
+          "WORKBOOK BUG: the floor condition compares F49 to the literal '2 - תכנית גדולה', but F49 actually returns 'תכנית גדולה - מעל 5,000 יח''ד', so the 1-dunam floor NEVER fires in the Excel either. Decide whether the floor is normative (fix in both) or dead code (drop)."
+        ]
+      }
+    },
+    {
+      "category": "המרחב הציבורי הפתוח",
+      "service": "שצ\"פ סף הבית",
+      "basis": "total",
+      "rule_text": "מתחם חדש: 5 מ\"ר/תושב. מרקם קיים: 3 מ\"ר/תושב (מינימום). 80% תשתית ירוקה",
+      "required_expr": "total * (5 if plan_model == 'B' else 3)",
+      "built_expr": "0",
+      "land_expr": "(total * (5 if plan_model == 'B' else 3)) / 1000",
+      "notes": "מרחק הליכה: 7 דקות, 500-600 מ'. ניתן להקטין מעבר ל-3 בקיום מדיניות עירונית כוללת.",
+      "walk_distance_m": 550,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 52 (workbook 'טבלת חישוב' row 53)",
+        "category_A": "המרחב הציבורי הפתוח",
+        "service_B": "סף הבית",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D52*C52",
+        "plan_model_F": "=Kind",
+        "land_sqm_per_user_G": "=IF(Kind=\"מרקם קיים\",3,5)",
+        "land_total_dunam_H": "=E52*G52/1000",
+        "explanation_I": "במרקם קיים - 3 מ\"ר לתושב. במתחם חדש - 5 מ\"ר.\nהתדריך מגדיר 5 מ\"ר לתושב (הן בתכנית התחדשות והן במרקם קיים). אך ניתן להקטין עד ל-3 דונם אם קיים קושי לספק בתחום התכנית או מרחב החיפוש. ניתן להקטין מעבר לכך אם קיימת מדיניות עירונית כוללת.\nמינימום 80% תשתית ירוקה.",
+        "walk_distance_K": "7 דק', 500-600 מ'"
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: 5 sqm/resident new district, 3 sqm/resident existing fabric (G52 = IF(Kind='מרקם קיים',3,5)), land = users*G/1000."
+        ]
+      }
+    },
+    {
+      "category": "המרחב הציבורי הפתוח",
+      "service": "שצ\"פ עירוני",
+      "basis": "total",
+      "rule_text": "2 מ\"ר/תושב (הן בהתחדשות הן במרקם קיים). 80% תשתית ירוקה",
+      "required_expr": "total * 2",
+      "built_expr": "0",
+      "land_expr": "(total * 2) / 1000",
+      "notes": "מרחק: 15-20 דקות הליכה, 10 דקות אופניים/אוטובוס. ניתן להקטין בבחינת המאזן העירוני (10 מ\"ר/תושב).",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 53 (workbook 'טבלת חישוב' row 54)",
+        "category_A": "המרחב הציבורי הפתוח",
+        "service_B": "עירוני",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D53*C53",
+        "plan_model_F": "ל.ר",
+        "land_sqm_per_user_G": 2,
+        "land_total_dunam_H": "=E53*G53/1000",
+        "explanation_I": "2 מ\"ר לתושב (הן בתכנית התחדשות והן במרקם קיים).\nמינימום 80% תשתית ירוקה.\nניתן לצמצם באופן חלקי או מלא את ההקצאה תוך בחינת המאזן הכולל של המרחב הציבורי הפתוח בעיר (10 מ\"ר לתושב) והשלמת החסר, ככל הנדרש, במתחמים חדשים ובשטחים הציבוריים הכלל-עירוניים.\nיש לשמור על מלוא היקף התשתית הירוקה הקיימת.",
+        "walk_distance_K": "15-20 דק הליכה. 10 באופניים/אוטובוס"
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: flat 2 sqm/resident, land = users*2/1000."
+        ]
+      }
+    },
+    {
+      "category": "המרחב הציבורי הפתוח",
+      "service": "שצ\"פ כלל-עירוני",
+      "basis": "total",
+      "rule_text": "מתחם חדש: 3 מ\"ר/תושב. מרקם קיים: 0 (לא יוקצה בתכנית). 100% תשתית ירוקה",
+      "required_expr": "total * (3 if plan_model == 'B' else 0)",
+      "built_expr": "0",
+      "land_expr": "(total * (3 if plan_model == 'B' else 0)) / 1000",
+      "notes": "השלמה ל-10 מ\"ר/תושב בחישוב כלל-עירוני; מרחב חיפוש: כל תיחום הרשות + שטחים מחוץ לעיר.",
+      "walk_distance_m": null,
+      "excel_rule": {
+        "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 54 (workbook 'טבלת חישוב' row 55)",
+        "category_A": "המרחב הציבורי הפתוח",
+        "service_B": "כלל עירוני",
+        "target_population_C": "=P_ALL",
+        "demand_rate_D": 1,
+        "users_E": "=D54*C54",
+        "plan_model_F": "=Kind",
+        "land_sqm_per_user_G": "=IF(Kind=\"מרקם קיים\", 0,3)",
+        "land_total_dunam_H": "=E54*G54/1000",
+        "explanation_I": "3 מ\"ר לתושב (במתחם חדש בלבד, לא יוקצא שטח פתוח כלל-עירוני בתכנית במרקם קיים).\n100% תשתית ירוקה.\n3 מ\"ר לתושב ועד להשלמה ל-10 מ\"ר לתושב בחישוב כלל עירוני.\nמרחב החיפוש: כלל תיחום הרשות המקומית, ניתן לכלול גם שטחים מחוץ לעיר (מפורטים בתדריך).",
+        "walk_distance_K": "-"
+      },
+      "excel_comparison": {
+        "status": "match",
+        "issues": [
+          "Full match: 3 sqm/resident new district, 0 in existing fabric (G54 = IF(Kind='מרקם קיים',0,3))."
+        ]
+      }
+    }
+  ],
+  "excel_rules_not_in_rules_json": [
+    {
+      "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 7 (workbook 'טבלת חישוב' row 8)",
+      "note": "Haredi boys elementary (11-year) - deferred to rules_extend.json (requires haredi_pct).",
+      "category_A": "חינוך",
+      "service_B": "יסודי חרדי בנים (11 שנתי)",
+      "target_population_C": "=(P_N_Unique*Kinder_p*3+P_N_Unique*Primary_School_p*6+P_N_Unique*High_School_p)/2*Haredi",
+      "demand_rate_D": 1,
+      "users_E": "=C7*D7",
+      "unit_size_F": 20,
+      "units_required_G": "=E7/F7",
+      "built_sqm_per_unit_H": "בנוסחה:\nדגם B (שכונה חדשה) - 112 מ\"ר ממוצע לכיתה.\nדגם C (מרקם קיים) - 125  מ\"ר לכיתה - ברירת מחדל",
+      "built_sqm_per_user_I": "-",
+      "built_total_J": "=IF(Kind=\"מתחם חדש\",112*G7,IF(Kind=\"מרקם קיים\",125*G7))",
+      "yard_sqm_K": "-",
+      "balcony_sqm_L": "-",
+      "land_dunam_per_unit_text_M": "דגם B: \n0.25 דונם לכיתה.\n(0.375 לכיתת גן)\n18% (2/11 שנתונין)\nדגם C:\n0.2 דונם לכיתה.\n(0.375 לכיתת גן)\n18% (2/11 שנתונין)",
+      "land_dunam_per_unit_N": "בנוסחא",
+      "land_total_dunam_O": "=IF(Kind=\"מתחם חדש\",(G7*0.18*0.375)+(G7*0.82*0.2),IF(Kind=\"מרקם קיים\",(G7*0.18*0.375)+(G7*0.82*0.25)))",
+      "explanation_P": "במידה ורוצים לכלול בפרוגרמה התייחסות למוסדות חרדיים יש להזין בלשונית \"אוכלוסיית יעד פרוגרמה\" % האוכלוסייה החרדית מכלל אוכלוסיית התכנית.\nדגם B - הקצאה של 112 מ\"ר בנוי לכיתה ו-0.25 דונם לכיתה (0.375 לכיתת גן - 2/11 מהשנתונים).\nדגם C - הקצאה של 125 מ\"ר בנוי לכיתה ו-0.2 דונם לכיתה (0.375 לכיתת גן - 2/11 מהשנתונים).\n",
+      "walk_distance_Q": "500-750"
+    },
+    {
+      "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 8 (workbook 'טבלת חישוב' row 9)",
+      "note": "Haredi boys secondary (4-year) - deferred to rules_extend.json.",
+      "category_A": "חינוך",
+      "service_B": "על-יסודי חרדי בנים (4 שנתי)",
+      "target_population_C": "=P_N_Unique*High_School_p*4/2*Haredi",
+      "demand_rate_D": 1,
+      "users_E": "=C8*D8",
+      "unit_size_F": 20,
+      "units_required_G": "=E8/F8",
+      "built_sqm_per_unit_H": "בנוסחה:\nדגם B (שכונה חדשה) - 145 מ\"ר ממוצע לכיתה.\nדגם C (מרקם קיים) - 160 מ\"ר לכיתה - ברירת מחדל",
+      "built_sqm_per_user_I": "-",
+      "built_total_J": "=IF(Kind=\"מתחם חדש\",145*G8,IF(Kind=\"מרקם קיים\",160*G8))",
+      "yard_sqm_K": "-",
+      "balcony_sqm_L": "-",
+      "land_dunam_per_unit_text_M": "דגם B:\n0.35 דונם לכיתה.\nדגם C:\n0.3 דונם לכיתה.",
+      "land_dunam_per_unit_N": "בנוסחא",
+      "land_total_dunam_O": "=IF(Kind=\"מתחם חדש\",G8*0.35,IF(Kind=\"מרקם קיים\",G8*0.3))",
+      "explanation_P": "במידה ורוצים לכלול בפרוגרמה התייחסות למוסדות חרדיים יש להזין בלשונית \"אוכלוסיית יעד פרוגרמה\" % האוכלוסייה החרדית מכלל אוכלוסיית התכנית.\nדגם B - הקצאה של 145 מ\"ר בנוי לכיתה ו-0.35 דונם לכיתה.\nדגם C - הקצאה של 160 מ\"ר בנוי לכיתה ו-0.3 דונם לכיתה.\n",
+      "walk_distance_Q": "-"
+    },
+    {
+      "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 9 (workbook 'טבלת חישוב' row 10)",
+      "note": "Haredi girls elementary (8-year) - deferred to rules_extend.json.",
+      "category_A": "חינוך",
+      "service_B": "יסודי חדרי בנות (8 שנתי)",
+      "target_population_C": "=(P_N_Unique*Primary_School_p*6+P_N_Unique*High_School_p*2)/2*Haredi",
+      "demand_rate_D": 1,
+      "users_E": "=C9*D9",
+      "unit_size_F": 27,
+      "units_required_G": "=E9/F9",
+      "built_sqm_per_unit_H": "בנוסחה:\nדגם B (שכונה חדשה) - 165 מ\"ר ממוצע לכיתה.\nדגם C (מרקם קיים) - 185 מ\"ר לכיתה - ברירת מחדל",
+      "built_sqm_per_user_I": "-",
+      "built_total_J": "=IF(Kind=\"מתחם חדש\",165*G9,IF(Kind=\"מרקם קיים\",185*G9))",
+      "yard_sqm_K": "-",
+      "balcony_sqm_L": "-",
+      "land_dunam_per_unit_text_M": "דגם B:\n0.4 דונם לכיתה.\nדגם C:\n0.3 דונם לכיתה.",
+      "land_dunam_per_unit_N": "בנוסחא",
+      "land_total_dunam_O": "=IF(Kind=\"מתחם חדש\",G9*0.4,IF(Kind=\"מרקם קיים\",G9*0.3))",
+      "explanation_P": "במידה ורוצים לכלול בפרוגרמה התייחסות למוסדות חרדיים יש להזין בלשונית \"אוכלוסיית יעד פרוגרמה\" % האוכלוסייה החרדית מכלל אוכלוסיית התכנית.\nדגם B - הקצאה של 165 מ\"ר בנוי לכיתה ו-0.4 דונם לכיתה.\nדגם C - הקצאה של 185 מ\"ר בנוי לכיתה ו-0.3 דונם לכיתה.\n",
+      "walk_distance_Q": "500-750"
+    },
+    {
+      "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 10 (workbook 'טבלת חישוב' row 11)",
+      "note": "Haredi girls secondary (4-year) - deferred to rules_extend.json.",
+      "category_A": "חינוך",
+      "service_B": "על-יסודי חרדי בנות (4 שנתי)",
+      "target_population_C": "=P_N_Unique*High_School_p*4/2*Haredi",
+      "demand_rate_D": 1,
+      "users_E": "=C10*D10",
+      "unit_size_F": 27,
+      "units_required_G": "=E10/F10",
+      "built_sqm_per_unit_H": "בנוסחה:\nדגם B (שכונה חדשה) - 205 מ\"ר ממוצע לכיתה.\nדגם C (מרקם קיים) - 230 מ\"ר לכיתה - ברירת מחדל",
+      "built_sqm_per_user_I": "-",
+      "built_total_J": "=IF(Kind=\"מתחם חדש\",205*G10,IF(Kind=\"מרקם קיים\",230*G10))",
+      "yard_sqm_K": "-",
+      "balcony_sqm_L": "-",
+      "land_dunam_per_unit_text_M": "דגם B:\n0.5 דונם לכיתה.\nדגם C:\n0.4 דונם לכיתה.",
+      "land_dunam_per_unit_N": "בנוסחא",
+      "land_total_dunam_O": "=IF(Kind=\"מתחם חדש\",G10*0.5,IF(Kind=\"מרקם קיים\",G10*0.4))",
+      "explanation_P": "במידה ורוצים לכלול בפרוגרמה התייחסות למוסדות חרדיים יש להזין בלשונית \"אוכלוסיית יעד פרוגרמה\" % האוכלוסייה החרדית מכלל אוכלוסיית התכנית.\nדגם B - הקצאה של 205 מ\"ר בנוי לכיתה ו-0.5 דונם לכיתה.\nדגם C - הקצאה של 230 מ\"ר בנוי לכיתה ו-0.4 דונם לכיתה.\n",
+      "walk_distance_Q": "-"
+    },
+    {
+      "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 15 (workbook 'טבלת חישוב' row 16)",
+      "note": "Development & enrichment - no formulas in Excel; included in the citywide basket.",
+      "category_A": "חינוך",
+      "service_B": "פיתוח והעשרה",
+      "explanation_P": "יכלל כחלק מהקצאה כלל עירונית.\nכולל: מרכז מחוננים, בי\"ס לחינוך וספורט ימי, מרכז היל\"ה, מפת\"ן, מרכזי הזדמנות שנייה, מתי\"א, מרכז טיפולי, מרכז פסג\"ה וחווה חקלאית."
+    },
+    {
+      "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 27 (workbook 'טבלת חישוב' row 28)",
+      "note": "Additional culture & community institutions - no formulas in Excel.",
+      "category_A": "תרבות וקהילה",
+      "service_B": "מוסדות תרבות וקהילה נוספים"
+    },
+    {
+      "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 38 (workbook 'טבלת חישוב' row 39)",
+      "note": "Community sports fields & athletics facilities - no built/land formulas in Excel.",
+      "category_A": "ספורט",
+      "service_B": "מגרשי ספורט ומתקני אתלטיקה לשימוש עממי קהילתי",
+      "target_population_C": "=P_ALL",
+      "demand_rate_D": 1,
+      "users_E": "=D38*C38",
+      "unit_size_F": "-",
+      "units_required_G": "-"
+    },
+    {
+      "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 39 (workbook 'טבלת חישוב' row 40)",
+      "note": "Community sports facilities (aggregate list) - no built/land formulas in Excel.",
+      "category_A": "ספורט",
+      "service_B": "מתקני ספורט לשימוש עממי קהילתי (רשימה מצרפית)",
+      "target_population_C": "=P_ALL",
+      "demand_rate_D": 1,
+      "users_E": "=D39*C39",
+      "unit_size_F": "-",
+      "units_required_G": "-"
+    },
+    {
+      "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 46 (workbook 'טבלת חישוב' row 47)",
+      "note": "Citywide institutions for EXISTING population (0.75 sqm/person) - not modeled in rules.json, which covers added population only.",
+      "category_A": "שירותים כלל-עירוניים\nאוכלוסייה במצב הקיים",
+      "service_B": "מוסדות כלל עירוניים",
+      "demand_rate_D": 1,
+      "users_E": "=D46*C46",
+      "plan_size_class_F": "אוכלוסייה קיימת - הקצאה מקסימלית כמו תכנית גדולה",
+      "land_sqm_per_person_G": 0.75,
+      "land_total_dunam_H": "=G46*E46/1000",
+      "explanation_I": "עבור האוכלוסייה במצב הקיים ההנחה והבדיקה היא שההקצאה הכלל עירונית היא כמו תכנית גדולה - 0.75 מ\"ר לנפש.",
+      "included_uses_K": "בית הרשות המקומית, תיאטרון עירוני, מוזיאון, מרכז מוזיקה, קונסרבטוריון, סינמטק, בית כנסת מרכזי, ספרייה מרכזית, מרכז קשישים כלל יישובי, מחסנים לוגיסטיים של הרשות, מחסני מ\"ח, משרדי ממשלה, בית משפט/בית דין רבני, מוסדות ציבור אחרים."
+    },
+    {
+      "source": "rules_tlv_from_excel.xlsx > גיליון1 > row 48 (workbook 'טבלת חישוב' row 49)",
+      "note": "Citywide welfare institutions for EXISTING population (0.05 sqm/person) - not modeled in rules.json.",
+      "category_A": "שירותים רווחה כלל-עירוניים\nאוכלוסייה במצב הקיים",
+      "service_B": "מוסדות רווחה כלל עירוניים",
+      "demand_rate_D": 1,
+      "users_E": "=D48*C48",
+      "plan_size_class_F": "אוכלוסייה קיימת - הקצאה מקסימלית כמו תכנית גדולה",
+      "land_sqm_per_person_G": 0.05,
+      "land_total_dunam_H": "=G48*E48/1000",
+      "explanation_I": "עבור האוכלוסייה במצב הקיים ההנחה והבדיקה היא שההקצאה הכלל עירונית היא כמו תכנית גדולה - 0.05 מ\"ר לנפש.",
+      "included_uses_K": "מרכז לגיל הרך, מרכז יום טיפולי למבוגרים, אוטיסטים, מרכז רב-שירותים לעיוור, מועדוניות, מרכז יום לנכים, מסגרות דיור חוץ ביתיות, מפעל מוגן/מע\"ש."
+    }
+  ],
+  "metadata": {
+    "source": "מחשבון פרוגרמה לצורכי ציבור - תכנית למפורט.xlsx",
+    "based_on": "תדריך הקצאת שטחים לצורכי ציבור 2018 + התאמות לתל אביב",
+    "schema_version": "2.0",
+    "variables": {
+      "total": "סך אוכלוסייה מתווספת (P_ALL)",
+      "p_n_unique": "אוכלוסייה ללא דיור מיוחד",
+      "housing_units": "יחידות דיור רגילות מתווספות",
+      "housing_units_unique": "יחידות דיור מיוחד מתווספות",
+      "household": "גודל משק בית (ברירת מחדל 2.2)",
+      "kinder": "גודל קבוצת גיל 0-5 (kinder_p * total)",
+      "primary_school": "גודל קבוצת גיל 6-11",
+      "high_school": "גודל קבוצת גיל 12-17",
+      "children": "סך ילדים 0-17",
+      "elder70": "גודל קבוצת גיל 70+",
+      "traditional_p": "שיעור שומרי המסורת + חרדים",
+      "haredi_p": "שיעור חרדים בלבד",
+      "special_ed_p": "שיעור חינוך מיוחד (ברירת מחדל 0)",
+      "plan_model": "'B' למתחם חדש, 'C' למרקם קיים (ברירת מחדל 'C')"
+    },
+    "helpers": [
+      "ceil_div(a, b)",
+      "min(...)",
+      "max(...)"
+    ]
+  }
+}

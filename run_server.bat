@@ -5,7 +5,7 @@ set PYTHON="D:\python\Python313\python.exe"
 set PROJECT_DIR=%~dp0
 set API_DIR=%PROJECT_DIR%api
 set HOST=127.0.0.1
-set PORT=8001
+set PORT=8010
 
 echo.
 echo  =========================================

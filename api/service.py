@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "simulations_data" / "v2"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = ROOT / "simulations_data" / "v2.db"
-RULES_FILE = ROOT / "rules.json"
+RULES_FILE = ROOT / "rules_tlv.json"
 RULES_EXTEND_FILE = ROOT / "rules_extend.json"
 RULES_HAREDIM_FILE = ROOT / "rules_haredim.json"
 
